@@ -66,6 +66,14 @@ This project uses **Task Master AI** for comprehensive task management with stri
 
 ## 🚦 Getting Started
 
+### System Requirements
+- Windows 10/11 or Linux (Ubuntu 20.04+) or macOS 12+
+- 16GB RAM minimum (32GB recommended)
+- 50GB free disk space
+- Internet connection for package downloads
+
+## 🚦 Installation Steps
+
 ### Prerequisites
 - .NET Core SDK 8.0+
 - Node.js 18+
