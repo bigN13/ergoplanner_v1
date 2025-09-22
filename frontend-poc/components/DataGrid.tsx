@@ -20,7 +20,7 @@ export default function DataGrid() {
     const eq = equipment.find(e => e.id === equipmentId);
     if (eq) {
       updateEquipment(equipmentId, {
-        properties: { ...eq.properties, status: status as any }
+        properties: { ...eq.properties, status: status as 'online' | 'offline' | 'maintenance' }
       });
     }
   };

@@ -124,7 +124,7 @@ User command: "${userCommand}"`
         // Parse JSON response
         const command = JSON.parse(aiResponse) as AICommand;
         return command;
-      } catch (parseError) {
+      } catch {
         throw new Error(`Failed to parse AI response: ${aiResponse}`);
       }
 

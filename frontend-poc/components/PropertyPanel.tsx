@@ -33,7 +33,7 @@ export default function PropertyPanel() {
     );
   }
 
-  const handleInputChange = (field: keyof Equipment['properties'], value: any) => {
+  const handleInputChange = (field: keyof Equipment['properties'], value: string | number | undefined) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -159,7 +159,7 @@ export default function PropertyPanel() {
             </label>
             <select
               value={formData.status || 'offline'}
-              onChange={(e) => handleInputChange('status', e.target.value as any)}
+              onChange={(e) => handleInputChange('status', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="offline">Offline</option>
