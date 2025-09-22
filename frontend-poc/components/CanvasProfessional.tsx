@@ -4,8 +4,6 @@ import React, { useCallback } from 'react';
 import ReactFlow, {
   Node,
   Controls,
-  Background,
-  BackgroundVariant,
   NodeTypes,
   useNodesState,
   useEdgesState,
@@ -16,7 +14,7 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useStore, Equipment } from '@/lib/store';
+import { useStore } from '@/lib/store';
 import PumpNode from './nodes/PumpNode';
 import ValveNode from './nodes/ValveNode';
 import TankNode from './nodes/TankNode';

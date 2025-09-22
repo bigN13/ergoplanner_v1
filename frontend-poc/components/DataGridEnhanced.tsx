@@ -37,8 +37,8 @@ export default function DataGridEnhanced() {
   // Sort logic
   const sortedEquipment = useMemo(() => {
     const sorted = [...filteredEquipment].sort((a, b) => {
-      let aValue: any = a.properties[sortField as keyof typeof a.properties];
-      let bValue: any = b.properties[sortField as keyof typeof b.properties];
+      let aValue: string | number | undefined = a.properties[sortField as keyof typeof a.properties];
+      let bValue: string | number | undefined = b.properties[sortField as keyof typeof b.properties];
 
       if (sortField === 'type') {
         aValue = a.type;

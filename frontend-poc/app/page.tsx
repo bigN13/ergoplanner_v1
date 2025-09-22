@@ -8,8 +8,8 @@ import DataGridEnhanced from '@/components/DataGridEnhanced';
 import ChatInterface from '@/components/ChatInterface';
 import { useStore } from '@/lib/store';
 import {
-  Menu, Save, Download, Upload, Undo, Redo, Copy, Clipboard, Trash2,
-  ZoomIn, ZoomOut, Grid3x3, Lock, Unlock, Layers, Eye, EyeOff,
+  Save, Download, Upload, Undo, Redo, Copy, Clipboard, Trash2,
+  ZoomIn, ZoomOut, Grid3x3, Lock, Unlock, Layers, Eye,
   FileText, Settings, HelpCircle, Share2, ChevronDown
 } from 'lucide-react';
 
