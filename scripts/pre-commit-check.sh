@@ -45,7 +45,7 @@ echo "  Files to be committed: $(echo "$STAGED_FILES" | wc -l) files"
 
 # 3. Check for merge conflicts
 echo -e "\n${YELLOW}3. Checking for merge conflicts...${NC}"
-if git diff --cached --name-only | xargs grep -l "<<<<<<< HEAD" 2>/dev/null; then
+if git diff --cached --name-only | xargs -r grep -l "<<<<<<< HEAD" 2>/dev/null; then
     block_commit "Merge conflicts detected in staged files"
 fi
 
@@ -73,7 +73,8 @@ SENSITIVE_PATTERNS=(
 )
 
 for pattern in "${SENSITIVE_PATTERNS[@]}"; do
-    if echo "$STAGED_FILES" | xargs grep -E -i "$pattern" 2>/dev/null | grep -v ".example" | grep -v ".test" | grep -v ".md"; then
+    # Skip documentation files and example patterns
+    if echo "$STAGED_FILES" | xargs -r grep -E -i "$pattern" 2>/dev/null | grep -v ".example" | grep -v ".test" | grep -v ".md" | grep -v "pre-commit-check.sh"; then
         block_commit "Potential sensitive data detected"
         break
     fi
