@@ -58,7 +58,7 @@ export default function Home() {
             Features: Drag & Drop • Custom Properties • Data Grid Sync • AI Commands
           </div>
           <div>
-            Try: "Add a pump" • "Create a tank" • "List equipment"
+            Try: &ldquo;Add a pump&rdquo; • &ldquo;Create a tank&rdquo; • &ldquo;List equipment&rdquo;
           </div>
         </div>
       </footer>

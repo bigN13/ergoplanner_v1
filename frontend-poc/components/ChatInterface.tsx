@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, Send, Settings } from 'lucide-react';
 import { AIService, AICommand } from '@/lib/ai-service';
-import { useStore } from '@/lib/store';
+import { useStore, Equipment } from '@/lib/store';
 
 interface Message {
   id: string;
@@ -20,7 +20,7 @@ export default function ChatInterface() {
   const [showSettings, setShowSettings] = useState(false);
   const [apiKey, setApiKey] = useState('');
 
-  const { equipment, addEquipment, updateEquipment } = useStore();
+  const { equipment, addEquipment } = useStore();
   const aiService = React.useRef(new AIService()).current;
 
   // Load API key on mount
@@ -76,13 +76,18 @@ export default function ChatInterface() {
 
       // Process the command
       if (command.type === 'add' && command.equipmentType) {
-        const newEquipment = {
-          id: `${command.equipmentType}-${Date.now()}`,
+        const timestamp = Date.now();
+        const newEquipment: Equipment = {
+          id: `${command.equipmentType}-${timestamp}`,
           type: command.equipmentType,
           position: command.position || { x: 200, y: 200 },
-          properties: command.properties || {
-            name: `${command.equipmentType}-${Date.now().toString().slice(-3)}`,
-            status: 'offline' as const,
+          properties: {
+            name: command.properties?.name || `${command.equipmentType.toUpperCase()}-${timestamp.toString().slice(-3)}`,
+            manufacturer: command.properties?.manufacturer,
+            model: command.properties?.model,
+            flow: command.properties?.flow,
+            power: command.properties?.power,
+            status: command.properties?.status || 'offline',
           },
         };
         addEquipment(newEquipment);
@@ -170,9 +175,9 @@ export default function ChatInterface() {
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             <p className="mb-2">Try these commands:</p>
-            <p className="text-sm">• "Add a pump"</p>
-            <p className="text-sm">• "Create a new valve"</p>
-            <p className="text-sm">• "List all equipment"</p>
+            <p className="text-sm">• &ldquo;Add a pump&rdquo;</p>
+            <p className="text-sm">• &ldquo;Create a new valve&rdquo;</p>
+            <p className="text-sm">• &ldquo;List all equipment&rdquo;</p>
           </div>
         )}
         {messages.map(message => (

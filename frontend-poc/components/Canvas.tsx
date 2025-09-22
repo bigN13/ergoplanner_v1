@@ -3,7 +3,6 @@
 import React, { useCallback } from 'react';
 import ReactFlow, {
   Node,
-  Edge,
   Controls,
   Background,
   BackgroundVariant,
@@ -13,7 +12,6 @@ import ReactFlow, {
   addEdge,
   Connection,
   NodeChange,
-  EdgeChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useStore, Equipment } from '@/lib/store';
@@ -31,7 +29,6 @@ const nodeTypes: NodeTypes = {
 export default function Canvas() {
   const {
     equipment,
-    selectedEquipment,
     addEquipment,
     updateEquipment,
     selectEquipment,
@@ -47,6 +44,8 @@ export default function Canvas() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // edges and onEdgesChange are used by ReactFlow component
 
   // Handle connection between nodes
   const onConnect = useCallback(
