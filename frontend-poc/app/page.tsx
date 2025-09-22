@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import CanvasProfessional from '@/components/CanvasProfessional';
-import ComponentLibrary from '@/components/ComponentLibrary';
+import ComponentLibraryTabbed from '@/components/ComponentLibraryTabbed';
+import BasicShapesToolbar from '@/components/BasicShapesToolbar';
 import PropertiesPanel from '@/components/PropertiesPanel';
 import DataGridEnhanced from '@/components/DataGridEnhanced';
 import ChatInterface from '@/components/ChatInterface';
 import { useStore } from '@/lib/store';
+import { DrawingProvider } from '@/lib/drawing-context';
 import {
-  Save, Download, Upload, Undo, Redo, Copy, Clipboard, Trash2,
+  Save, Download, Upload, Undo, Redo, Copy, ClipboardPaste, Trash2,
   ZoomIn, ZoomOut, Grid3x3, Lock, Unlock, Layers, Eye,
   FileText, Settings, HelpCircle, Share2, ChevronDown
 } from 'lucide-react';
@@ -22,7 +24,8 @@ export default function Home() {
   const [zoom, setZoom] = useState(100);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <DrawingProvider>
+      <div className="h-screen flex flex-col bg-gray-100">
       {/* Menu Bar */}
       <div className="bg-white border-b border-gray-300 px-4 py-1">
         <div className="flex items-center gap-6 text-sm">
@@ -94,7 +97,7 @@ export default function Home() {
               <Copy className="w-4 h-4" />
             </button>
             <button className="p-2 hover:bg-gray-100 rounded" title="Paste">
-              <Clipboard className="w-4 h-4" />
+              <ClipboardPaste className="w-4 h-4" />
             </button>
             <button className="p-2 hover:bg-gray-100 rounded" title="Delete">
               <Trash2 className="w-4 h-4" />
@@ -148,14 +151,14 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Basic Shapes Toolbar */}
+      <BasicShapesToolbar />
+
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - Component Library */}
         <div className="w-64 bg-white border-r border-gray-300 flex flex-col">
-          <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-sm font-semibold text-gray-700">Components</h3>
-          </div>
-          <ComponentLibrary />
+          <ComponentLibraryTabbed />
         </div>
 
         {/* Canvas Area */}
@@ -222,6 +225,7 @@ export default function Home() {
 
       {/* Chat Interface */}
       <ChatInterface />
-    </div>
+      </div>
+    </DrawingProvider>
   );
 }

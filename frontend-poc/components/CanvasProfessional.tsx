@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import ReactFlow, {
   Node,
   Controls,
@@ -12,17 +12,22 @@ import ReactFlow, {
   NodeChange,
   MiniMap,
   Panel,
+  ReactFlowProvider,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useStore } from '@/lib/store';
+import { useStore, Equipment } from '@/lib/store';
+import { useDrawing } from '@/lib/drawing-context';
 import PumpNode from './nodes/PumpNode';
 import ValveNode from './nodes/ValveNode';
 import TankNode from './nodes/TankNode';
+import ShapeNode from './nodes/ShapeNode';
 
 const nodeTypes: NodeTypes = {
   pump: PumpNode,
   valve: ValveNode,
   tank: TankNode,
+  shape: ShapeNode,
 };
 
 interface CanvasProfessionalProps {
@@ -30,12 +35,17 @@ interface CanvasProfessionalProps {
   zoom: number;
 }
 
-export default function CanvasProfessional({ showGrid, zoom }: CanvasProfessionalProps) {
+function CanvasContent({ showGrid, zoom }: CanvasProfessionalProps) {
   const {
     equipment,
     updateEquipment,
     selectEquipment,
+    addEquipment,
   } = useStore();
+  const { selectedTool } = useDrawing();
+
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { project } = useReactFlow();
 
   // Convert equipment to ReactFlow nodes
   const initialNodes: Node[] = equipment.map(eq => ({
@@ -87,6 +97,133 @@ export default function CanvasProfessional({ showGrid, zoom }: CanvasProfessiona
     })));
   }, [equipment, setNodes]);
 
+  // Handle drag over (required for drop to work)
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  }, []);
+
+  // Handle drop
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      // Get the data in text/plain format
+      const dragDataString = event.dataTransfer.getData('text/plain');
+
+      if (!dragDataString) {
+        return;
+      }
+
+      let dragData: {
+        type: string;
+        name?: string;
+        shape?: string;
+        pidSymbol?: string;
+      };
+      try {
+        dragData = JSON.parse(dragDataString);
+      } catch (error) {
+        console.error('Failed to parse drag data:', error);
+        return;
+      }
+
+      // Get the bounding rectangle of the ReactFlow container
+      const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+      if (!bounds) {
+        return;
+      }
+
+      // Calculate the position relative to the ReactFlow container
+      // The project function converts screen coordinates to flow coordinates
+      const position = project({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+
+      const timestamp = Date.now();
+
+      // Check if it's a shape or equipment
+      if (dragData.type === 'shape') {
+        // Create a shape node
+        const newNode: Node = {
+          id: `shape-${timestamp}`,
+          type: 'shape',
+          position,
+          data: {
+            shape: dragData.shape as 'rectangle' | 'circle' | 'diamond' | 'triangle' | 'line' | 'text' | 'note',
+            label: dragData.shape === 'text' ? 'Text' : dragData.shape === 'note' ? 'Note' : '',
+            width: 100,
+            height: 60,
+          },
+        };
+        setNodes((nds) => [...nds, newNode]);
+      } else {
+        // Create equipment node
+        const componentType = dragData.type as Equipment['type'];
+        const componentName = dragData.name;
+
+        if (!componentType) {
+          return;
+        }
+
+        const newEquipment: Equipment = {
+          id: `${componentType}-${timestamp}`,
+          type: componentType,
+          position,
+          properties: {
+            name: `${componentType.toUpperCase()}-${timestamp.toString().slice(-3)}`,
+            manufacturer: componentType === 'pump' ? 'Grundfos' : componentType === 'valve' ? 'Danfoss' : 'Storage Co',
+            model: componentName || componentType,
+            flow: componentType === 'pump' ? 20 : componentType === 'tank' ? 1000 : undefined,
+            power: componentType === 'pump' ? 1.5 : undefined,
+            status: 'offline',
+          },
+        };
+        addEquipment(newEquipment);
+      }
+    },
+    [project, addEquipment, setNodes]
+  );
+
+  // Handle pane click for shape drawing
+  const onPaneClick = useCallback(
+    (event: React.MouseEvent) => {
+      // Only create shapes if a drawing tool is selected
+      if (selectedTool === 'select' || selectedTool === 'freehand') {
+        return;
+      }
+
+      // Get the click position
+      const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+      if (!bounds) {
+        return;
+      }
+
+      const position = project({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+
+      // Create a new shape node
+      const timestamp = Date.now();
+      const newNode: Node = {
+        id: `shape-${timestamp}`,
+        type: 'shape',
+        position,
+        data: {
+          shape: selectedTool as 'rectangle' | 'circle' | 'diamond' | 'triangle' | 'line' | 'text' | 'note',
+          label: selectedTool === 'text' ? 'Text' : '',
+          width: 100,
+          height: 60,
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [selectedTool, project, setNodes, reactFlowWrapper]
+  );
+
   return (
     <div className="w-full h-full relative flex items-center justify-center bg-gray-100">
       {/* A4 Paper Container */}
@@ -119,7 +256,7 @@ export default function CanvasProfessional({ showGrid, zoom }: CanvasProfessiona
         )}
 
         {/* ReactFlow Canvas */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -127,6 +264,9 @@ export default function CanvasProfessional({ showGrid, zoom }: CanvasProfessiona
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView={false}
             attributionPosition="bottom-left"
@@ -176,5 +316,13 @@ export default function CanvasProfessional({ showGrid, zoom }: CanvasProfessiona
         <div className="absolute bottom-0 left-0 right-0 h-12 border-t border-gray-200 opacity-50"></div>
       </div>
     </div>
+  );
+}
+
+export default function CanvasProfessional(props: CanvasProfessionalProps) {
+  return (
+    <ReactFlowProvider>
+      <CanvasContent {...props} />
+    </ReactFlowProvider>
   );
 }

@@ -18,23 +18,23 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [apiKey, setApiKey] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
 
   const { equipment, addEquipment } = useStore();
   const aiService = React.useRef(new AIService()).current;
 
   // Load API key on mount
   React.useEffect(() => {
-    const savedKey = localStorage.getItem('openrouter_api_key');
+    const savedKey = localStorage.getItem('gemini_api_key');
     if (savedKey) {
-      setApiKey(savedKey);
+      setGeminiApiKey(savedKey);
     }
   }, []);
 
   const handleSaveApiKey = () => {
-    aiService.setApiKey(apiKey);
+    aiService.setGeminiApiKey(geminiApiKey);
     setShowSettings(false);
-    addMessage('assistant', 'API key saved! You can now use AI commands.');
+    addMessage('assistant', 'Gemini API key saved! You can now use AI commands including complex ones like "create pumping station".');
   };
 
   const addMessage = (role: 'user' | 'assistant', content: string) => {
@@ -60,7 +60,7 @@ export default function ChatInterface() {
       let command: AICommand;
 
       // Check if API key is configured
-      if (!localStorage.getItem('openrouter_api_key')) {
+      if (!localStorage.getItem('gemini_api_key')) {
         // Use local processing
         command = aiService.processCommandLocally(userMessage, equipment);
       } else {
@@ -69,7 +69,7 @@ export default function ChatInterface() {
           command = await aiService.processCommand(userMessage, equipment);
         } catch (error) {
           // Fallback to local if API fails
-          console.error('API failed, using local processing:', error);
+          console.error('Gemini API failed, using local processing:', error);
           command = aiService.processCommandLocally(userMessage, equipment);
         }
       }
@@ -91,6 +91,27 @@ export default function ChatInterface() {
           },
         };
         addEquipment(newEquipment);
+      }
+
+      // Handle complex commands (pumping stations, treatment plants, etc.)
+      if (command.type === 'complex' && command.complexCommand) {
+        const timestamp = Date.now();
+        command.complexCommand.equipment.forEach((item, index) => {
+          const newEquipment: Equipment = {
+            id: `${item.type}-${timestamp + index}`,
+            type: item.type,
+            position: item.position,
+            properties: {
+              name: item.properties?.name || `${item.type.toUpperCase()}-${(timestamp + index).toString().slice(-3)}`,
+              manufacturer: item.properties?.manufacturer,
+              model: item.properties?.model,
+              flow: item.properties?.flow,
+              power: item.properties?.power,
+              status: item.properties?.status || 'offline',
+            },
+          };
+          addEquipment(newEquipment);
+        });
       }
 
       if (command.type === 'list') {
@@ -146,12 +167,12 @@ export default function ChatInterface() {
       {showSettings && (
         <div className="bg-gray-50 p-4 border-b">
           <div className="mb-2">
-            <label className="block text-sm font-medium mb-1">OpenRouter API Key</label>
+            <label className="block text-sm font-medium mb-1">Gemini API Key</label>
             <input
               type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="sk-or-v1-..."
+              value={geminiApiKey}
+              onChange={(e) => setGeminiApiKey(e.target.value)}
+              placeholder="AIza..."
               className="w-full px-3 py-2 border rounded-md text-sm"
             />
           </div>
@@ -163,8 +184,8 @@ export default function ChatInterface() {
           </button>
           <p className="text-xs text-gray-500 mt-2">
             Get your key at{' '}
-            <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-              openrouter.ai
+            <a href="https://console.developers.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+              Google AI Studio
             </a>
           </p>
         </div>
@@ -175,9 +196,16 @@ export default function ChatInterface() {
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             <p className="mb-2">Try these commands:</p>
-            <p className="text-sm">• &ldquo;Add a pump&rdquo;</p>
-            <p className="text-sm">• &ldquo;Create a new valve&rdquo;</p>
-            <p className="text-sm">• &ldquo;List all equipment&rdquo;</p>
+            <div className="text-sm space-y-1">
+              <p>• &ldquo;Add a pump&rdquo;</p>
+              <p>• &ldquo;Create a valve&rdquo;</p>
+              <p>• &ldquo;Create pumping station&rdquo;</p>
+              <p>• &ldquo;Build treatment plant&rdquo;</p>
+              <p>• &ldquo;List all equipment&rdquo;</p>
+            </div>
+            <p className="text-xs mt-3 text-gray-400">
+              Complex commands require Gemini API key
+            </p>
           </div>
         )}
         {messages.map(message => (

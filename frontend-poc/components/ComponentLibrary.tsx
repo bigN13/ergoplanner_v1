@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useStore, Equipment } from '@/lib/store';
 import { ChevronDown, ChevronRight, Search } from 'lucide-react';
+import PIDSymbol from './symbols/PIDSymbol';
 
 interface ComponentCategory {
   name: string;
@@ -13,37 +14,35 @@ interface ComponentCategory {
 interface ComponentItem {
   name: string;
   type: Equipment['type'];
-  icon: string;
+  pidSymbol: 'centrifugal_pump' | 'gate_valve' | 'globe_valve' | 'check_valve' | 'ball_valve' | 'vertical_tank' | 'horizontal_tank' | 'pressure_vessel';
   description: string;
 }
 
 const categories: ComponentCategory[] = [
   {
-    name: 'Process Equipment',
+    name: 'Pumps',
     icon: '⚙️',
     items: [
-      { name: 'Centrifugal Pump', type: 'pump', icon: '🔵', description: 'Standard centrifugal pump' },
-      { name: 'Positive Displacement', type: 'pump', icon: '🔷', description: 'PD pump for high pressure' },
-      { name: 'Vacuum Pump', type: 'pump', icon: '🟦', description: 'For vacuum applications' },
+      { name: 'Centrifugal Pump', type: 'pump', pidSymbol: 'centrifugal_pump', description: 'Standard centrifugal pump for water systems' },
     ],
   },
   {
     name: 'Valves',
     icon: '🚰',
     items: [
-      { name: 'Gate Valve', type: 'valve', icon: '🔴', description: 'On/off isolation valve' },
-      { name: 'Globe Valve', type: 'valve', icon: '🔶', description: 'Flow control valve' },
-      { name: 'Check Valve', type: 'valve', icon: '🟥', description: 'Prevents backflow' },
-      { name: 'Ball Valve', type: 'valve', icon: '🟧', description: 'Quarter-turn valve' },
+      { name: 'Gate Valve', type: 'valve', pidSymbol: 'gate_valve', description: 'On/off isolation valve' },
+      { name: 'Globe Valve', type: 'valve', pidSymbol: 'globe_valve', description: 'Flow control valve' },
+      { name: 'Check Valve', type: 'valve', pidSymbol: 'check_valve', description: 'Prevents backflow' },
+      { name: 'Ball Valve', type: 'valve', pidSymbol: 'ball_valve', description: 'Quarter-turn valve' },
     ],
   },
   {
-    name: 'Storage',
+    name: 'Vessels & Tanks',
     icon: '🏗️',
     items: [
-      { name: 'Vertical Tank', type: 'tank', icon: '🟩', description: 'Vertical storage tank' },
-      { name: 'Horizontal Tank', type: 'tank', icon: '🟢', description: 'Horizontal storage tank' },
-      { name: 'Pressurized Vessel', type: 'tank', icon: '🟪', description: 'Pressure-rated vessel' },
+      { name: 'Vertical Tank', type: 'tank', pidSymbol: 'vertical_tank', description: 'Vertical storage tank' },
+      { name: 'Horizontal Tank', type: 'tank', pidSymbol: 'horizontal_tank', description: 'Horizontal storage tank' },
+      { name: 'Pressure Vessel', type: 'tank', pidSymbol: 'pressure_vessel', description: 'Pressure-rated vessel' },
     ],
   },
 ];
@@ -51,7 +50,7 @@ const categories: ComponentCategory[] = [
 export default function ComponentLibrary() {
   const { addEquipment } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Process Equipment', 'Valves', 'Storage']);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Pumps', 'Valves', 'Vessels & Tanks']);
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategories(prev =>
@@ -62,8 +61,9 @@ export default function ComponentLibrary() {
   };
 
   const handleDragStart = (e: React.DragEvent, item: ComponentItem) => {
-    e.dataTransfer.setData('componentType', item.type);
-    e.dataTransfer.setData('componentName', item.name);
+    // Use text/plain format for better browser compatibility
+    const dragData = JSON.stringify({ type: item.type, name: item.name });
+    e.dataTransfer.setData('text/plain', dragData);
     e.dataTransfer.effectAllowed = 'copy';
   };
 
@@ -142,7 +142,9 @@ export default function ComponentLibrary() {
                     className="mb-1 p-2 bg-white border border-gray-200 rounded cursor-move hover:border-blue-400 hover:shadow-sm transition-all group"
                   >
                     <div className="flex items-start gap-2">
-                      <span className="text-lg mt-0.5">{item.icon}</span>
+                      <div className="mt-0.5 text-gray-700">
+                        <PIDSymbol type={item.pidSymbol} width={32} height={32} />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-gray-800 truncate">
                           {item.name}
