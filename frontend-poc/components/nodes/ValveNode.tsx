@@ -4,13 +4,10 @@ import React from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 import { Equipment } from '@/lib/store';
 
-interface ValveNodeData {
-  label: string;
-  equipment: Equipment;
-}
-
-export default function ValveNode({ data, selected }: NodeProps<ValveNodeData>) {
-  const { equipment } = data;
+export default function ValveNode({ data, selected }: NodeProps<Equipment>) {
+  if (!data || !data.properties) {
+    return null;
+  }
 
   return (
     <div className={`px-3 py-2 shadow-md rounded-md bg-white border-2 min-w-[100px] ${
@@ -28,21 +25,21 @@ export default function ValveNode({ data, selected }: NodeProps<ValveNodeData>) 
         </div>
 
         <div className="text-xs font-medium text-gray-800 text-center">
-          {equipment.properties.name}
+          {data.properties.name}
         </div>
 
-        {equipment.properties.model && (
+        {data.properties.model && (
           <div className="text-xs text-gray-500 text-center">
-            {equipment.properties.model}
+            {data.properties.model}
           </div>
         )}
 
         <div className={`text-xs px-1 py-0.5 rounded mt-1 ${
-          equipment.properties.status === 'online' ? 'bg-green-100 text-green-800' :
-          equipment.properties.status === 'offline' ? 'bg-red-100 text-red-800' :
+          data.properties.status === 'online' ? 'bg-green-100 text-green-800' :
+          data.properties.status === 'offline' ? 'bg-red-100 text-red-800' :
           'bg-yellow-100 text-yellow-800'
         }`}>
-          {equipment.properties.status === 'online' ? 'OPEN' : 'CLOSED'}
+          {data.properties.status === 'online' ? 'OPEN' : 'CLOSED'}
         </div>
       </div>
 
