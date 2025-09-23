@@ -40,9 +40,11 @@ export interface DrawingState {
   addNode: (node: Node) => void;
   updateNode: (nodeId: string, updates: Partial<Node>) => void;
   deleteNode: (nodeId: string) => void;
+  deleteSelectedNode: () => void;
   addEdge: (edge: Edge) => void;
   updateEdge: (edgeId: string, updates: Partial<Edge>) => void;
   deleteEdge: (edgeId: string) => void;
+  deleteSelectedEdge: () => void;
   setSelectedNode: (nodeId: string | null) => void;
   setSelectedEdge: (edgeId: string | null) => void;
 
@@ -56,13 +58,14 @@ export interface DrawingState {
   // Drawing management
   newDrawing: () => void;
   saveDrawing: () => void;
-  loadDrawing: (drawingId: string) => void;
+  loadDrawing: (drawingIdOrContent: string) => void;
   exportDrawing: (format: "json" | "svg" | "png") => Promise<void>;
   importDrawing: (data: string) => void;
 
   // UI actions
   toggleGrid: () => void;
   toggleSnapToGrid: () => void;
+  toggleSnap: () => void; // Alias for toggleSnapToGrid
   setGridSize: (size: number) => void;
   setZoom: (zoom: number) => void;
   setDrawingName: (name: string) => void;
@@ -158,6 +161,13 @@ export const useDrawingStore = create<DrawingState>()(
         get().pushHistory();
       },
 
+      deleteSelectedNode: () => {
+        const { selectedNodeId } = get();
+        if (selectedNodeId) {
+          get().deleteNode(selectedNodeId);
+        }
+      },
+
       addEdge: (edge) => {
         const { edges } = get();
         set({ edges: [...edges, edge], isDirty: true });
@@ -177,6 +187,13 @@ export const useDrawingStore = create<DrawingState>()(
         const filteredEdges = edges.filter((e) => e.id !== edgeId);
         set({ edges: filteredEdges, selectedEdgeId: null, isDirty: true });
         get().pushHistory();
+      },
+
+      deleteSelectedEdge: () => {
+        const { selectedEdgeId } = get();
+        if (selectedEdgeId) {
+          get().deleteEdge(selectedEdgeId);
+        }
       },
 
       setSelectedNode: (nodeId) => {
@@ -286,8 +303,30 @@ export const useDrawingStore = create<DrawingState>()(
         });
       },
 
-      loadDrawing: (drawingId) => {
-        const savedData = localStorage.getItem(`ergoplanner-drawing-${drawingId}`);
+      loadDrawing: (drawingIdOrContent) => {
+        try {
+          // Try to parse as JSON first (content from file)
+          const data = JSON.parse(drawingIdOrContent);
+          if (data.nodes && data.edges) {
+            set({
+              drawingId: data.id || `drawing-${Date.now()}`,
+              drawingName: data.name || "Imported Drawing",
+              nodes: data.nodes,
+              edges: data.edges,
+              lastSaved: data.savedAt ? new Date(data.savedAt) : null,
+              isDirty: false,
+              history: [{ nodes: data.nodes, edges: data.edges }],
+              historyIndex: 0,
+            });
+            get().pushHistory();
+            return;
+          }
+        } catch {
+          // Not JSON, treat as drawing ID
+        }
+
+        // Try to load from localStorage using ID
+        const savedData = localStorage.getItem(`ergoplanner-drawing-${drawingIdOrContent}`);
         if (savedData) {
           const data = JSON.parse(savedData);
           set({
@@ -347,6 +386,11 @@ export const useDrawingStore = create<DrawingState>()(
       toggleSnapToGrid: () => {
         const { snapToGrid } = get();
         set({ snapToGrid: !snapToGrid });
+      },
+
+      toggleSnap: () => {
+        // Alias for toggleSnapToGrid
+        get().toggleSnapToGrid();
       },
 
       setGridSize: (size) => {

@@ -1,47 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
-import {
-  FileText,
-  Save,
-  Download,
-  Upload,
-  Undo,
-  Redo,
-  ZoomIn,
-  ZoomOut,
-  Grid3x3,
-  MousePointer,
-  Hand,
-  Square,
-  Circle,
-  Move,
-  Type,
-  Trash2,
-  Copy,
-  Clipboard,
-  Settings,
-  HelpCircle,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Maximize2,
-  Minimize2,
-  Home,
-  FolderOpen,
-  Printer,
-  Share2,
-  Lock,
-  Unlock,
-  Eye,
-  EyeOff
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import DrawingCanvas from "@/components/drawing/DrawingCanvas";
 import SymbolLibrary from "@/components/drawing/SymbolLibrary";
 import PropertyPanel from "@/components/drawing/PropertyPanel";
 import LayersPanel from "@/components/drawing/LayersPanel";
-import { useDrawingStore } from "@/store/drawingStore";
+import MainToolbar from "@/components/drawing/MainToolbar";
 
 interface DrawioLayoutProps {
   children?: React.ReactNode;
@@ -59,19 +24,7 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
   const leftDragRef = useRef<HTMLDivElement>(null);
   const rightDragRef = useRef<HTMLDivElement>(null);
 
-  const {
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    saveDrawing,
-    newDrawing,
-    exportDrawing,
-    zoom,
-    setZoom,
-    isGridVisible,
-    toggleGrid
-  } = useDrawingStore();
+  // Drawing store is now used by MainToolbar directly
 
   // Handle sidebar dragging
   const handleLeftMouseDown = (e: React.MouseEvent) => {
@@ -118,162 +71,8 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 flex-shrink-0">
-        {/* Top Menu Bar */}
-        <div className="flex items-center h-10 px-2 border-b border-gray-200 bg-gray-50">
-          <div className="flex items-center space-x-1">
-            <button className="px-3 py-1 text-sm hover:bg-gray-200 rounded">File</button>
-            <button className="px-3 py-1 text-sm hover:bg-gray-200 rounded">Edit</button>
-            <button className="px-3 py-1 text-sm hover:bg-gray-200 rounded">View</button>
-            <button className="px-3 py-1 text-sm hover:bg-gray-200 rounded">Arrange</button>
-            <button className="px-3 py-1 text-sm hover:bg-gray-200 rounded">Tools</button>
-            <button className="px-3 py-1 text-sm hover:bg-gray-200 rounded">Help</button>
-          </div>
-          <div className="flex-1 text-center">
-            <span className="text-sm font-medium text-gray-700">P&ID Drawing - Untitled</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button className="p-1 hover:bg-gray-200 rounded">
-              <Share2 className="w-4 h-4" />
-            </button>
-            <button className="p-1 hover:bg-gray-200 rounded">
-              <Settings className="w-4 h-4" />
-            </button>
-            <button className="p-1 hover:bg-gray-200 rounded">
-              <HelpCircle className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Main Toolbar */}
-        <div className="flex items-center h-12 px-2 space-x-1">
-          <div className="flex items-center border-r border-gray-300 pr-2 mr-2">
-            <button
-              onClick={() => newDrawing()}
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="New Drawing"
-            >
-              <FileText className="w-4 h-4" />
-            </button>
-            <button
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="Open"
-            >
-              <FolderOpen className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => saveDrawing()}
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="Save"
-            >
-              <Save className="w-4 h-4" />
-            </button>
-            <button
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="Print"
-            >
-              <Printer className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center border-r border-gray-300 pr-2 mr-2">
-            <button
-              onClick={() => canUndo() && undo()}
-              disabled={!canUndo()}
-              className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed tooltip"
-              title="Undo"
-            >
-              <Undo className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => canRedo() && redo()}
-              disabled={!canRedo()}
-              className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed tooltip"
-              title="Redo"
-            >
-              <Redo className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center border-r border-gray-300 pr-2 mr-2">
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Cut">
-              <Copy className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Copy">
-              <Copy className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Paste">
-              <Clipboard className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Delete">
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center border-r border-gray-300 pr-2 mr-2">
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Select">
-              <MousePointer className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Pan">
-              <Hand className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setZoom(zoom - 10)}
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-4 h-4" />
-            </button>
-            <span className="px-2 text-sm">{zoom}%</span>
-            <button
-              onClick={() => setZoom(zoom + 10)}
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setZoom(100)}
-              className="p-2 hover:bg-gray-100 rounded tooltip"
-              title="Reset Zoom"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center border-r border-gray-300 pr-2 mr-2">
-            <button
-              onClick={toggleGrid}
-              className={`p-2 hover:bg-gray-100 rounded tooltip ${isGridVisible ? 'bg-blue-100' : ''}`}
-              title="Toggle Grid"
-            >
-              <Grid3x3 className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Lock">
-              <Lock className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Show/Hide">
-              <Eye className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center">
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Rectangle">
-              <Square className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Circle">
-              <Circle className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Text">
-              <Type className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded tooltip" title="Move">
-              <Move className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Main Toolbar */}
+      <MainToolbar />
 
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
@@ -417,9 +216,9 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
           <span>|</span>
           <span>Objects: 0</span>
           <span>|</span>
-          <span>Zoom: {zoom}%</span>
+          <span>Zoom: 100%</span>
           <span>|</span>
-          <span>Grid: {isGridVisible ? 'On' : 'Off'}</span>
+          <span>Grid: On</span>
         </div>
         <div className="flex-1" />
         <div className="flex items-center space-x-4 text-xs text-gray-600">
