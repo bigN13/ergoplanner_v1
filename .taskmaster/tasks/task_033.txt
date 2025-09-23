@@ -1,0 +1,11 @@
+# Task ID: 33
+# Title: Create Layers System for Diagram Organization
+# Status: cancelled
+# Dependencies: 26, 27
+# Priority: medium
+# Description: Implement layer management system allowing complex P&ID organization with layer panel interface, operations, P&ID-specific presets, and performance optimization for multiple layers
+# Details:
+Create LayersPanel component at frontend/src/components/drawing/LayersPanel.tsx. Implement layer data structure with id, name, visible, locked, opacity (0-100%), z-index. Build layer UI: list with drag-to-reorder, visibility toggle (eye icon), lock toggle (lock icon), opacity slider, color coding. Add layer operations: create/duplicate/delete, merge layers, move elements between layers. Include P&ID presets: Equipment layer, Piping layer, Instrumentation layer, Annotation layer, Background layer. Implement layer filters/effects (blur, grayscale), layer export options (individual or combined), performance optimization using React virtualization for many layers. Store layer state in Zustand store.
+
+# Test Strategy:
+Unit tests for layer operations and state management. Integration tests for element-layer assignment and visibility toggling. Performance tests with 50+ layers and 1000+ elements. Visual regression tests for layer rendering and opacity.

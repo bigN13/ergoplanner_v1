@@ -1,357 +1,728 @@
 {
-  "tasks": [
-    {
-      "id": "1",
-      "title": "Set up project infrastructure and development environment",
-      "description": "Initialize the Ergoplanner AI Suite project with proper structure, containerization, and CI/CD setup",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": [],
-      "details": "Create the foundational project structure including backend (.NET Core 8+), frontend (Next.js 14+), ML services (ML.NET), and infrastructure setup with Docker and Kubernetes configurations",
-      "testStrategy": "Verify all services can build and run in Docker containers, ensure CI/CD pipelines execute successfully",
-      "subtasks": [
-        {
-          "id": "1.1",
-          "title": "Create backend .NET Core solution structure",
-          "description": "Set up Clean Architecture with Domain, Application, Infrastructure, and API projects",
-          "status": "pending",
-          "details": "Create Ergoplanner.Domain, Ergoplanner.Application, Ergoplanner.Infrastructure, Ergoplanner.API, and Ergoplanner.Shared projects"
-        },
-        {
-          "id": "1.2",
-          "title": "Initialize Next.js frontend with TypeScript",
-          "description": "Create Next.js 14+ app with App Router, TypeScript, Tailwind CSS, and ESLint",
-          "status": "pending",
-          "details": "npx create-next-app@latest with --typescript --tailwind --eslint --app flags"
-        },
-        {
-          "id": "1.3",
-          "title": "Set up ML.NET services project",
-          "description": "Create .NET project structure for ML services with ML.NET and ONNX Runtime",
-          "status": "pending",
-          "details": "Create Ergoplanner.MLServices with ML.NET, Microsoft.ML.OnnxRuntime packages"
-        },
-        {
-          "id": "1.4",
-          "title": "Configure Docker environment",
-          "description": "Create Dockerfiles and docker-compose.yml for all services with multi-stage builds",
-          "status": "pending",
-          "details": "Multi-stage Dockerfiles for optimized images, docker-compose with all services"
-        },
-        {
-          "id": "1.5",
-          "title": "Set up PostgreSQL database with migrations",
-          "description": "Configure PostgreSQL with PostGIS, create initial schema, set up Entity Framework Core migrations",
-          "status": "pending",
-          "details": "Install EF Core, configure DbContext, create initial migration"
-        },
-        {
-          "id": "1.6",
-          "title": "Configure Redis caching",
-          "description": "Set up Redis for session management and caching with proper connection pooling",
-          "status": "pending",
-          "details": "Install StackExchange.Redis, configure distributed caching"
-        },
-        {
-          "id": "1.7",
-          "title": "Implement CI/CD with GitHub Actions",
-          "description": "Create workflows for build, test, and deployment",
-          "status": "pending",
-          "details": "Create .github/workflows for backend, frontend, and ML services"
-        }
-      ]
-    },
-    {
-      "id": "2",
-      "title": "Implement authentication and authorization system",
-      "description": "Create JWT-based authentication system with role-based access control",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["1"],
-      "subtasks": [
-        {
-          "id": "2.1",
-          "title": "Design authentication database schema",
-          "description": "Create User, Role, Organization, and Session entities",
-          "status": "pending"
-        },
-        {
-          "id": "2.2",
-          "title": "Implement JWT token generation and validation",
-          "description": "Create JWT service with access/refresh token logic",
-          "status": "pending"
-        },
-        {
-          "id": "2.3",
-          "title": "Create authentication API endpoints",
-          "description": "Implement login, logout, refresh token, and password reset",
-          "status": "pending"
-        },
-        {
-          "id": "2.4",
-          "title": "Implement role-based authorization",
-          "description": "Create authorization policies for different roles",
-          "status": "pending"
-        },
-        {
-          "id": "2.5",
-          "title": "Add organization-based access control",
-          "description": "Implement multi-tenancy with organization isolation",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "3",
-      "title": "Build P&ID drawing engine with ReactFlow",
-      "description": "Implement the core drawing functionality using ReactFlow",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["1"],
-      "subtasks": [
-        {
-          "id": "3.1",
-          "title": "Set up ReactFlow canvas",
-          "description": "Initialize ReactFlow with basic canvas and controls",
-          "status": "pending"
-        },
-        {
-          "id": "3.2",
-          "title": "Implement grid system and snapping",
-          "description": "Add orthogonal, isometric, and polar grid options",
-          "status": "pending"
-        },
-        {
-          "id": "3.3",
-          "title": "Create custom node types for symbols",
-          "description": "Develop ReactFlow custom nodes for P&ID symbols",
-          "status": "pending"
-        },
-        {
-          "id": "3.4",
-          "title": "Implement smart pipe routing",
-          "description": "Add A* pathfinding for automatic pipe routing",
-          "status": "pending"
-        },
-        {
-          "id": "3.5",
-          "title": "Add layer management",
-          "description": "Create layer system for organizing drawing elements",
-          "status": "pending"
-        },
-        {
-          "id": "3.6",
-          "title": "Implement undo/redo functionality",
-          "description": "Add command pattern for unlimited undo/redo",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "4",
-      "title": "Develop comprehensive symbol library system",
-      "description": "Create and manage symbol libraries for multiple industry standards",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["3"],
-      "subtasks": [
-        {
-          "id": "4.1",
-          "title": "Create ISA-5.1 symbol library",
-          "description": "Implement 200+ ISA-5.1 standard symbols",
-          "status": "pending"
-        },
-        {
-          "id": "4.2",
-          "title": "Add ISO 14617 symbols",
-          "description": "Implement ISO 14617 international standard symbols",
-          "status": "pending"
-        },
-        {
-          "id": "4.3",
-          "title": "Implement UK water company standards",
-          "description": "Add Thames Water, Severn Trent, United Utilities symbols",
-          "status": "pending"
-        },
-        {
-          "id": "4.4",
-          "title": "Build symbol conversion engine",
-          "description": "Create one-click conversion between standards",
-          "status": "pending"
-        },
-        {
-          "id": "4.5",
-          "title": "Add custom symbol creator",
-          "description": "Implement parametric symbol creation tool",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "5",
-      "title": "Implement bidirectional BoQ synchronization",
-      "description": "Create automatic Bill of Quantities generation with real-time sync",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["3"],
-      "subtasks": [
-        {
-          "id": "5.1",
-          "title": "Design BoQ data model",
-          "description": "Create database schema for BoQ items and relationships",
-          "status": "pending"
-        },
-        {
-          "id": "5.2",
-          "title": "Build data grid component",
-          "description": "Implement Excel-like grid with AG-Grid or similar",
-          "status": "pending"
-        },
-        {
-          "id": "5.3",
-          "title": "Create component extraction service",
-          "description": "Automatically extract components from drawings",
-          "status": "pending"
-        },
-        {
-          "id": "5.4",
-          "title": "Implement real-time sync with SignalR",
-          "description": "Set up bidirectional sync between drawing and BoQ",
-          "status": "pending"
-        },
-        {
-          "id": "5.5",
-          "title": "Add cost calculation engine",
-          "description": "Implement pricing logic with multi-currency support",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "7",
-      "title": "Create engineering validation engine",
-      "description": "Implement continuous validation of P&IDs against engineering rules",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["3", "4"],
-      "subtasks": [
-        {
-          "id": "7.1",
-          "title": "Define validation rule system",
-          "description": "Create extensible rule engine architecture",
-          "status": "pending"
-        },
-        {
-          "id": "7.2",
-          "title": "Implement pressure rating checks",
-          "description": "Validate pressure consistency across connections",
-          "status": "pending"
-        },
-        {
-          "id": "7.3",
-          "title": "Add material compatibility validation",
-          "description": "Check material compatibility between components",
-          "status": "pending"
-        },
-        {
-          "id": "7.4",
-          "title": "Create pipe sizing verification",
-          "description": "Validate pipe sizes based on flow requirements",
-          "status": "pending"
-        },
-        {
-          "id": "7.5",
-          "title": "Build visual error indicators",
-          "description": "Show validation errors directly on the drawing",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "12",
-      "title": "Implement comprehensive testing suite",
-      "description": "Create full testing coverage",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["1"],
-      "subtasks": [
-        {
-          "id": "12.1",
-          "title": "Set up backend unit testing with xUnit",
-          "description": "Configure xUnit, Moq, FluentAssertions",
-          "status": "pending"
-        },
-        {
-          "id": "12.2",
-          "title": "Configure frontend testing with Jest",
-          "description": "Set up Jest, React Testing Library, MSW",
-          "status": "pending"
-        },
-        {
-          "id": "12.3",
-          "title": "Implement integration tests",
-          "description": "Create TestServer tests for API endpoints",
-          "status": "pending"
-        },
-        {
-          "id": "12.4",
-          "title": "Add E2E tests with Playwright",
-          "description": "Set up Playwright for end-to-end testing",
-          "status": "pending"
-        },
-        {
-          "id": "12.5",
-          "title": "Configure code coverage reporting",
-          "description": "Set up coverage tools and CI integration",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "15",
-      "title": "Implement security and compliance features",
-      "description": "Ensure platform meets security standards",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": ["2"],
-      "subtasks": [
-        {
-          "id": "15.1",
-          "title": "Implement data encryption",
-          "description": "Add encryption at rest and in transit",
-          "status": "pending"
-        },
-        {
-          "id": "15.2",
-          "title": "Add security headers and CORS",
-          "description": "Configure proper security headers",
-          "status": "pending"
-        },
-        {
-          "id": "15.3",
-          "title": "Implement rate limiting",
-          "description": "Add API rate limiting and DDoS protection",
-          "status": "pending"
-        },
-        {
-          "id": "15.4",
-          "title": "Set up audit logging",
-          "description": "Create comprehensive audit trail system",
-          "status": "pending"
-        },
-        {
-          "id": "15.5",
-          "title": "Perform security scanning",
-          "description": "Run OWASP ZAP and dependency scanning",
-          "status": "pending"
-        }
-      ]
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Set up project infrastructure and development environment",
+        "description": "Initialize the Ergoplanner AI Suite project with proper structure, containerization, and CI/CD setup",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [],
+        "details": "Create the foundational project structure including backend (.NET Core 8+), frontend (Next.js 14+), ML services (ML.NET), and infrastructure setup with Docker and Kubernetes configurations",
+        "testStrategy": "Verify all services can build and run in Docker containers, ensure CI/CD pipelines execute successfully",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create backend .NET Core solution structure",
+            "description": "Set up Clean Architecture with Domain, Application, Infrastructure, and API projects",
+            "status": "done",
+            "details": "Create Ergoplanner.Domain, Ergoplanner.Application, Ergoplanner.Infrastructure, Ergoplanner.API, and Ergoplanner.Shared projects"
+          },
+          {
+            "id": 2,
+            "title": "Initialize Next.js frontend with TypeScript",
+            "description": "Create Next.js 14+ app with App Router, TypeScript, Tailwind CSS, and ESLint",
+            "status": "done",
+            "details": "npx create-next-app@latest with --typescript --tailwind --eslint --app flags"
+          },
+          {
+            "id": 3,
+            "title": "Set up ML.NET services project",
+            "description": "Create .NET project structure for ML services with ML.NET and ONNX Runtime",
+            "status": "done",
+            "details": "Create Ergoplanner.MLServices with ML.NET, Microsoft.ML.OnnxRuntime packages"
+          },
+          {
+            "id": 4,
+            "title": "Configure Docker environment",
+            "description": "Create Dockerfiles and docker-compose.yml for all services with multi-stage builds",
+            "status": "done",
+            "details": "Multi-stage Dockerfiles for optimized images, docker-compose with all services"
+          },
+          {
+            "id": 5,
+            "title": "Set up PostgreSQL database with migrations",
+            "description": "Configure PostgreSQL with PostGIS, create initial schema, set up Entity Framework Core migrations",
+            "status": "done",
+            "details": "Install EF Core, configure DbContext, create initial migration"
+          },
+          {
+            "id": 6,
+            "title": "Configure Redis caching",
+            "description": "Set up Redis for session management and caching with proper connection pooling",
+            "status": "done",
+            "details": "Install StackExchange.Redis, configure distributed caching"
+          },
+          {
+            "id": 7,
+            "title": "Implement CI/CD with GitHub Actions",
+            "description": "Create workflows for build, test, and deployment",
+            "status": "done",
+            "details": "Create .github/workflows for backend, frontend, and ML services"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement authentication and authorization system",
+        "description": "Create JWT-based authentication system with role-based access control",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design authentication database schema",
+            "description": "Create User, Role, Organization, and Session entities",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement JWT token generation and validation",
+            "description": "Create JWT service with access/refresh token logic",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Create authentication API endpoints",
+            "description": "Implement login, logout, refresh token, and password reset",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement role-based authorization",
+            "description": "Create authorization policies for different roles",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Add organization-based access control",
+            "description": "Implement multi-tenancy with organization isolation",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Build P&ID drawing engine with ReactFlow",
+        "description": "Implement a standalone P&ID drawing component using ReactFlow that functions independently like draw.io, without requiring authentication or backend services",
+        "status": "in-progress",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Create a self-contained P&ID drawing component in frontend/src/components/drawing/ that provides full drawing capabilities without external dependencies. The component should leverage the existing ReactFlow installation (v11.11.4) and drawing types defined in frontend/src/types/drawing.ts. Build upon the PIDNode, PIDEdge, and DrawingState interfaces already established. This component will serve as the core drawing engine that can later be integrated with backend services but must function completely offline first.",
+        "testStrategy": "Unit tests for drawing utilities and symbol manipulation. Integration tests for ReactFlow canvas interactions. Visual regression tests for symbol rendering. E2E tests simulating complete drawing workflows including save/load to local storage.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up ReactFlow canvas with offline storage",
+            "description": "Initialize ReactFlow canvas component with local storage persistence for offline functionality",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create DrawingCanvas.tsx component in frontend/src/components/drawing/ using the existing ReactFlow setup. Implement local storage adapter to save/load drawing state using the DrawingState interface from types/drawing.ts. Add basic controls for zoom, pan, and minimap.",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement grid system and snapping",
+            "description": "Add orthogonal, isometric, and polar grid options with configurable snapping",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Build grid overlay system with three modes: orthogonal (standard), isometric (30°/60°), and polar (radial). Implement snap-to-grid functionality with adjustable grid size. Create GridControls component for toggling grid visibility and snap settings.",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create custom node types for P&ID symbols",
+            "description": "Develop ReactFlow custom nodes for all SymbolType variants defined in drawing.ts",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Implement custom React components for each symbol type (pump, valve, tank, etc.) in frontend/src/components/drawing/symbols/. Use the PIDNodeData interface for node properties. Include rotation, scaling, and property editing capabilities for each symbol.",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement smart pipe routing with local pathfinding",
+            "description": "Add client-side A* pathfinding for automatic pipe routing between symbols",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create pure JavaScript implementation of A* algorithm for pipe routing. Build PathfindingService that works entirely client-side. Implement orthogonal and diagonal routing modes. Add obstacle avoidance for existing symbols and pipes.",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add layer management system",
+            "description": "Create layer system using the Layer interface for organizing drawing elements",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Implement LayerPanel component for managing layers defined in drawing.ts. Add layer visibility toggles, opacity controls, and ordering. Ensure all drawing elements respect layer settings. Store layer state in local storage.",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement undo/redo with command pattern",
+            "description": "Add command pattern for unlimited undo/redo using local history management",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create CommandManager class to track all drawing operations. Implement DrawingHistoryEntry interface for action tracking. Add keyboard shortcuts (Ctrl+Z/Ctrl+Y). Store history in memory with configurable limit. Display action history in UI panel.",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Build standalone toolbar and property panels",
+            "description": "Create self-contained UI components for drawing tools and property editing",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Develop DrawingToolbar component with all drawing tools (select, pan, add symbols, delete). Create PropertyPanel for editing selected node/edge properties. Implement SymbolPalette with drag-and-drop from symbol library. All components should work without backend connectivity.",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Add import/export functionality for offline use",
+            "description": "Implement file import/export for drawings without server dependency",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Add JSON export/import using the Drawing interface structure. Implement SVG export for visual output. Create PNG export using canvas rendering. Add clipboard support for copy/paste operations. All operations should use browser APIs only.",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Develop comprehensive symbol library system",
+        "description": "Create and manage symbol libraries for multiple industry standards as an integral part of the P&ID drawing component",
+        "status": "pending",
+        "dependencies": [
+          "3"
+        ],
+        "priority": "high",
+        "details": "Build a comprehensive symbol library system integrated with the standalone drawing component at frontend/src/components/drawing/. Leverage the existing SymbolLibraryItem interface in frontend/src/types/drawing.ts which already supports multiple standards (ISA-5.1, ISO 14617). Create symbol components in frontend/src/components/drawing/symbols/ directory. Store symbol SVG/React components in frontend/public/symbols/ organized by standard. Implement drag-and-drop from symbol sidebar using ReactFlow's built-in DnD capabilities. Build symbol conversion engine that transforms between standards while preserving semantic meaning. Create custom symbol builder using parametric definitions. Integrate with drawing-store.ts for symbol state management. Symbol library should work offline without backend dependencies initially.",
+        "testStrategy": "Unit tests for symbol conversion algorithms and parametric generation. Visual regression tests for symbol rendering across standards. Integration tests for drag-drop functionality. Performance tests for loading 500+ symbols. E2E tests for symbol search, filtering, and placement workflows.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create ISA-5.1 symbol library",
+            "description": "Implement 200+ ISA-5.1 standard symbols as React components/SVGs in frontend/public/symbols/isa-5.1/",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Add ISO 14617 symbols",
+            "description": "Implement ISO 14617 international standard symbols in frontend/public/symbols/iso-14617/",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement UK water company standards",
+            "description": "Add Thames Water, Severn Trent, United Utilities symbols in frontend/public/symbols/uk-water/",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Build symbol conversion engine",
+            "description": "Create one-click conversion between standards using mapping definitions in frontend/src/components/drawing/symbols/SymbolConverter.tsx",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add custom symbol creator",
+            "description": "Implement parametric symbol creation tool in frontend/src/components/drawing/symbols/SymbolBuilder.tsx",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement bidirectional BoQ synchronization",
+        "description": "Create automatic Bill of Quantities generation with offline-first approach and optional real-time sync",
+        "status": "pending",
+        "dependencies": [
+          "3"
+        ],
+        "priority": "high",
+        "details": "Implement BoQ functionality that works entirely in the browser using IndexedDB/localStorage for the standalone drawing component. The BoQ should automatically extract components from the ReactFlow drawing canvas, display them in an Excel-like grid, and persist data locally. Later phases will add SignalR integration for real-time sync when the backend is available. Key implementation areas: frontend/src/store for state management, frontend/src/components/boq for UI components, frontend/src/lib for IndexedDB wrapper.",
+        "testStrategy": "Unit tests for BoQ extraction logic and calculations. Integration tests for IndexedDB operations. Component tests for data grid interactions. E2E tests for drawing-to-BoQ synchronization workflow. Performance tests ensuring smooth operation with 500+ components.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design offline BoQ data model and IndexedDB schema",
+            "description": "Create browser-based storage schema for BoQ items with IndexedDB",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Define TypeScript interfaces for BoQ items, categories, and pricing. Implement IndexedDB wrapper in frontend/src/lib/storage/boq-storage.ts with tables for: boq_items, categories, pricing_rules, and currency_settings. Use Dexie.js or native IndexedDB API. Include versioning and migration support.",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Build client-side data grid component",
+            "description": "Implement Excel-like grid using TanStack Table or AG-Grid Community",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create BoQ grid component in frontend/src/components/boq/BoQGrid.tsx. Features: inline editing, sorting, filtering, column resizing, copy/paste support, and keyboard navigation. Use virtualization for performance with large datasets. Store grid state in Zustand store.",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create component extraction service",
+            "description": "Build client-side service to extract components from ReactFlow drawings",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Implement extraction logic in frontend/src/lib/boq/extractor.ts that reads nodes from drawing-store and generates BoQ items. Map symbol types to BoQ categories, count quantities, and track properties. Update automatically when drawing changes using Zustand subscriptions.",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement local bidirectional sync",
+            "description": "Create two-way sync between drawing and BoQ in browser",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Build sync mechanism in frontend/src/lib/boq/sync.ts using Zustand middleware. Drawing changes update BoQ immediately, BoQ edits can highlight/select corresponding drawing elements. Use debouncing for performance. Store sync state in localStorage for persistence.",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add offline cost calculation engine",
+            "description": "Implement client-side pricing logic with multi-currency support",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create calculation engine in frontend/src/lib/boq/calculator.ts with formulas, unit conversions, and currency rates (stored locally). Support custom pricing rules and discounts. Cache calculations for performance. Export results to CSV/Excel formats.",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Prepare SignalR integration points",
+            "description": "Add hooks for future real-time sync when backend is available",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Design sync adapter pattern in frontend/src/lib/boq/sync-adapter.ts with offline/online modes. Queue changes when offline for later sync. Add connection status indicator. Prepare conflict resolution strategy for when backend integration is added.",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Create engineering validation engine",
+        "description": "Implement continuous validation of P&IDs against engineering rules",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "3",
+          "4"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define validation rule system",
+            "description": "Create extensible rule engine architecture",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement pressure rating checks",
+            "description": "Validate pressure consistency across connections",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add material compatibility validation",
+            "description": "Check material compatibility between components",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create pipe sizing verification",
+            "description": "Validate pipe sizes based on flow requirements",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Build visual error indicators",
+            "description": "Show validation errors directly on the drawing",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Implement comprehensive testing suite",
+        "description": "Create full testing coverage",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up backend unit testing with xUnit",
+            "description": "Configure xUnit, Moq, FluentAssertions",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Configure frontend testing with Jest",
+            "description": "Set up Jest, React Testing Library, MSW",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement integration tests",
+            "description": "Create TestServer tests for API endpoints",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Add E2E tests with Playwright",
+            "description": "Set up Playwright for end-to-end testing",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Configure code coverage reporting",
+            "description": "Set up coverage tools and CI integration",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Implement security and compliance features",
+        "description": "Ensure platform meets security standards",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          "2"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement data encryption",
+            "description": "Add encryption at rest and in transit",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Add security headers and CORS",
+            "description": "Configure proper security headers",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement rate limiting",
+            "description": "Add API rate limiting and DDoS protection",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Set up audit logging",
+            "description": "Create comprehensive audit trail system",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Perform security scanning",
+            "description": "Run OWASP ZAP and dependency scanning",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Implement Canvas and Viewport Management System",
+        "description": "Create the foundational infinite canvas with ReactFlow including grid system, zoom/pan controls, and viewport management",
+        "details": "Implement the core ReactFlow canvas with infinite scroll capabilities, configurable grid overlay (dots/lines), zoom controls (10%-400%), pan with middle-click/spacebar, ruler system, and performance optimization for 1000+ elements at 60fps. Use ReactFlow's built-in viewport controls and extend with custom grid rendering using SVG patterns. Implement viewport state management in Zustand store with persistence.",
+        "testStrategy": "Unit tests for viewport calculations and state management. Integration tests for zoom/pan operations. Performance tests ensuring 60fps with 1000 nodes. E2E tests for user interactions like keyboard shortcuts and mouse controls.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Build Dockable Layout System with rc-dock",
+        "description": "Implement the flexible panel framework that allows docking, floating, resizing, and tabbed interfaces matching draw.io's layout",
+        "details": "Install and configure rc-dock or FlexLayout-react. Create DockableLayout wrapper component supporting drag-to-dock operations, resizable splitters, floating windows, tabbed panel groups, and layout persistence in localStorage. Implement responsive breakpoints for mobile/tablet. Define default layout configurations for left sidebar (300px), right properties panel (350px), and bottom panels. Support layout presets and user-customizable workspace arrangements.",
+        "testStrategy": "Integration tests for docking/undocking panels. Unit tests for layout serialization/deserialization. Visual regression tests for different screen sizes. E2E tests for drag operations and panel resizing.",
+        "priority": "high",
+        "dependencies": [
+          16
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Create Left Sidebar Stencil System",
+        "description": "Build the symbol library panel with search, categories, and drag-drop functionality for P&ID symbols",
+        "details": "Implement collapsible accordion categories for General, P&ID Equipment, Valves, Instruments, and UK Water standards. Create SearchableSymbolGrid component with fuzzy search using Fuse.js. Build DraggableSymbol components with ghost image previews. Implement Scratchpad area for temporary symbols. Load symbol definitions from JSON/SVG assets following ISA-5.1 and ISO 14617 standards. Add recent/favorite symbols tracking.",
+        "testStrategy": "Unit tests for search algorithm and category filtering. Integration tests for drag initiation from sidebar. E2E tests for complete symbol placement workflow. Accessibility tests for keyboard navigation.",
+        "priority": "high",
+        "dependencies": [
+          17
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Develop Drag and Drop Behaviors",
+        "description": "Implement comprehensive drag-drop system for symbols, nodes, edges, and panel rearrangement",
+        "details": "Use react-dnd or native HTML5 drag-drop API. Implement drag sources (sidebar symbols, canvas nodes, panel headers) and drop targets (canvas, connection points, panel docks). Add visual feedback with drag preview, drop zone highlighting, and invalid drop indicators. Support multi-selection drag with Shift/Ctrl. Implement auto-connection when dropping near ports. Add modifier keys for constrained movement (Shift for straight lines, Alt for duplicate).",
+        "testStrategy": "Unit tests for drag state management. Integration tests for different drag-drop scenarios. E2E tests for touch/stylus support. Performance tests for smooth dragging at 60fps.",
+        "priority": "medium",
+        "dependencies": [
+          18
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Implement Engineering Symbols and Standards",
+        "description": "Create comprehensive P&ID symbol library with metadata and connection points following industry standards",
+        "details": "Design symbol architecture with SVG/React components for 200+ symbols. Implement ISA-5.1 instrumentation symbols (transmitters, controllers, valves). Create ISO 14617 process equipment (pumps, vessels, heat exchangers). Add UK water industry symbols per Thames Water/United Utilities standards. Define connection port system with inlet/outlet/control ports. Include symbol metadata (tags, equipment IDs, specifications). Build symbol editor for custom symbols.",
+        "testStrategy": "Visual tests comparing rendered symbols to standards. Unit tests for connection point calculations. Integration tests for symbol property updates. Compliance tests against ISA/ISO specifications.",
+        "priority": "high",
+        "dependencies": [
+          19
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 21,
+        "title": "Build Main Toolbar with Drawing Tools",
+        "description": "Create the primary toolbar with all drawing, editing, and view control tools",
+        "details": "Implement toolbar groups: File operations (new, open, save), Edit tools (cut, copy, paste, undo/redo), Drawing tools (select, pan, connect, text), View controls (zoom, grid, layers), and Arrange tools (align, distribute, group). Add contextual tool enabling based on selection. Implement dropdown menus for tool variants. Add keyboard shortcut indicators. Create touch-friendly mode with larger buttons. Support toolbar customization and profiles.",
+        "testStrategy": "Unit tests for tool state management. Integration tests for tool interactions with canvas. E2E tests for all tool operations. Accessibility tests for keyboard-only operation.",
+        "priority": "medium",
+        "dependencies": [
+          16
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 22,
+        "title": "Develop Intelligent Connection System",
+        "description": "Build smart edge routing with validation rules and P&ID-specific connection behaviors",
+        "details": "Implement edge types (straight, orthogonal, bezier) with ReactFlow's edge system. Create smart routing algorithm avoiding node overlaps using pathfinding (A* or similar). Add connection validation rules (compatible port types, flow direction). Implement waypoint system for manual route adjustment. Add edge labels for pipe specifications (size, material, flow rate). Support multi-segment pipes with elbows/tees. Create connection animation for flow visualization.",
+        "testStrategy": "Unit tests for routing algorithms and validation logic. Integration tests for connection creation/editing. Performance tests for routing calculation speed. E2E tests for connection workflows.",
+        "priority": "high",
+        "dependencies": [
+          20
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 23,
+        "title": "Create Property Panel System",
+        "description": "Build comprehensive property editing interface for all diagram elements with P&ID-specific fields",
+        "details": "Create tabbed property panel with Style (colors, line width, fonts), Text (labels, annotations), Arrange (position, size, rotation), and P&ID Data (equipment specs, process conditions, tags) tabs. Implement dynamic property forms based on symbol type using JSON schema. Add calculated fields (flow rates, pressure drops). Create property templates and presets. Implement bulk property editing for multiple selections. Add property validation with error messages.",
+        "testStrategy": "Unit tests for property form generation and validation. Integration tests for property updates affecting canvas. E2E tests for complex property workflows. Performance tests for large property datasets.",
+        "priority": "medium",
+        "dependencies": [
+          17,
+          22
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Implement Import/Export System",
+        "description": "Build comprehensive file format support for CAD integration and data exchange",
+        "details": "Implement CAD format parsers/writers: DWG using dwg-js or TeighaFileConverter, DXF using dxf-parser, SVG using native DOM. Create PDF export with jsPDF including vector graphics. Build image export (PNG, JPEG) using canvas.toBlob(). Implement JSON format for native saves with full fidelity. Add CSV/Excel export for BoQ data. Create batch import/export operations. Implement format conversion with mapping rules.",
+        "testStrategy": "Unit tests for format parsers/serializers. Integration tests for round-trip conversion. Visual tests comparing imported/exported drawings. Performance tests for large file handling.",
+        "priority": "medium",
+        "dependencies": [
+          22
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Build BoQ Integration and Synchronization",
+        "description": "Create bidirectional synchronization between P&ID drawings and Bill of Quantities system",
+        "details": "Design BoQ data model linked to drawing elements. Implement real-time sync using SignalR for collaborative updates. Create BoQ panel showing equipment counts, pipe lengths, and costs. Build automatic quantity calculation from drawing geometry. Add manual override capability for quantities. Implement change tracking and audit trail. Create BoQ templates for different project types. Add export to procurement systems.",
+        "testStrategy": "Unit tests for quantity calculations. Integration tests for sync mechanisms. E2E tests for drawing-to-BoQ workflows. Performance tests for real-time updates with multiple users.",
+        "priority": "high",
+        "dependencies": [
+          23
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 26,
+        "title": "Implement ReactFlow Canvas Foundation with Infinite Pan and Zoom",
+        "description": "Set up the core ReactFlow-based drawing canvas with infinite canvas capabilities, grid system, snap-to-grid, ruler system, minimap navigation, and canvas state persistence",
+        "details": "Install and configure ReactFlow 11.11.4 with TypeScript support. Create Canvas component at frontend/src/components/drawing/Canvas.tsx. Implement viewport management with pan/zoom (10%-500% range), configurable grid spacing (10px/25px/50px), snap-to-grid toggle, draggable rulers from edges, minimap component, background patterns (grid/dots/lines), localStorage persistence for canvas state, and undo/redo system with 50-step history. Use ReactFlow's built-in controls and custom hooks for viewport management. Implement performance optimizations with virtualization for 1000+ elements at 60fps using React.memo and useMemo hooks.",
+        "testStrategy": "Unit tests for canvas state management, viewport calculations, and snap-to-grid logic. Integration tests for pan/zoom controls, ruler interactions, and state persistence. Performance tests ensuring 60fps with 1000+ elements using React Profiler. E2E tests for user workflows like creating drawings, navigating canvas, and using grid/snap features.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 27,
+        "title": "Build Dockable Layout System with rc-dock or FlexLayout",
+        "description": "Implement flexible, professional dockable interface framework for panels with drag-and-drop, resizing, tabbing, and layout persistence matching draw.io's interface",
+        "details": "Install rc-dock or FlexLayout-react for panel management. Create DockableLayout wrapper at frontend/src/components/layout/DockableLayout.tsx. Implement draggable panels with visual drop zones, resizable panels with min/max constraints (e.g., min: 200px, max: 600px), tabbed panel groups, floating window support, collapsible panels with smooth animations, layout presets (Engineering/Design/Review modes), dark/light theme integration with Tailwind CSS, keyboard navigation (Tab, Arrow keys), ARIA labels for accessibility. Store layout state in localStorage and provide layout reset functionality. Create useLayout hook for panel management.",
+        "testStrategy": "Unit tests for layout state management and panel configuration. Integration tests for drag-and-drop operations, panel resizing, and tab switching. Accessibility tests ensuring WCAG 2.1 AA compliance with axe-core. Cross-browser tests for layout consistency. Performance tests for smooth animations and responsive breakpoints.",
+        "priority": "high",
+        "dependencies": [
+          26
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 28,
+        "title": "Create Symbol Library Sidebar with Stencil System",
+        "description": "Build comprehensive symbol library interface in left sidebar with categorized P&ID symbols, search functionality, drag-to-canvas initialization, and favorites management",
+        "details": "Create SymbolLibrary component at frontend/src/components/drawing/SymbolLibrary.tsx. Implement collapsible accordion groups (General, P&ID, Electrical, Process Equipment, Piping Components), fuzzy search with fuse.js, recently used symbols section with timestamp tracking, favorites management with star icons, symbol preview tooltips on hover, drag initialization with react-dnd or native HTML5 drag API. Store symbols as React components or SVGs in frontend/public/symbols/. Create symbol metadata JSON with categories, tags, ISA/ISO standards compliance. Implement scratchpad area for temporary symbols, custom symbol import (SVG/PNG upload), keyboard shortcuts (1-9 for quick access).",
+        "testStrategy": "Unit tests for search functionality, symbol categorization, and favorites management. Integration tests for drag-and-drop to canvas, symbol preview, and accordion interactions. Accessibility tests for keyboard navigation and screen reader support. Performance tests for loading 500+ symbols efficiently.",
+        "priority": "high",
+        "dependencies": [
+          27
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 29,
+        "title": "Implement Engineering Symbols Library with Standards Compliance",
+        "description": "Create comprehensive P&ID symbol library following ISA-5.1, ISO 14617, and UK water industry standards with 100+ engineering symbols including pumps, vessels, valves, and instruments",
+        "details": "Create symbol components in frontend/src/components/symbols/ directory. Implement ISA-5.1 standard symbols: pumps (centrifugal, positive displacement, vacuum), vessels (vertical, horizontal, pressure), heat exchangers (shell-tube, plate, air-cooled), compressors/turbines, separators/filters. Add piping components: valves (gate, globe, ball, check, butterfly, control), fittings (elbows, tees, reducers, flanges), instruments (pressure, temperature, flow, level indicators). Include UK water standards (Thames Water, United Utilities). Each symbol as parameterized React component with rotation (90° increments), mirroring (H/V), dynamic sizing, connection points definition using ReactFlow handles, property templates. Create Symbol class with metadata, standards compliance tags, connection rules.",
+        "testStrategy": "Unit tests for symbol rendering, rotation, mirroring, and sizing. Visual regression tests using Percy or Chromatic for symbol appearance. Compliance tests validating ISA-5.1 and ISO 14617 standards. Integration tests for symbol-to-canvas placement and connection point validation.",
+        "priority": "high",
+        "dependencies": [
+          28
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 30,
+        "title": "Develop Intelligent Connection System with Smart Routing",
+        "description": "Build smart pipe routing system with connection validation, orthogonal/curved routing options, waypoint management, and P&ID-specific connection rules for proper flow representation",
+        "details": "Extend ReactFlow edge system at frontend/src/components/drawing/connections/. Implement custom edge types: straight, orthogonal (right-angle), curved/bezier, step connectors. Create smart routing algorithm using pathfinding (A* or similar) to avoid overlaps. Add connection point detection with magnetic snapping (10px threshold), connection validation rules (compatible types only - e.g., pipe to valve, not pipe to instrument), waypoint management (add/remove/move control points), flow direction indicators (arrows, animated dashes). Implement line styles (solid, dashed, dotted, double), configurable line weights (1-10px), connection highlighting on hover, junction handling (automatic tees/crosses detection). Add P&ID-specific rules for pipe classes, material specifications.",
+        "testStrategy": "Unit tests for routing algorithms, connection validation rules, and waypoint calculations. Integration tests for snap behavior, edge type switching, and junction creation. Performance tests for routing with 500+ connections. Visual tests for line styles and flow indicators.",
+        "priority": "high",
+        "dependencies": [
+          26,
+          29
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 31,
+        "title": "Build Context-Sensitive Property Panel System",
+        "description": "Create comprehensive property management panel for diagram elements with P&ID-specific properties, dynamic forms, validation, bulk editing, and BoQ item mapping capabilities",
+        "details": "Create PropertyPanel component at frontend/src/components/drawing/PropertyPanel.tsx. Implement tabbed interface: Style (colors, lines, fills with color picker), Text (fonts, alignment, formatting with rich text), Arrange (position X/Y, size W/H, rotation angle, z-index), Data (custom properties, metadata fields). Add P&ID properties: equipment data (tag number, description, specifications), process conditions (pressure, temperature, flow rate with units), material specifications dropdown, BoQ item mapping with auto-complete. Use react-hook-form with zod validation, implement bulk editing for multiple selections, property templates/presets management, calculated properties (formulas), property history with undo. Export to Excel/CSV functionality.",
+        "testStrategy": "Unit tests for form validation, property calculations, and bulk editing logic. Integration tests for property updates, template application, and BoQ mapping. Accessibility tests for form controls and keyboard navigation. E2E tests for property editing workflows.",
+        "priority": "medium",
+        "dependencies": [
+          27,
+          29
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 32,
+        "title": "Implement Main Toolbar with Drawing and Editing Tools",
+        "description": "Build comprehensive toolbar system with selection, drawing, text, and arrangement tools including customizable layout, tooltips, keyboard shortcuts, and context-sensitive availability",
+        "details": "Create Toolbar component at frontend/src/components/drawing/Toolbar.tsx. Implement tool groups: Selection (pointer, lasso, hand/pan), Drawing (line, polyline, curve, rectangle, circle), Text (text, note, callout with font options), Arrangement (align left/center/right/top/middle/bottom, distribute H/V, group/ungroup). Add tool states management (active, disabled, hover), rich tooltips showing keyboard shortcuts, customizable toolbar with drag-to-reorder, quick access toolbar for favorites, context-sensitive tool availability based on selection, touch-friendly 44px minimum target size, tool options panel (e.g., line thickness for drawing tools), recent tools tracking, tool presets with save/load. Integrate with canvas for tool activation.",
+        "testStrategy": "Unit tests for tool state management and shortcut handling. Integration tests for tool activation and canvas interaction. Accessibility tests for keyboard navigation and tooltip visibility. Usability tests for touch targets and tool discovery.",
+        "priority": "medium",
+        "dependencies": [
+          26
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 33,
+        "title": "Create Layers System for Diagram Organization",
+        "description": "Implement layer management system allowing complex P&ID organization with layer panel interface, operations, P&ID-specific presets, and performance optimization for multiple layers",
+        "details": "Create LayersPanel component at frontend/src/components/drawing/LayersPanel.tsx. Implement layer data structure with id, name, visible, locked, opacity (0-100%), z-index. Build layer UI: list with drag-to-reorder, visibility toggle (eye icon), lock toggle (lock icon), opacity slider, color coding. Add layer operations: create/duplicate/delete, merge layers, move elements between layers. Include P&ID presets: Equipment layer, Piping layer, Instrumentation layer, Annotation layer, Background layer. Implement layer filters/effects (blur, grayscale), layer export options (individual or combined), performance optimization using React virtualization for many layers. Store layer state in Zustand store.",
+        "testStrategy": "Unit tests for layer operations and state management. Integration tests for element-layer assignment and visibility toggling. Performance tests with 50+ layers and 1000+ elements. Visual regression tests for layer rendering and opacity.",
+        "priority": "medium",
+        "dependencies": [
+          26,
+          27
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 34,
+        "title": "Build Import/Export System with Multiple Format Support",
+        "description": "Comprehensive data exchange system supporting DWG/DXF, Visio, PDF, images, and CSV for equipment lists with preview, mapping templates, and batch operations",
+        "details": "Create ImportExport service at frontend/src/services/importExport.ts. For imports: implement DWG/DXF parser using dwg-js or similar, Visio VSDX reader, PDF with pdf.js including OCR for scanned drawings, image imports (SVG, PNG, JPG) with optimization, CSV/Excel for equipment lists using xlsx library. Add import preview dialog, coordinate system mapping, symbol recognition for legacy drawings, mapping templates for data fields. For exports: implement PDF generation with jsPDF/react-pdf (vector quality), DWG/DXF writer, SVG export (scalable), PNG/JPG with configurable DPI (72-300), Excel with element properties. Add batch import/export, format conversion settings, progress indicators for large files.",
+        "testStrategy": "Unit tests for file parsers and format converters. Integration tests for import preview and mapping. E2E tests for complete import/export workflows. Compatibility tests with AutoCAD, Visio, and Excel files. Performance tests for large file handling (>10MB).",
+        "priority": "medium",
+        "dependencies": [
+          26,
+          29
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 35,
+        "title": "Implement BoQ Integration with Real-time Synchronization",
+        "description": "Build bidirectional synchronization between P&ID drawings and Bill of Quantities with SignalR real-time updates, automatic calculations, conflict resolution, and external system APIs",
+        "details": "Create BoQ integration at frontend/src/services/boq/ and backend endpoints. Implement SignalR client for real-time sync at frontend/src/lib/signalr.ts. Build automatic quantity calculation from drawing elements (pipe lengths, equipment counts, valve quantities). Create property-to-BoQ field mapping with validation, change tracking with detailed history, conflict resolution UI for concurrent edits. Add bulk update operations with progress tracking, BoQ template management (create, edit, apply), cost calculation with currency formatting, report generation (PDF, Excel) using backend API. Implement external BoQ system integration via REST APIs, webhooks for changes, data validation before sync. Handle offline mode with sync queue.",
+        "testStrategy": "Unit tests for quantity calculations and mapping logic. Integration tests for SignalR real-time updates and conflict resolution. E2E tests for drawing-to-BoQ workflows. Load tests for concurrent user updates. API tests for external system integration.",
+        "priority": "high",
+        "dependencies": [
+          31
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 36,
+        "title": "Create AI Chat Integration for P&ID Drawing Assistant",
+        "description": "Implement a conversational AI interface using Gemini API (or equivalent like OpenAI GPT-4/Claude) that enables natural language interaction with P&ID drawings, including creation, modification, querying, and intelligent assistance features.",
+        "details": "Create AIAssistantPanel component at frontend/src/components/drawing/AIAssistantPanel.tsx as a dockable panel integrated with the ReactFlow canvas. Implement AI service at backend/src/Ergoplanner.Application/Services/AIAssistantService.cs with Gemini/OpenAI/Claude API integration. Build natural language processing pipeline: parse commands using NLP models, map to drawing operations (add/modify/delete symbols, create connections, adjust properties), generate ReactFlow node/edge JSON from text descriptions. Implement command parser for instructions like 'Add centrifugal pump P-101 connected to valve V-102', 'Route pipe from tank T-201 to heat exchanger HX-301', 'What equipment is missing for this process?'. Create real-time preview system: show ghost nodes/edges before committing, highlight suggested placements, display confidence scores for AI suggestions. Add context management: maintain conversation history in frontend/src/store/ai-assistant-store.ts, track drawing state changes per conversation turn, implement multi-step operation support ('Now connect it to...', 'Make it bigger'). Integrate voice input using Web Speech API or Azure Speech Services, with push-to-talk and continuous listening modes. Implement drawing analysis features: compliance checking against ISA-5.1 and ISO 14617 standards, missing equipment detection based on process flow logic, optimization suggestions for pipe routing and layout. Create intelligent symbol placement: analyze existing layout for optimal positioning, maintain consistent spacing and alignment, suggest connection points based on symbol types. Build equipment specification recommendations: suggest pump types based on flow requirements, recommend valve types for process conditions, propose instrumentation based on control needs. Add documentation generation: create text descriptions from drawings, generate equipment lists with specifications, produce process narratives for training materials. Implement SignalR hub at backend/src/Ergoplanner.API/Hubs/AIAssistantHub.cs for real-time AI responses and drawing updates. Create prompt templates in backend/src/Ergoplanner.Application/AI/Prompts/ for different operations (creation, analysis, validation). Add rate limiting and token management for API calls. Implement caching layer using Redis for frequent queries and symbol mappings. Create error handling for ambiguous commands with clarification requests. Add undo/redo support for AI-generated changes. Store AI interaction logs for improvement and audit trails.",
+        "testStrategy": "Unit tests for command parsing, NLP interpretation, and drawing operation mapping. Integration tests for AI API calls with mock responses, real-time preview generation, and SignalR communication. E2E tests for complete conversation flows: creating drawings from scratch via chat, modifying existing drawings through natural language, voice input to drawing output. Performance tests for response time with complex drawings, concurrent AI requests handling, and context retention with long conversations. Validation tests for standards compliance checking, equipment recommendation accuracy, and drawing analysis correctness. Accessibility tests for screen reader compatibility with AI suggestions and keyboard navigation in chat interface.",
+        "status": "cancelled",
+        "dependencies": [
+          26,
+          29,
+          30
+        ],
+        "priority": "medium",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-22T19:51:15.373Z",
+      "updated": "2025-09-23T13:37:24.945Z",
+      "description": "Tasks for master context"
     }
-  ],
-  "metadata": {
-    "version": "1.1.0",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "lastUpdated": "2024-01-01T00:00:00Z",
-    "projectName": "Ergoplanner AI Suite"
   }
 }

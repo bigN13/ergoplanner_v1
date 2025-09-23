@@ -1,0 +1,11 @@
+# Task ID: 18
+# Title: Create Left Sidebar Stencil System
+# Status: cancelled
+# Dependencies: 17
+# Priority: high
+# Description: Build the symbol library panel with search, categories, and drag-drop functionality for P&ID symbols
+# Details:
+Implement collapsible accordion categories for General, P&ID Equipment, Valves, Instruments, and UK Water standards. Create SearchableSymbolGrid component with fuzzy search using Fuse.js. Build DraggableSymbol components with ghost image previews. Implement Scratchpad area for temporary symbols. Load symbol definitions from JSON/SVG assets following ISA-5.1 and ISO 14617 standards. Add recent/favorite symbols tracking.
+
+# Test Strategy:
+Unit tests for search algorithm and category filtering. Integration tests for drag initiation from sidebar. E2E tests for complete symbol placement workflow. Accessibility tests for keyboard navigation.

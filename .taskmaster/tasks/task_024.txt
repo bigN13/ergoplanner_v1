@@ -1,0 +1,11 @@
+# Task ID: 24
+# Title: Implement Import/Export System
+# Status: cancelled
+# Dependencies: 22
+# Priority: medium
+# Description: Build comprehensive file format support for CAD integration and data exchange
+# Details:
+Implement CAD format parsers/writers: DWG using dwg-js or TeighaFileConverter, DXF using dxf-parser, SVG using native DOM. Create PDF export with jsPDF including vector graphics. Build image export (PNG, JPEG) using canvas.toBlob(). Implement JSON format for native saves with full fidelity. Add CSV/Excel export for BoQ data. Create batch import/export operations. Implement format conversion with mapping rules.
+
+# Test Strategy:
+Unit tests for format parsers/serializers. Integration tests for round-trip conversion. Visual tests comparing imported/exported drawings. Performance tests for large file handling.

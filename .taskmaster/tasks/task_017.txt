@@ -1,0 +1,11 @@
+# Task ID: 17
+# Title: Build Dockable Layout System with rc-dock
+# Status: cancelled
+# Dependencies: 16
+# Priority: high
+# Description: Implement the flexible panel framework that allows docking, floating, resizing, and tabbed interfaces matching draw.io's layout
+# Details:
+Install and configure rc-dock or FlexLayout-react. Create DockableLayout wrapper component supporting drag-to-dock operations, resizable splitters, floating windows, tabbed panel groups, and layout persistence in localStorage. Implement responsive breakpoints for mobile/tablet. Define default layout configurations for left sidebar (300px), right properties panel (350px), and bottom panels. Support layout presets and user-customizable workspace arrangements.
+
+# Test Strategy:
+Integration tests for docking/undocking panels. Unit tests for layout serialization/deserialization. Visual regression tests for different screen sizes. E2E tests for drag operations and panel resizing.

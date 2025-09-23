@@ -1,0 +1,49 @@
+# Task ID: 5
+# Title: Implement bidirectional BoQ synchronization
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create automatic Bill of Quantities generation with offline-first approach and optional real-time sync
+# Details:
+Implement BoQ functionality that works entirely in the browser using IndexedDB/localStorage for the standalone drawing component. The BoQ should automatically extract components from the ReactFlow drawing canvas, display them in an Excel-like grid, and persist data locally. Later phases will add SignalR integration for real-time sync when the backend is available. Key implementation areas: frontend/src/store for state management, frontend/src/components/boq for UI components, frontend/src/lib for IndexedDB wrapper.
+
+# Test Strategy:
+Unit tests for BoQ extraction logic and calculations. Integration tests for IndexedDB operations. Component tests for data grid interactions. E2E tests for drawing-to-BoQ synchronization workflow. Performance tests ensuring smooth operation with 500+ components.
+
+# Subtasks:
+## 1. Design offline BoQ data model and IndexedDB schema [pending]
+### Dependencies: None
+### Description: Create browser-based storage schema for BoQ items with IndexedDB
+### Details:
+Define TypeScript interfaces for BoQ items, categories, and pricing. Implement IndexedDB wrapper in frontend/src/lib/storage/boq-storage.ts with tables for: boq_items, categories, pricing_rules, and currency_settings. Use Dexie.js or native IndexedDB API. Include versioning and migration support.
+
+## 2. Build client-side data grid component [pending]
+### Dependencies: None
+### Description: Implement Excel-like grid using TanStack Table or AG-Grid Community
+### Details:
+Create BoQ grid component in frontend/src/components/boq/BoQGrid.tsx. Features: inline editing, sorting, filtering, column resizing, copy/paste support, and keyboard navigation. Use virtualization for performance with large datasets. Store grid state in Zustand store.
+
+## 3. Create component extraction service [pending]
+### Dependencies: None
+### Description: Build client-side service to extract components from ReactFlow drawings
+### Details:
+Implement extraction logic in frontend/src/lib/boq/extractor.ts that reads nodes from drawing-store and generates BoQ items. Map symbol types to BoQ categories, count quantities, and track properties. Update automatically when drawing changes using Zustand subscriptions.
+
+## 4. Implement local bidirectional sync [pending]
+### Dependencies: None
+### Description: Create two-way sync between drawing and BoQ in browser
+### Details:
+Build sync mechanism in frontend/src/lib/boq/sync.ts using Zustand middleware. Drawing changes update BoQ immediately, BoQ edits can highlight/select corresponding drawing elements. Use debouncing for performance. Store sync state in localStorage for persistence.
+
+## 5. Add offline cost calculation engine [pending]
+### Dependencies: None
+### Description: Implement client-side pricing logic with multi-currency support
+### Details:
+Create calculation engine in frontend/src/lib/boq/calculator.ts with formulas, unit conversions, and currency rates (stored locally). Support custom pricing rules and discounts. Cache calculations for performance. Export results to CSV/Excel formats.
+
+## 6. Prepare SignalR integration points [pending]
+### Dependencies: None
+### Description: Add hooks for future real-time sync when backend is available
+### Details:
+Design sync adapter pattern in frontend/src/lib/boq/sync-adapter.ts with offline/online modes. Queue changes when offline for later sync. Add connection status indicator. Prepare conflict resolution strategy for when backend integration is added.
+

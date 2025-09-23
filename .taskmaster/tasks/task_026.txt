@@ -1,0 +1,11 @@
+# Task ID: 26
+# Title: Implement ReactFlow Canvas Foundation with Infinite Pan and Zoom
+# Status: cancelled
+# Dependencies: None
+# Priority: high
+# Description: Set up the core ReactFlow-based drawing canvas with infinite canvas capabilities, grid system, snap-to-grid, ruler system, minimap navigation, and canvas state persistence
+# Details:
+Install and configure ReactFlow 11.11.4 with TypeScript support. Create Canvas component at frontend/src/components/drawing/Canvas.tsx. Implement viewport management with pan/zoom (10%-500% range), configurable grid spacing (10px/25px/50px), snap-to-grid toggle, draggable rulers from edges, minimap component, background patterns (grid/dots/lines), localStorage persistence for canvas state, and undo/redo system with 50-step history. Use ReactFlow's built-in controls and custom hooks for viewport management. Implement performance optimizations with virtualization for 1000+ elements at 60fps using React.memo and useMemo hooks.
+
+# Test Strategy:
+Unit tests for canvas state management, viewport calculations, and snap-to-grid logic. Integration tests for pan/zoom controls, ruler interactions, and state persistence. Performance tests ensuring 60fps with 1000+ elements using React Profiler. E2E tests for user workflows like creating drawings, navigating canvas, and using grid/snap features.

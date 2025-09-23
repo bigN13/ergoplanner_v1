@@ -1,0 +1,11 @@
+# Task ID: 27
+# Title: Build Dockable Layout System with rc-dock or FlexLayout
+# Status: cancelled
+# Dependencies: 26
+# Priority: high
+# Description: Implement flexible, professional dockable interface framework for panels with drag-and-drop, resizing, tabbing, and layout persistence matching draw.io's interface
+# Details:
+Install rc-dock or FlexLayout-react for panel management. Create DockableLayout wrapper at frontend/src/components/layout/DockableLayout.tsx. Implement draggable panels with visual drop zones, resizable panels with min/max constraints (e.g., min: 200px, max: 600px), tabbed panel groups, floating window support, collapsible panels with smooth animations, layout presets (Engineering/Design/Review modes), dark/light theme integration with Tailwind CSS, keyboard navigation (Tab, Arrow keys), ARIA labels for accessibility. Store layout state in localStorage and provide layout reset functionality. Create useLayout hook for panel management.
+
+# Test Strategy:
+Unit tests for layout state management and panel configuration. Integration tests for drag-and-drop operations, panel resizing, and tab switching. Accessibility tests ensuring WCAG 2.1 AA compliance with axe-core. Cross-browser tests for layout consistency. Performance tests for smooth animations and responsive breakpoints.

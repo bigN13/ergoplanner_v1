@@ -1,0 +1,11 @@
+# Task ID: 28
+# Title: Create Symbol Library Sidebar with Stencil System
+# Status: cancelled
+# Dependencies: 27
+# Priority: high
+# Description: Build comprehensive symbol library interface in left sidebar with categorized P&ID symbols, search functionality, drag-to-canvas initialization, and favorites management
+# Details:
+Create SymbolLibrary component at frontend/src/components/drawing/SymbolLibrary.tsx. Implement collapsible accordion groups (General, P&ID, Electrical, Process Equipment, Piping Components), fuzzy search with fuse.js, recently used symbols section with timestamp tracking, favorites management with star icons, symbol preview tooltips on hover, drag initialization with react-dnd or native HTML5 drag API. Store symbols as React components or SVGs in frontend/public/symbols/. Create symbol metadata JSON with categories, tags, ISA/ISO standards compliance. Implement scratchpad area for temporary symbols, custom symbol import (SVG/PNG upload), keyboard shortcuts (1-9 for quick access).
+
+# Test Strategy:
+Unit tests for search functionality, symbol categorization, and favorites management. Integration tests for drag-and-drop to canvas, symbol preview, and accordion interactions. Accessibility tests for keyboard navigation and screen reader support. Performance tests for loading 500+ symbols efficiently.

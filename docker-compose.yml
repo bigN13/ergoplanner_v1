@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ergoplanner-postgres
+    environment:
+      POSTGRES_DB: ergoplanner
+      POSTGRES_USER: ergoplanner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-DevPassword123!}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ergoplanner-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ergoplanner"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ergoplanner-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ergoplanner-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ergoplanner-backend
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=ergoplanner;Username=ergoplanner;Password=${POSTGRES_PASSWORD:-DevPassword123!}"
+      ConnectionStrings__Redis: "redis:6379"
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+    ports:
+      - "5266:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ergoplanner-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ergoplanner-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: "http://backend:80"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - ergoplanner-network
+
+  frontend-poc:
+    build:
+      context: ./frontend-poc
+      dockerfile: Dockerfile
+    container_name: ergoplanner-frontend-poc
+    environment:
+      NEXT_PUBLIC_API_URL: "http://backend:80"
+    ports:
+      - "3001:3000"
+    networks:
+      - ergoplanner-network
+
+networks:
+  ergoplanner-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
