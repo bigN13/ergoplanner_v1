@@ -470,10 +470,8 @@ function DrawingCanvasContent() {
             </div>
           )}
 
-          {/* Auto-save Manager */}
-          <div className="absolute top-4 left-80 w-80">
-            <AutoSaveManager enabled={true} interval={30000} maxAutoSaves={10} />
-          </div>
+          {/* Auto-save Manager - Hidden for now */}
+          {/* <AutoSaveManager enabled={true} interval={30000} maxAutoSaves={10} /> */}
       </div>
     </div>
   );

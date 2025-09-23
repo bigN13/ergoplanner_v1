@@ -13,6 +13,7 @@ interface DrawioLayoutProps {
 }
 
 export default function DrawioLayout({ children }: DrawioLayoutProps) {
+  const [showAutoSave, setShowAutoSave] = useState(false);
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(280);
   const [rightSidebarWidth, setRightSidebarWidth] = useState(280);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -23,6 +24,13 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
 
   const leftDragRef = useRef<HTMLDivElement>(null);
   const rightDragRef = useRef<HTMLDivElement>(null);
+
+  // Handle drag and drop for symbols
+  const handleSymbolDragStart = (event: React.DragEvent, nodeType: string, nodeData: any) => {
+    event.dataTransfer.setData("nodeType", nodeType);
+    event.dataTransfer.setData("nodeData", JSON.stringify(nodeData));
+    event.dataTransfer.effectAllowed = "move";
+  };
 
   // Drawing store is now used by MainToolbar directly
 
@@ -100,7 +108,7 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
             {/* Sidebar Content */}
             {!leftSidebarCollapsed && (
               <div className="flex-1 overflow-auto p-2">
-                <SymbolLibrary />
+                <SymbolLibrary onDragStart={handleSymbolDragStart} />
               </div>
             )}
           </div>
