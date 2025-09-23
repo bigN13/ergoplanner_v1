@@ -1,19 +1,16 @@
-import { Node, Edge } from 'reactflow';
+import type { Node, Edge } from "reactflow";
 
 /**
  * Generate a unique ID for nodes and edges
  */
-export const generateId = (prefix: string = 'node'): string => {
+export const generateId = (prefix: string = "node"): string => {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
 /**
  * Validate if a connection between two nodes is valid
  */
-export const isValidConnection = (
-  source: Node,
-  target: Node
-): boolean => {
+export const isValidConnection = (source: Node, target: Node): boolean => {
   // Prevent self-connections
   if (source.id === target.id) {
     return false;
@@ -23,11 +20,11 @@ export const isValidConnection = (
   // For example, certain node types may not connect to others
   const invalidConnections: { [key: string]: string[] } = {
     // Example: tanks cannot directly connect to tanks
-    tank: ['tank'],
+    tank: ["tank"],
   };
 
-  const sourceType = source.type || 'default';
-  const targetType = target.type || 'default';
+  const sourceType = source.type || "default";
+  const targetType = target.type || "default";
 
   if (invalidConnections[sourceType]?.includes(targetType)) {
     return false;
@@ -57,8 +54,8 @@ export const calculateBoQ = (nodes: Node[]): BoQItem[] => {
       item.quantity += 1;
     } else {
       boqMap.set(key, {
-        type: node.type || 'unknown',
-        label: node.data.label || 'Unnamed Component',
+        type: node.type || "unknown",
+        label: node.data.label || "Unnamed Component",
         quantity: 1,
         specifications: { ...node.data },
       });
@@ -82,7 +79,7 @@ export const exportToJSON = (nodes: Node[], edges: Edge[]): string => {
     {
       nodes,
       edges,
-      version: '1.0.0',
+      version: "1.0.0",
       exportedAt: new Date().toISOString(),
     },
     null,
@@ -98,25 +95,25 @@ export const importFromJSON = (jsonString: string): { nodes: Node[]; edges: Edge
     const data = JSON.parse(jsonString);
 
     if (!data.nodes || !data.edges) {
-      throw new Error('Invalid drawing format');
+      throw new Error("Invalid drawing format");
     }
 
     // Validate and sanitize imported data
     const nodes = data.nodes.map((node: any) => ({
       ...node,
-      id: node.id || generateId('imported-node'),
+      id: node.id || generateId("imported-node"),
       position: node.position || { x: 0, y: 0 },
       data: node.data || {},
     }));
 
     const edges = data.edges.map((edge: any) => ({
       ...edge,
-      id: edge.id || generateId('imported-edge'),
+      id: edge.id || generateId("imported-edge"),
     }));
 
     return { nodes, edges };
   } catch (error) {
-    console.error('Failed to import drawing:', error);
+    console.error("Failed to import drawing:", error);
     return null;
   }
 };
@@ -137,7 +134,9 @@ export const snapToGrid = (
 /**
  * Get bounding box of nodes
  */
-export const getNodesBounds = (nodes: Node[]): {
+export const getNodesBounds = (
+  nodes: Node[]
+): {
   x: number;
   y: number;
   width: number;
@@ -198,7 +197,7 @@ export const autoLayout = (nodes: Node[]): Node[] => {
  * Validate P&ID diagram for common issues
  */
 export interface ValidationIssue {
-  type: 'warning' | 'error';
+  type: "warning" | "error";
   message: string;
   nodeId?: string;
   edgeId?: string;
@@ -217,33 +216,33 @@ export const validateDiagram = (nodes: Node[], edges: Edge[]): ValidationIssue[]
   nodes.forEach((node) => {
     if (!connectedNodeIds.has(node.id) && nodes.length > 1) {
       issues.push({
-        type: 'warning',
+        type: "warning",
         message: `Node "${node.data.label || node.id}" is not connected to any other component`,
         nodeId: node.id,
       });
     }
 
     // Check for missing labels on important components
-    if (!node.data.label && ['pump', 'valve', 'tank'].includes(node.type || '')) {
+    if (!node.data.label && ["pump", "valve", "tank"].includes(node.type || "")) {
       issues.push({
-        type: 'warning',
+        type: "warning",
         message: `${node.type} component is missing a label`,
         nodeId: node.id,
       });
     }
 
     // Check for missing critical properties
-    if (node.type === 'pump' && !node.data.flowRate) {
+    if (node.type === "pump" && !node.data.flowRate) {
       issues.push({
-        type: 'warning',
+        type: "warning",
         message: `Pump "${node.data.label || node.id}" is missing flow rate specification`,
         nodeId: node.id,
       });
     }
 
-    if (node.type === 'tank' && !node.data.capacity) {
+    if (node.type === "tank" && !node.data.capacity) {
       issues.push({
-        type: 'warning',
+        type: "warning",
         message: `Tank "${node.data.label || node.id}" is missing capacity specification`,
         nodeId: node.id,
       });
@@ -264,7 +263,7 @@ export const validateDiagram = (nodes: Node[], edges: Edge[]): ValidationIssue[]
   labels.forEach((nodeIds, label) => {
     if (nodeIds.length > 1) {
       issues.push({
-        type: 'error',
+        type: "error",
         message: `Duplicate label "${label}" found on multiple components`,
         nodeId: nodeIds[0],
       });

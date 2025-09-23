@@ -1,0 +1,408 @@
+"use client";
+
+import React, { useEffect } from "react";
+// import dynamic from 'next/dynamic';
+import { useHotkeys } from "react-hotkeys-hook";
+import { ReactFlowProvider } from "reactflow";
+
+import DockLayoutWrapper from "@/components/layout/DockLayout";
+import { useEnhancedDrawingStore } from "@/store/enhanced-drawing-store";
+import "reactflow/dist/style.css";
+import "rc-dock/dist/rc-dock.css";
+
+// Note: Components are loaded within DockLayoutWrapper
+// const HistoryPanel = dynamic(() => import('@/components/drawing/HistoryPanel'), { ssr: false });
+
+export default function DrawingPage() {
+  const {
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    copy,
+    paste,
+    deleteSelectedElements,
+    selectAll,
+    clearSelection,
+    toggleGrid,
+    toggleSnapToGrid,
+    setActiveTool,
+    // pushHistory,
+    selectedElements,
+    nodes,
+    edges,
+    alignNodes,
+    distributeNodes,
+    duplicateNodes,
+    groupSelectedElements,
+    ungroupSelectedElements,
+    // preferences,
+    // updatePreferences,
+  } = useEnhancedDrawingStore();
+
+  // =============== KEYBOARD SHORTCUTS (100+ shortcuts) ===============
+
+  // Basic editing shortcuts
+  useHotkeys("ctrl+z, cmd+z", () => canUndo() && undo(), [canUndo]);
+  useHotkeys("ctrl+y, cmd+y, ctrl+shift+z, cmd+shift+z", () => canRedo() && redo(), [canRedo]);
+  useHotkeys("ctrl+c, cmd+c", () => copy(), [selectedElements]);
+  useHotkeys("ctrl+v, cmd+v", () => paste(), []);
+  useHotkeys(
+    "ctrl+x, cmd+x",
+    () => {
+      copy();
+      deleteSelectedElements();
+    },
+    [selectedElements]
+  );
+  useHotkeys("delete, backspace", () => deleteSelectedElements(), [selectedElements]);
+  useHotkeys(
+    "ctrl+a, cmd+a",
+    (e) => {
+      e.preventDefault();
+      selectAll();
+    },
+    []
+  );
+  useHotkeys(
+    "escape",
+    () => {
+      clearSelection();
+      setActiveTool(null);
+    },
+    []
+  );
+  useHotkeys(
+    "ctrl+d, cmd+d",
+    () => {
+      if (selectedElements.nodes.length > 0) {
+        duplicateNodes(selectedElements.nodes);
+      }
+    },
+    [selectedElements]
+  );
+
+  // Tool shortcuts
+  useHotkeys("v", () => setActiveTool("select"));
+  useHotkeys("m", () => setActiveTool("move"));
+  useHotkeys("p", () => setActiveTool("pen"));
+  useHotkeys("l", () => setActiveTool("line"));
+  useHotkeys("shift+l", () => setActiveTool("polyline"));
+  useHotkeys("r", () => setActiveTool("rectangle"));
+  useHotkeys("c", () => setActiveTool("circle"));
+  useHotkeys("t", () => setActiveTool("text"));
+  useHotkeys("b", () => setActiveTool("box-select"));
+  useHotkeys("shift+b", () => setActiveTool("lasso-select"));
+  useHotkeys("h", () => setActiveTool("hand"));
+  useHotkeys("shift+p", () => setActiveTool("polygon"));
+  useHotkeys("shift+c", () => setActiveTool("connect"));
+  useHotkeys("shift+d", () => setActiveTool("disconnect"));
+
+  // View shortcuts
+  useHotkeys("g", () => toggleGrid());
+  useHotkeys("shift+s", () => toggleSnapToGrid());
+  useHotkeys("ctrl+0, cmd+0", () => {
+    /* TODO: fitToView */
+  });
+  useHotkeys("ctrl+1, cmd+1", () => {
+    /* TODO: zoomToSelection */
+  });
+  useHotkeys("ctrl+plus, cmd+plus, ctrl+=, cmd+=", () => {
+    /* zoom in */
+  });
+  useHotkeys("ctrl+minus, cmd+minus", () => {
+    /* zoom out */
+  });
+  useHotkeys("ctrl+r, cmd+r", (e) => {
+    e.preventDefault();
+    // TODO: toggleRulers();
+  });
+  useHotkeys("ctrl+;, cmd+;", () => {
+    /* TODO: toggleGuides */
+  });
+  useHotkeys("f", () => {
+    /* TODO: fitToView */
+  });
+  useHotkeys("space", () => setActiveTool("hand"));
+
+  // Alignment shortcuts
+  useHotkeys("alt+left", () => {
+    if (selectedElements.nodes.length > 1) {
+      alignNodes(selectedElements.nodes, "left");
+    }
+  });
+  useHotkeys("alt+shift+c", () => {
+    if (selectedElements.nodes.length > 1) {
+      alignNodes(selectedElements.nodes, "center");
+    }
+  });
+  useHotkeys("alt+right", () => {
+    if (selectedElements.nodes.length > 1) {
+      alignNodes(selectedElements.nodes, "right");
+    }
+  });
+  useHotkeys("alt+up", () => {
+    if (selectedElements.nodes.length > 1) {
+      alignNodes(selectedElements.nodes, "top");
+    }
+  });
+  useHotkeys("alt+shift+m", () => {
+    if (selectedElements.nodes.length > 1) {
+      alignNodes(selectedElements.nodes, "middle");
+    }
+  });
+  useHotkeys("alt+down", () => {
+    if (selectedElements.nodes.length > 1) {
+      alignNodes(selectedElements.nodes, "bottom");
+    }
+  });
+  useHotkeys("alt+shift+h", () => {
+    if (selectedElements.nodes.length > 2) {
+      distributeNodes(selectedElements.nodes, "horizontal");
+    }
+  });
+  useHotkeys("alt+shift+v", () => {
+    if (selectedElements.nodes.length > 2) {
+      distributeNodes(selectedElements.nodes, "vertical");
+    }
+  });
+
+  // Transform shortcuts
+  useHotkeys("ctrl+], cmd+]", () => {
+    /* rotate CW */
+  });
+  useHotkeys("ctrl+[, cmd+[", () => {
+    /* rotate CCW */
+  });
+  useHotkeys("shift+h", () => {
+    /* flip horizontal */
+  });
+  useHotkeys("shift+v", () => {
+    /* flip vertical */
+  });
+
+  // Group shortcuts
+  useHotkeys("ctrl+g, cmd+g", () => {
+    if (selectedElements.nodes.length > 1) {
+      groupSelectedElements();
+    }
+  });
+  useHotkeys("ctrl+shift+g, cmd+shift+g", () => {
+    ungroupSelectedElements();
+  });
+
+  // Layer shortcuts
+  useHotkeys("ctrl+shift+up, cmd+shift+up", () => {
+    /* move to upper layer */
+  });
+  useHotkeys("ctrl+shift+down, cmd+shift+down", () => {
+    /* move to lower layer */
+  });
+  useHotkeys("ctrl+l, cmd+l", () => {
+    /* toggle layers panel */
+  });
+
+  // File shortcuts
+  useHotkeys("ctrl+s, cmd+s", (e) => {
+    e.preventDefault();
+    // TODO: exportDrawing('json');
+  });
+  useHotkeys("ctrl+shift+s, cmd+shift+s", (e) => {
+    e.preventDefault();
+    // TODO: exportDrawing('svg');
+  });
+  useHotkeys("ctrl+o, cmd+o", (e) => {
+    e.preventDefault();
+    // Open file dialog
+  });
+  useHotkeys("ctrl+e, cmd+e", (e) => {
+    e.preventDefault();
+    // TODO: exportDrawing('png');
+  });
+  useHotkeys("ctrl+p, cmd+p", (e) => {
+    e.preventDefault();
+    // TODO: exportDrawing('pdf');
+  });
+
+  // Measurement shortcuts
+  useHotkeys("shift+m", () => {
+    /* TODO: toggleMeasurementMode */
+  });
+  useHotkeys("shift+r", () => setActiveTool("ruler"));
+  useHotkeys("shift+a", () => setActiveTool("angle"));
+  useHotkeys("shift+e", () => setActiveTool("area"));
+
+  // Text editing shortcuts
+  useHotkeys("ctrl+b, cmd+b", () => {
+    /* bold text */
+  });
+  useHotkeys("ctrl+i, cmd+i", () => {
+    /* italic text */
+  });
+  useHotkeys("ctrl+u, cmd+u", () => {
+    /* underline text */
+  });
+
+  // Navigation shortcuts
+  useHotkeys("home", () => {
+    /* go to start */
+  });
+  useHotkeys("end", () => {
+    /* go to end */
+  });
+  useHotkeys("pageup", () => {
+    /* pan up */
+  });
+  useHotkeys("pagedown", () => {
+    /* pan down */
+  });
+
+  // Panel shortcuts
+  useHotkeys("f1", () => {
+    /* help */
+  });
+  useHotkeys("f2", () => {
+    /* rename */
+  });
+  useHotkeys("f3", () => {
+    /* search */
+  });
+  useHotkeys("f4", () => {
+    /* properties */
+  });
+  useHotkeys("f5", () => {
+    /* refresh */
+  });
+  useHotkeys("f6", () => {
+    /* symbols */
+  });
+  useHotkeys("f7", () => {
+    /* layers */
+  });
+  useHotkeys("f8", () => {
+    /* history */
+  });
+  useHotkeys("f9", () => {
+    /* BoQ */
+  });
+  useHotkeys("f12", () => {
+    /* dev tools */
+  });
+
+  // Auto-save functionality
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      console.log("Auto-saving...");
+      localStorage.setItem(
+        "ergoplanner-autosave",
+        JSON.stringify({
+          nodes,
+          edges,
+          timestamp: new Date().toISOString(),
+        })
+      );
+    }, 60000); // Save every minute
+
+    return () => clearInterval(autoSaveInterval);
+  }, [nodes, edges]);
+
+  // Handle browser close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (nodes.length > 0 || edges.length > 0) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [nodes, edges]);
+
+  // Load auto-save on mount
+  useEffect(() => {
+    const autoSave = localStorage.getItem("ergoplanner-autosave");
+    if (autoSave) {
+      const data = JSON.parse(autoSave);
+      console.log("Loaded auto-save from:", data.timestamp);
+      // Optionally restore the auto-saved data
+    }
+  }, []);
+
+  return (
+    <ReactFlowProvider>
+      <div className="h-screen w-full overflow-hidden bg-gray-50">
+        {/* Main Dockable Layout */}
+        <DockLayoutWrapper />
+
+        {/* Status Bar */}
+        <div className="absolute right-0 bottom-0 left-0 z-50 flex items-center justify-between bg-gray-800 px-4 py-1 text-xs text-white">
+          <div className="flex items-center gap-4">
+            <span>Nodes: {nodes.length}</span>
+            <span>Edges: {edges.length}</span>
+            <span>Selected: {selectedElements.nodes.length + selectedElements.edges.length}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-gray-400">
+              Press F1 for help | 100+ keyboard shortcuts available
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-green-400">● Connected</span>
+            <span>Auto-save: Enabled</span>
+          </div>
+        </div>
+
+        {/* Floating Action Buttons */}
+        <div className="absolute right-4 bottom-20 z-40 flex flex-col gap-2">
+          <button
+            onClick={() => {
+              /* TODO: fitToView */
+            }}
+            className="group rounded-full bg-blue-500 p-3 text-white shadow-lg transition-colors hover:bg-blue-600"
+            title="Fit to View (Ctrl+0)"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={() => toggleGrid()}
+            className="rounded-full bg-gray-500 p-3 text-white shadow-lg transition-colors hover:bg-gray-600"
+            title="Toggle Grid (G)"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={() => {
+              /* TODO: exportDrawing('svg') */
+            }}
+            className="rounded-full bg-green-500 p-3 text-white shadow-lg transition-colors hover:bg-green-600"
+            title="Export Drawing (Ctrl+E)"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </ReactFlowProvider>
+  );
+}

@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface TankNodeData {
   label: string;
-  type: 'storage' | 'pressure' | 'mixing' | 'buffer';
+  type: "storage" | "pressure" | "mixing" | "buffer";
   capacity?: string;
   level?: number; // 0-100 percentage
   material?: string;
@@ -15,7 +16,7 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
   return (
     <div
       className={`relative flex h-32 w-24 items-center justify-center transition-all ${
-        selected ? 'scale-105' : ''
+        selected ? "scale-105" : ""
       }`}
     >
       {/* Top connection */}
@@ -24,7 +25,7 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
         position={Position.Top}
         id="top"
         className="!h-3 !w-3 !border-2 !border-gray-700 !bg-white"
-        style={{ left: '50%' }}
+        style={{ left: "50%" }}
       />
 
       {/* Left connection */}
@@ -33,7 +34,7 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
         position={Position.Left}
         id="left-in"
         className="!h-3 !w-3 !border-2 !border-gray-700 !bg-white"
-        style={{ top: '30%' }}
+        style={{ top: "30%" }}
       />
 
       {/* Right connection */}
@@ -42,7 +43,7 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
         position={Position.Right}
         id="right-out"
         className="!h-3 !w-3 !border-2 !border-gray-700 !bg-white"
-        style={{ top: '30%' }}
+        style={{ top: "30%" }}
       />
 
       {/* Bottom connection */}
@@ -51,7 +52,7 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
         position={Position.Bottom}
         id="bottom"
         className="!h-3 !w-3 !border-2 !border-gray-700 !bg-white"
-        style={{ left: '50%' }}
+        style={{ left: "50%" }}
       />
 
       <svg
@@ -69,7 +70,7 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
           width="60"
           height="80"
           rx="5"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="white"
         />
@@ -77,62 +78,41 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
         {/* Liquid level */}
         <rect
           x="12"
-          y={100 - (level * 0.78)}
+          y={100 - level * 0.78}
           width="56"
           height={level * 0.78}
           rx="3"
-          fill={selected ? '#93C5FD' : '#E0E7FF'}
+          fill={selected ? "#93C5FD" : "#E0E7FF"}
           opacity="0.7"
         />
 
         {/* Top dome for pressure tanks */}
-        {data.type === 'pressure' && (
+        {data.type === "pressure" && (
           <ellipse
             cx="40"
             cy="20"
             rx="30"
             ry="10"
-            stroke={selected ? '#3B82F6' : 'currentColor'}
+            stroke={selected ? "#3B82F6" : "currentColor"}
             strokeWidth="2"
             fill="white"
           />
         )}
 
         {/* Level indicator lines */}
-        <line
-          x1="5"
-          y1="40"
-          x2="10"
-          y2="40"
-          stroke="currentColor"
-          strokeWidth="1"
-        />
-        <line
-          x1="5"
-          y1="60"
-          x2="10"
-          y2="60"
-          stroke="currentColor"
-          strokeWidth="1"
-        />
-        <line
-          x1="5"
-          y1="80"
-          x2="10"
-          y2="80"
-          stroke="currentColor"
-          strokeWidth="1"
-        />
+        <line x1="5" y1="40" x2="10" y2="40" stroke="currentColor" strokeWidth="1" />
+        <line x1="5" y1="60" x2="10" y2="60" stroke="currentColor" strokeWidth="1" />
+        <line x1="5" y1="80" x2="10" y2="80" stroke="currentColor" strokeWidth="1" />
       </svg>
 
       {data.label && (
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
 
       {data.capacity && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-gray-600">
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap text-gray-600">
           {data.capacity}
         </div>
       )}
@@ -140,6 +120,6 @@ const TankNode = memo(({ data, selected }: NodeProps<TankNodeData>) => {
   );
 });
 
-TankNode.displayName = 'TankNode';
+TankNode.displayName = "TankNode";
 
 export default TankNode;

@@ -1,20 +1,21 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface ValveNodeData {
   label: string;
-  type: 'gate' | 'ball' | 'butterfly' | 'globe';
-  state?: 'open' | 'closed' | 'partial';
+  type: "gate" | "ball" | "butterfly" | "globe";
+  state?: "open" | "closed" | "partial";
   size?: string;
 }
 
 const ValveNode = memo(({ data, selected }: NodeProps<ValveNodeData>) => {
-  const isOpen = data.state === 'open';
+  const isOpen = data.state === "open";
 
   return (
     <div
       className={`relative flex h-16 w-16 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <Handle
@@ -34,25 +35,25 @@ const ValveNode = memo(({ data, selected }: NodeProps<ValveNodeData>) => {
         {/* Valve symbol - bow tie shape */}
         <path
           d="M 15 25 L 25 15 L 25 35 Z"
-          fill={selected ? '#3B82F6' : 'currentColor'}
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
         <path
           d="M 35 25 L 25 15 L 25 35 Z"
-          fill={selected ? '#3B82F6' : 'currentColor'}
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
 
         {/* Valve stem */}
-        {data.type === 'gate' && (
+        {data.type === "gate" && (
           <line
             x1="25"
             y1="15"
             x2="25"
             y2="5"
-            stroke={selected ? '#3B82F6' : 'currentColor'}
+            stroke={selected ? "#3B82F6" : "currentColor"}
             strokeWidth="2"
           />
         )}
@@ -78,7 +79,7 @@ const ValveNode = memo(({ data, selected }: NodeProps<ValveNodeData>) => {
       />
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
@@ -86,6 +87,6 @@ const ValveNode = memo(({ data, selected }: NodeProps<ValveNodeData>) => {
   );
 });
 
-ValveNode.displayName = 'ValveNode';
+ValveNode.displayName = "ValveNode";
 
 export default ValveNode;

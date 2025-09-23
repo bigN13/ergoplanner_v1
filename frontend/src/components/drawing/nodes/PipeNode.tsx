@@ -1,17 +1,18 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface PipeNodeData {
   label: string;
   diameter?: string;
   material?: string;
-  orientation: 'horizontal' | 'vertical' | 'elbow' | 'tee' | 'cross';
+  orientation: "horizontal" | "vertical" | "elbow" | "tee" | "cross";
 }
 
 const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
   const renderPipeShape = () => {
     switch (data.orientation) {
-      case 'horizontal':
+      case "horizontal":
         return (
           <>
             <line
@@ -19,7 +20,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
               y1="25"
               x2="50"
               y2="25"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
             />
             <Handle
@@ -35,7 +36,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
           </>
         );
 
-      case 'vertical':
+      case "vertical":
         return (
           <>
             <line
@@ -43,7 +44,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
               y1="0"
               x2="25"
               y2="50"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
             />
             <Handle
@@ -59,12 +60,12 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
           </>
         );
 
-      case 'elbow':
+      case "elbow":
         return (
           <>
             <path
               d="M 10 25 L 25 25 L 25 40"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
               fill="none"
               strokeLinecap="round"
@@ -83,7 +84,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
           </>
         );
 
-      case 'tee':
+      case "tee":
         return (
           <>
             <line
@@ -91,7 +92,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
               y1="25"
               x2="50"
               y2="25"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
             />
             <line
@@ -99,7 +100,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
               y1="25"
               x2="25"
               y2="45"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
             />
             <Handle
@@ -123,7 +124,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
           </>
         );
 
-      case 'cross':
+      case "cross":
         return (
           <>
             <line
@@ -131,7 +132,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
               y1="25"
               x2="50"
               y2="25"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
             />
             <line
@@ -139,7 +140,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
               y1="0"
               x2="25"
               y2="50"
-              stroke={selected ? '#3B82F6' : 'currentColor'}
+              stroke={selected ? "#3B82F6" : "currentColor"}
               strokeWidth="4"
             />
             <Handle
@@ -177,7 +178,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
   return (
     <div
       className={`relative flex h-12 w-12 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <svg
@@ -192,7 +193,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
       </svg>
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
@@ -200,6 +201,6 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
   );
 });
 
-PipeNode.displayName = 'PipeNode';
+PipeNode.displayName = "PipeNode";
 
 export default PipeNode;

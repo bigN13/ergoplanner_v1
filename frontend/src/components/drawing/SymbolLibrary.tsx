@@ -1,7 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Star,
+  Clock,
+  Grid,
+  List,
+  Filter,
+  X,
+  Tag,
+  Heart,
+} from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
 
 export interface Symbol {
   id: string;
@@ -10,211 +22,227 @@ export interface Symbol {
   category: string;
   icon: React.ReactNode;
   defaultData: any;
+  tags?: string[];
+  description?: string;
+  standard?: "ISA-5.1" | "ISO-14617" | "UK-Water";
+  searchKeywords?: string[];
 }
 
 const symbolCategories = [
   {
-    name: 'Pumps & Compressors',
+    name: "Pumps & Compressors",
     symbols: [
       {
-        id: 'pump-centrifugal',
-        type: 'pump',
-        label: 'Centrifugal Pump',
-        category: 'Pumps & Compressors',
+        id: "pump-centrifugal",
+        type: "pump",
+        label: "Centrifugal Pump",
+        category: "Pumps & Compressors",
         defaultData: {
-          label: 'P-101',
-          type: 'centrifugal',
-          flowRate: '100 m³/h',
-          head: '50 m',
+          label: "P-101",
+          type: "centrifugal",
+          flowRate: "100 m³/h",
+          head: "50 m",
         },
+        tags: ["pump", "centrifugal", "rotating", "equipment"],
+        description: "Centrifugal pump for fluid transfer",
+        standard: "ISA-5.1",
+        searchKeywords: ["pump", "centrifugal", "fluid", "transfer", "rotating"],
       },
       {
-        id: 'compressor',
-        type: 'compressor',
-        label: 'Compressor',
-        category: 'Pumps & Compressors',
+        id: "compressor",
+        type: "compressor",
+        label: "Compressor",
+        category: "Pumps & Compressors",
         defaultData: {
-          label: 'C-101',
-          type: 'centrifugal',
-          pressure: '10 bar',
+          label: "C-101",
+          type: "centrifugal",
+          pressure: "10 bar",
         },
+        tags: ["compressor", "centrifugal", "rotating", "equipment"],
+        description: "Centrifugal compressor for gas compression",
+        standard: "ISA-5.1",
+        searchKeywords: ["compressor", "centrifugal", "gas", "pressure", "rotating"],
       },
     ],
   },
   {
-    name: 'Valves',
+    name: "Valves",
     symbols: [
       {
-        id: 'valve-gate',
-        type: 'valve',
-        label: 'Gate Valve',
-        category: 'Valves',
+        id: "valve-gate",
+        type: "valve",
+        label: "Gate Valve",
+        category: "Valves",
         defaultData: {
-          label: 'V-101',
-          type: 'gate',
-          state: 'open',
-          size: 'DN100',
+          label: "V-101",
+          type: "gate",
+          state: "open",
+          size: "DN100",
         },
+        tags: ["valve", "gate", "isolation", "manual"],
+        description: "Gate valve for flow isolation",
+        standard: "ISA-5.1",
+        searchKeywords: ["valve", "gate", "isolation", "shutoff", "manual"],
       },
       {
-        id: 'valve-control',
-        type: 'controlValve',
-        label: 'Control Valve',
-        category: 'Valves',
+        id: "valve-control",
+        type: "controlValve",
+        label: "Control Valve",
+        category: "Valves",
         defaultData: {
-          label: 'CV-101',
-          controlType: 'pneumatic',
+          label: "CV-101",
+          controlType: "pneumatic",
           position: 50,
         },
       },
       {
-        id: 'valve-check',
-        type: 'checkValve',
-        label: 'Check Valve',
-        category: 'Valves',
+        id: "valve-check",
+        type: "checkValve",
+        label: "Check Valve",
+        category: "Valves",
         defaultData: {
-          label: 'CHK-101',
-          type: 'swing',
-          flowDirection: 'left-to-right',
+          label: "CHK-101",
+          type: "swing",
+          flowDirection: "left-to-right",
         },
       },
     ],
   },
   {
-    name: 'Tanks & Vessels',
+    name: "Tanks & Vessels",
     symbols: [
       {
-        id: 'tank-storage',
-        type: 'tank',
-        label: 'Storage Tank',
-        category: 'Tanks & Vessels',
+        id: "tank-storage",
+        type: "tank",
+        label: "Storage Tank",
+        category: "Tanks & Vessels",
         defaultData: {
-          label: 'T-101',
-          type: 'storage',
-          capacity: '1000 m³',
+          label: "T-101",
+          type: "storage",
+          capacity: "1000 m³",
           level: 50,
         },
       },
       {
-        id: 'tank-pressure',
-        type: 'tank',
-        label: 'Pressure Vessel',
-        category: 'Tanks & Vessels',
+        id: "tank-pressure",
+        type: "tank",
+        label: "Pressure Vessel",
+        category: "Tanks & Vessels",
         defaultData: {
-          label: 'V-101',
-          type: 'pressure',
-          capacity: '500 m³',
+          label: "V-101",
+          type: "pressure",
+          capacity: "500 m³",
           level: 30,
         },
       },
     ],
   },
   {
-    name: 'Piping',
+    name: "Piping",
     symbols: [
       {
-        id: 'pipe-horizontal',
-        type: 'pipe',
-        label: 'Horizontal Pipe',
-        category: 'Piping',
+        id: "pipe-horizontal",
+        type: "pipe",
+        label: "Horizontal Pipe",
+        category: "Piping",
         defaultData: {
-          label: '',
-          diameter: 'DN100',
-          material: 'Steel',
-          orientation: 'horizontal',
+          label: "",
+          diameter: "DN100",
+          material: "Steel",
+          orientation: "horizontal",
         },
       },
       {
-        id: 'pipe-vertical',
-        type: 'pipe',
-        label: 'Vertical Pipe',
-        category: 'Piping',
+        id: "pipe-vertical",
+        type: "pipe",
+        label: "Vertical Pipe",
+        category: "Piping",
         defaultData: {
-          label: '',
-          diameter: 'DN100',
-          material: 'Steel',
-          orientation: 'vertical',
+          label: "",
+          diameter: "DN100",
+          material: "Steel",
+          orientation: "vertical",
         },
       },
       {
-        id: 'pipe-elbow',
-        type: 'pipe',
-        label: 'Elbow',
-        category: 'Piping',
+        id: "pipe-elbow",
+        type: "pipe",
+        label: "Elbow",
+        category: "Piping",
         defaultData: {
-          label: '',
-          diameter: 'DN100',
-          material: 'Steel',
-          orientation: 'elbow',
+          label: "",
+          diameter: "DN100",
+          material: "Steel",
+          orientation: "elbow",
         },
       },
       {
-        id: 'pipe-tee',
-        type: 'pipe',
-        label: 'Tee',
-        category: 'Piping',
+        id: "pipe-tee",
+        type: "pipe",
+        label: "Tee",
+        category: "Piping",
         defaultData: {
-          label: '',
-          diameter: 'DN100',
-          material: 'Steel',
-          orientation: 'tee',
+          label: "",
+          diameter: "DN100",
+          material: "Steel",
+          orientation: "tee",
         },
       },
       {
-        id: 'pipe-cross',
-        type: 'pipe',
-        label: 'Cross',
-        category: 'Piping',
+        id: "pipe-cross",
+        type: "pipe",
+        label: "Cross",
+        category: "Piping",
         defaultData: {
-          label: '',
-          diameter: 'DN100',
-          material: 'Steel',
-          orientation: 'cross',
+          label: "",
+          diameter: "DN100",
+          material: "Steel",
+          orientation: "cross",
         },
       },
     ],
   },
   {
-    name: 'Instruments',
+    name: "Instruments",
     symbols: [
       {
-        id: 'flow-meter',
-        type: 'flowMeter',
-        label: 'Flow Meter',
-        category: 'Instruments',
+        id: "flow-meter",
+        type: "flowMeter",
+        label: "Flow Meter",
+        category: "Instruments",
         defaultData: {
-          label: 'FI-101',
-          type: 'electromagnetic',
-          unit: 'm³/h',
-          value: '0.0',
+          label: "FI-101",
+          type: "electromagnetic",
+          unit: "m³/h",
+          value: "0.0",
         },
       },
       {
-        id: 'pressure-gauge',
-        type: 'pressureGauge',
-        label: 'Pressure Gauge',
-        category: 'Instruments',
+        id: "pressure-gauge",
+        type: "pressureGauge",
+        label: "Pressure Gauge",
+        category: "Instruments",
         defaultData: {
-          label: 'PI-101',
-          unit: 'bar',
-          value: '0.0',
-          maxPressure: '10 bar',
+          label: "PI-101",
+          unit: "bar",
+          value: "0.0",
+          maxPressure: "10 bar",
         },
       },
     ],
   },
   {
-    name: 'Heat Transfer',
+    name: "Heat Transfer",
     symbols: [
       {
-        id: 'heat-exchanger',
-        type: 'heatExchanger',
-        label: 'Heat Exchanger',
-        category: 'Heat Transfer',
+        id: "heat-exchanger",
+        type: "heatExchanger",
+        label: "Heat Exchanger",
+        category: "Heat Transfer",
         defaultData: {
-          label: 'HX-101',
-          type: 'shell-tube',
-          duty: '1000 kW',
+          label: "HX-101",
+          type: "shell-tube",
+          duty: "1000 kW",
         },
       },
     ],
@@ -226,10 +254,40 @@ interface SymbolLibraryProps {
 }
 
 export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(symbolCategories.map(cat => cat.name))
+    new Set(symbolCategories.map((cat) => cat.name))
   );
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [recentlyUsed, setRecentlyUsed] = useState<Symbol[]>([]);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedStandard, setSelectedStandard] = useState<string>("all");
+
+  // Load favorites and recently used from localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("ergoplanner-favorites");
+    const savedRecent = localStorage.getItem("ergoplanner-recent-symbols");
+
+    if (savedFavorites) {
+      setFavorites(new Set(JSON.parse(savedFavorites)));
+    }
+
+    if (savedRecent) {
+      setRecentlyUsed(JSON.parse(savedRecent));
+    }
+  }, []);
+
+  // Save favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem("ergoplanner-favorites", JSON.stringify([...favorites]));
+  }, [favorites]);
+
+  // Save recently used to localStorage
+  useEffect(() => {
+    localStorage.setItem("ergoplanner-recent-symbols", JSON.stringify(recentlyUsed));
+  }, [recentlyUsed]);
 
   const toggleCategory = (categoryName: string) => {
     const newExpanded = new Set(expandedCategories);
@@ -241,12 +299,95 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     setExpandedCategories(newExpanded);
   };
 
-  const filteredCategories = symbolCategories.map(category => ({
-    ...category,
-    symbols: category.symbols.filter(symbol =>
-      symbol.label.toLowerCase().includes(searchTerm.toLowerCase())
-    ),
-  })).filter(category => category.symbols.length > 0);
+  // Get all available tags
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    symbolCategories.forEach((category) => {
+      category.symbols.forEach((symbol) => {
+        symbol.tags?.forEach((tag) => tagSet.add(tag));
+      });
+    });
+    return Array.from(tagSet).sort();
+  }, []);
+
+  // Filter symbols based on search, tags, and standard
+  const filteredCategories = useMemo(() => {
+    return symbolCategories
+      .map((category) => ({
+        ...category,
+        symbols: category.symbols.filter((symbol) => {
+          // Text search
+          const matchesSearch =
+            searchTerm === "" ||
+            symbol.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            symbol.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            symbol.searchKeywords?.some((keyword) =>
+              keyword.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+          // Tag filter
+          const matchesTags =
+            selectedTags.size === 0 || symbol.tags?.some((tag) => selectedTags.has(tag));
+
+          // Standard filter
+          const matchesStandard =
+            selectedStandard === "all" || symbol.standard === selectedStandard;
+
+          return matchesSearch && matchesTags && matchesStandard;
+        }),
+      }))
+      .filter((category) => category.symbols.length > 0);
+  }, [searchTerm, selectedTags, selectedStandard]);
+
+  // Add recently used category if there are recent symbols
+  const categoriesWithRecent = useMemo(() => {
+    if (recentlyUsed.length === 0) return filteredCategories;
+
+    return [
+      {
+        name: "Recently Used",
+        symbols: recentlyUsed.slice(0, 8), // Show max 8 recent items
+      },
+      ...filteredCategories,
+    ];
+  }, [filteredCategories, recentlyUsed]);
+
+  const toggleFavorite = (symbolId: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(symbolId)) {
+      newFavorites.delete(symbolId);
+    } else {
+      newFavorites.add(symbolId);
+    }
+    setFavorites(newFavorites);
+  };
+
+  const addToRecentlyUsed = (symbol: Symbol) => {
+    const filtered = recentlyUsed.filter((s) => s.id !== symbol.id);
+    const newRecent = [symbol, ...filtered].slice(0, 10); // Keep max 10 recent items
+    setRecentlyUsed(newRecent);
+  };
+
+  const handleDragStart = (event: React.DragEvent, symbol: Symbol) => {
+    addToRecentlyUsed(symbol);
+    onDragStart(event, symbol.type, symbol.defaultData);
+  };
+
+  const toggleTag = (tag: string) => {
+    const newTags = new Set(selectedTags);
+    if (newTags.has(tag)) {
+      newTags.delete(tag);
+    } else {
+      newTags.add(tag);
+    }
+    setSelectedTags(newTags);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedTags(new Set());
+    setSelectedStandard("all");
+  };
 
   const renderSymbolIcon = (type: string) => {
     // Simplified icon representations for the library
@@ -259,24 +400,45 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
       ),
       valve: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-          <path d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z" fill="currentColor" stroke="currentColor" />
+          <path
+            d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z"
+            fill="currentColor"
+            stroke="currentColor"
+          />
         </svg>
       ),
       controlValve: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-          <path d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z" fill="currentColor" stroke="currentColor" />
+          <path
+            d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z"
+            fill="currentColor"
+            stroke="currentColor"
+          />
           <rect x="10" y="3" width="10" height="5" stroke="currentColor" fill="white" />
         </svg>
       ),
       checkValve: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
           <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
-          <path d="M 10 15 L 18 15 M 18 15 L 15 12 M 18 15 L 15 18" stroke="currentColor" strokeWidth="1.5" />
+          <path
+            d="M 10 15 L 18 15 M 18 15 L 15 12 M 18 15 L 15 18"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
         </svg>
       ),
       tank: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-          <rect x="8" y="8" width="14" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" fill="white" />
+          <rect
+            x="8"
+            y="8"
+            width="14"
+            height="18"
+            rx="2"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="white"
+          />
           <rect x="9" y="18" width="12" height="7" fill="#E0E7FF" opacity="0.5" />
         </svg>
       ),
@@ -288,19 +450,31 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
       flowMeter: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
           <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
-          <text x="15" y="19" textAnchor="middle" fontSize="8" fontWeight="bold">FI</text>
+          <text x="15" y="19" textAnchor="middle" fontSize="8" fontWeight="bold">
+            FI
+          </text>
         </svg>
       ),
       pressureGauge: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
           <circle cx="15" cy="13" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
-          <text x="15" y="16" textAnchor="middle" fontSize="8" fontWeight="bold">PI</text>
+          <text x="15" y="16" textAnchor="middle" fontSize="8" fontWeight="bold">
+            PI
+          </text>
           <line x1="15" y1="21" x2="15" y2="25" stroke="currentColor" strokeWidth="1.5" />
         </svg>
       ),
       heatExchanger: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-          <rect x="5" y="10" width="20" height="10" stroke="currentColor" strokeWidth="1.5" fill="white" />
+          <rect
+            x="5"
+            y="10"
+            width="20"
+            height="10"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="white"
+          />
           <line x1="8" y1="13" x2="22" y2="13" stroke="#EF4444" strokeWidth="1" />
           <line x1="8" y1="17" x2="22" y2="17" stroke="#3B82F6" strokeWidth="1" />
         </svg>
@@ -308,7 +482,11 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
       compressor: (
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
           <circle cx="15" cy="15" r="10" stroke="currentColor" strokeWidth="1.5" fill="white" />
-          <path d="M 15 10 L 12 15 L 15 20 M 15 10 L 18 15 L 15 20" stroke="currentColor" strokeWidth="1.5" />
+          <path
+            d="M 15 10 L 12 15 L 15 20 M 15 10 L 18 15 L 15 20"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
         </svg>
       ),
     };
@@ -319,27 +497,113 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
   return (
     <div className="flex h-full w-64 flex-col border-r border-gray-200 bg-gray-50">
       <div className="border-b border-gray-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold text-gray-700">Symbol Library</h2>
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-700">Symbol Library</h2>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+              className="rounded p-1 hover:bg-gray-200"
+              title={`Switch to ${viewMode === "grid" ? "list" : "grid"} view`}
+            >
+              {viewMode === "grid" ? <List className="h-3 w-3" /> : <Grid className="h-3 w-3" />}
+            </button>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`rounded p-1 hover:bg-gray-200 ${
+                showFilters || selectedTags.size > 0 || selectedStandard !== "all"
+                  ? "bg-blue-100 text-blue-600"
+                  : ""
+              }`}
+              title="Toggle filters"
+            >
+              <Filter className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative mb-3">
+          <Search className="absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search symbols..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-md border border-gray-300 pl-8 pr-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 py-1.5 pr-3 pl-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
         </div>
+
+        {/* Filters */}
+        {showFilters && (
+          <div className="mb-3 space-y-3">
+            {/* Standard Filter */}
+            <div>
+              <label className="mb-1 block text-xs text-gray-500">Standard</label>
+              <select
+                value={selectedStandard}
+                onChange={(e) => setSelectedStandard(e.target.value)}
+                className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+              >
+                <option value="all">All Standards</option>
+                <option value="ISA-5.1">ISA-5.1</option>
+                <option value="ISO-14617">ISO-14617</option>
+                <option value="UK-Water">UK Water</option>
+              </select>
+            </div>
+
+            {/* Tag Filter */}
+            <div>
+              <label className="mb-1 block text-xs text-gray-500">Tags</label>
+              <div className="flex max-h-20 flex-wrap gap-1 overflow-y-auto">
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`rounded-full border px-2 py-1 text-xs ${
+                      selectedTags.has(tag)
+                        ? "border-blue-300 bg-blue-100 text-blue-700"
+                        : "border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            {(selectedTags.size > 0 || selectedStandard !== "all" || searchTerm) && (
+              <button
+                onClick={clearFilters}
+                className="w-full py-1 text-xs text-red-600 hover:text-red-700"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
-        {filteredCategories.map((category) => (
+        {categoriesWithRecent.map((category) => (
           <div key={category.name} className="mb-2">
             <button
               onClick={() => toggleCategory(category.name)}
               className="flex w-full items-center justify-between rounded px-2 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
             >
-              <span>{category.name}</span>
+              <div className="flex items-center gap-2">
+                <span>{category.name}</span>
+                {category.name === "Recently Used" && <Clock className="h-3 w-3 text-gray-400" />}
+                <span className="text-xs text-gray-500">({category.symbols.length})</span>
+              </div>
               {expandedCategories.has(category.name) ? (
                 <ChevronDown className="h-4 w-4" />
               ) : (
@@ -348,24 +612,107 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
             </button>
 
             {expandedCategories.has(category.name) && (
-              <div className="mt-1 grid grid-cols-2 gap-1.5 px-2">
-                {category.symbols.map((symbol) => (
-                  <div
-                    key={symbol.id}
-                    draggable
-                    onDragStart={(e) => onDragStart(e, symbol.type, symbol.defaultData)}
-                    className="flex cursor-move flex-col items-center rounded border border-gray-200 bg-white p-2 hover:border-blue-400 hover:bg-blue-50"
-                  >
-                    <div className="mb-1 text-gray-700">
-                      {renderSymbolIcon(symbol.type)}
+              <div
+                className={`mt-1 px-2 ${
+                  viewMode === "grid" ? "grid grid-cols-2 gap-1.5" : "space-y-1"
+                }`}
+              >
+                {category.symbols.map((symbol) => {
+                  const isSymbol = "id" in symbol;
+                  const symbolData = isSymbol ? symbol : (symbol as Symbol);
+
+                  return (
+                    <div
+                      key={symbolData.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, symbolData)}
+                      className={`group relative cursor-move rounded border border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 ${
+                        viewMode === "grid"
+                          ? "flex flex-col items-center p-2"
+                          : "flex items-center gap-2 p-2"
+                      } `}
+                      title={symbolData.description || symbolData.label}
+                    >
+                      {/* Favorite Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(symbolData.id);
+                        }}
+                        className={`absolute top-1 right-1 rounded p-0.5 opacity-0 group-hover:opacity-100 ${
+                          favorites.has(symbolData.id)
+                            ? "text-yellow-500 opacity-100"
+                            : "text-gray-400 hover:text-yellow-500"
+                        } `}
+                      >
+                        <Heart
+                          className={`h-3 w-3 ${
+                            favorites.has(symbolData.id) ? "fill-current" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {/* Symbol Icon */}
+                      <div
+                        className={`text-gray-700 ${
+                          viewMode === "grid" ? "mb-1" : "flex-shrink-0"
+                        }`}
+                      >
+                        {renderSymbolIcon(symbolData.type)}
+                      </div>
+
+                      {/* Symbol Info */}
+                      <div className={viewMode === "grid" ? "text-center" : "min-w-0 flex-1"}>
+                        <span
+                          className={`text-xs text-gray-600 ${
+                            viewMode === "list" ? "font-medium" : ""
+                          }`}
+                        >
+                          {symbolData.label}
+                        </span>
+                        {viewMode === "list" && symbolData.description && (
+                          <p className="truncate text-xs text-gray-400">{symbolData.description}</p>
+                        )}
+                        {viewMode === "list" && symbolData.tags && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {symbolData.tags.slice(0, 2).map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded bg-gray-100 px-1 text-xs text-gray-600"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                            {symbolData.tags.length > 2 && (
+                              <span className="text-xs text-gray-400">
+                                +{symbolData.tags.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Standard Badge */}
+                      {symbolData.standard && viewMode === "list" && (
+                        <div className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                          {symbolData.standard}
+                        </div>
+                      )}
                     </div>
-                    <span className="text-xs text-gray-600">{symbol.label}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
         ))}
+
+        {categoriesWithRecent.length === 0 && (
+          <div className="py-8 text-center">
+            <Search className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+            <p className="text-sm text-gray-500">No symbols found</p>
+            <p className="text-xs text-gray-400">Try adjusting your search or filters</p>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-gray-200 p-3">

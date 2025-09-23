@@ -57,3 +57,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+
+/* Import draw.io professional styles */
+@import "../styles/drawio.css";

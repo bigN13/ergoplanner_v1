@@ -1,6 +1,7 @@
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { Node, Edge, Connection, MarkerType, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange, addEdge } from 'reactflow';
+import type { Node, Edge, Connection, NodeChange, EdgeChange } from "reactflow";
+import { MarkerType, applyNodeChanges, applyEdgeChanges, addEdge } from "reactflow";
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 
 export interface DrawingHistory {
   nodes: Node[];
@@ -56,7 +57,7 @@ export interface DrawingState {
   newDrawing: () => void;
   saveDrawing: () => void;
   loadDrawing: (drawingId: string) => void;
-  exportDrawing: (format: 'json' | 'svg' | 'png') => Promise<void>;
+  exportDrawing: (format: "json" | "svg" | "png") => Promise<void>;
   importDrawing: (data: string) => void;
 
   // UI actions
@@ -79,7 +80,7 @@ const initialState = {
   history: [],
   historyIndex: -1,
   drawingId: null,
-  drawingName: 'Untitled Drawing',
+  drawingName: "Untitled Drawing",
   lastSaved: null,
   isDirty: false,
   isGridVisible: true,
@@ -118,7 +119,7 @@ export const useDrawingStore = create<DrawingState>()(
         const newEdge = {
           ...connection,
           id: `edge-${Date.now()}`,
-          type: 'smoothstep',
+          type: "smoothstep",
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -147,14 +148,12 @@ export const useDrawingStore = create<DrawingState>()(
       deleteNode: (nodeId) => {
         const { nodes, edges } = get();
         const filteredNodes = nodes.filter((n) => n.id !== nodeId);
-        const filteredEdges = edges.filter(
-          (e) => e.source !== nodeId && e.target !== nodeId
-        );
+        const filteredEdges = edges.filter((e) => e.source !== nodeId && e.target !== nodeId);
         set({
           nodes: filteredNodes,
           edges: filteredEdges,
           selectedNodeId: null,
-          isDirty: true
+          isDirty: true,
         });
         get().pushHistory();
       },
@@ -247,7 +246,7 @@ export const useDrawingStore = create<DrawingState>()(
         set({
           ...initialState,
           drawingId: `drawing-${Date.now()}`,
-          drawingName: 'Untitled Drawing',
+          drawingName: "Untitled Drawing",
           history: [{ nodes: [], edges: [] }],
           historyIndex: 0,
         });
@@ -269,7 +268,7 @@ export const useDrawingStore = create<DrawingState>()(
         localStorage.setItem(`ergoplanner-drawing-${id}`, JSON.stringify(drawingData));
 
         // Update saved drawings list
-        const savedDrawings = JSON.parse(localStorage.getItem('ergoplanner-drawings') || '[]');
+        const savedDrawings = JSON.parse(localStorage.getItem("ergoplanner-drawings") || "[]");
         const existingIndex = savedDrawings.findIndex((d: any) => d.id === id);
 
         if (existingIndex >= 0) {
@@ -278,7 +277,7 @@ export const useDrawingStore = create<DrawingState>()(
           savedDrawings.push({ id, name: drawingName, savedAt: drawingData.savedAt });
         }
 
-        localStorage.setItem('ergoplanner-drawings', JSON.stringify(savedDrawings));
+        localStorage.setItem("ergoplanner-drawings", JSON.stringify(savedDrawings));
 
         set({
           drawingId: id,
@@ -307,16 +306,16 @@ export const useDrawingStore = create<DrawingState>()(
       exportDrawing: async (format) => {
         const { nodes, edges, drawingName } = get();
 
-        if (format === 'json') {
+        if (format === "json") {
           const data = JSON.stringify({ nodes, edges }, null, 2);
-          const blob = new Blob([data], { type: 'application/json' });
+          const blob = new Blob([data], { type: "application/json" });
           const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = url;
           link.download = `${drawingName}.json`;
           link.click();
           URL.revokeObjectURL(url);
-        } else if (format === 'svg' || format === 'png') {
+        } else if (format === "svg" || format === "png") {
           // This will be handled by the component using html-to-image
           console.log(`Export as ${format} will be handled by the component`);
         }
@@ -336,7 +335,7 @@ export const useDrawingStore = create<DrawingState>()(
             get().pushHistory();
           }
         } catch (error) {
-          console.error('Failed to import drawing:', error);
+          console.error("Failed to import drawing:", error);
         }
       },
 
@@ -371,7 +370,7 @@ export const useDrawingStore = create<DrawingState>()(
       },
     }),
     {
-      name: 'drawing-store',
+      name: "drawing-store",
     }
   )
 );

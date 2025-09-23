@@ -1,14 +1,20 @@
-import DrawingCanvas from '@/components/drawing/DrawingCanvas';
+"use client";
+
+import dynamic from "next/dynamic";
+
+// Dynamically import the DrawioLayout with ssr disabled
+const DrawioLayout = dynamic(
+  () => import("@/components/layout/DrawioLayout"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="text-lg text-gray-600">Loading P&ID Drawing Environment...</div>
+      </div>
+    ),
+  }
+);
 
 export default function DrawingPage() {
-  return (
-    <div className="h-screen w-full overflow-hidden">
-      <DrawingCanvas />
-    </div>
-  );
+  return <DrawioLayout />;
 }
-
-export const metadata = {
-  title: 'P&ID Drawing Editor - Ergoplanner',
-  description: 'Create and edit P&ID diagrams with the Ergoplanner drawing editor',
-};

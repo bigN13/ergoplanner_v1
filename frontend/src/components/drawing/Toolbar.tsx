@@ -1,6 +1,5 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
 import {
   Save,
   Upload,
@@ -17,8 +16,14 @@ import {
   FileText,
   FolderOpen,
   Plus,
-} from 'lucide-react';
-import { useDrawingStore } from '@/store/drawingStore';
+  Ruler,
+  MessageSquare,
+  Download,
+  Settings,
+} from "lucide-react";
+import React, { useRef } from "react";
+
+import { useDrawingStore } from "@/store/drawingStore";
 
 interface ToolbarProps {
   onExportSVG: () => void;
@@ -26,8 +31,11 @@ interface ToolbarProps {
   onFitView: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
-  tool: 'select' | 'pan';
-  onToolChange: (tool: 'select' | 'pan') => void;
+  tool: "select" | "pan";
+  onToolChange: (tool: "select" | "pan") => void;
+  onToggleMeasurement?: () => void;
+  onToggleAnnotation?: () => void;
+  onToggleExport?: () => void;
 }
 
 export default function Toolbar({
@@ -38,6 +46,9 @@ export default function Toolbar({
   onZoomOut,
   tool,
   onToolChange,
+  onToggleMeasurement,
+  onToggleAnnotation,
+  onToggleExport,
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,27 +73,27 @@ export default function Toolbar({
 
   const handleSave = () => {
     saveDrawing();
-    alert('Drawing saved to browser storage!');
+    alert("Drawing saved to browser storage!");
   };
 
   const handleLoad = () => {
-    const savedDrawings = JSON.parse(localStorage.getItem('ergoplanner-drawings') || '[]');
+    const savedDrawings = JSON.parse(localStorage.getItem("ergoplanner-drawings") || "[]");
     if (savedDrawings.length === 0) {
-      alert('No saved drawings found');
+      alert("No saved drawings found");
       return;
     }
 
     const drawingList = savedDrawings
       .map((d: any) => `${d.name} (${new Date(d.savedAt).toLocaleString()})`)
-      .join('\n');
+      .join("\n");
 
     const selected = prompt(`Select a drawing to load:\n\n${drawingList}\n\nEnter drawing name:`);
 
     if (selected) {
-      const drawing = savedDrawings.find((d: any) => d.name === selected.split(' (')[0]);
+      const drawing = savedDrawings.find((d: any) => d.name === selected.split(" (")[0]);
       if (drawing) {
         loadDrawing(drawing.id);
-        alert('Drawing loaded successfully!');
+        alert("Drawing loaded successfully!");
       }
     }
   };
@@ -99,9 +110,9 @@ export default function Toolbar({
         const content = e.target?.result as string;
         try {
           importDrawing(content);
-          alert('Drawing imported successfully!');
+          alert("Drawing imported successfully!");
         } catch (error) {
-          alert('Failed to import drawing. Please check the file format.');
+          alert("Failed to import drawing. Please check the file format.");
         }
       };
       reader.readAsText(file);
@@ -109,14 +120,14 @@ export default function Toolbar({
   };
 
   const handleNewDrawing = () => {
-    if (isDirty && !confirm('You have unsaved changes. Create a new drawing anyway?')) {
+    if (isDirty && !confirm("You have unsaved changes. Create a new drawing anyway?")) {
       return;
     }
     newDrawing();
   };
 
   const handleExportJSON = () => {
-    exportDrawing('json');
+    exportDrawing("json");
   };
 
   return (
@@ -156,27 +167,39 @@ export default function Toolbar({
           >
             <Upload className="h-4 w-4" />
           </button>
-          <button
-            onClick={handleExportJSON}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            title="Export as JSON"
-          >
-            <FileJson className="h-4 w-4" />
-          </button>
-          <button
-            onClick={onExportSVG}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            title="Export as SVG"
-          >
-            <FileText className="h-4 w-4" />
-          </button>
-          <button
-            onClick={onExportPNG}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            title="Export as PNG"
-          >
-            <ImageIcon className="h-4 w-4" />
-          </button>
+          {onToggleExport ? (
+            <button
+              onClick={onToggleExport}
+              className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              title="Export Options"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleExportJSON}
+                className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                title="Export as JSON"
+              >
+                <FileJson className="h-4 w-4" />
+              </button>
+              <button
+                onClick={onExportSVG}
+                className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                title="Export as SVG"
+              >
+                <FileText className="h-4 w-4" />
+              </button>
+              <button
+                onClick={onExportPNG}
+                className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                title="Export as PNG"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Undo/Redo */}
@@ -184,7 +207,7 @@ export default function Toolbar({
           <button
             onClick={undo}
             disabled={!canUndo()}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
             title="Undo (Ctrl+Z)"
           >
             <Undo className="h-4 w-4" />
@@ -192,7 +215,7 @@ export default function Toolbar({
           <button
             onClick={redo}
             disabled={!canRedo()}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
             title="Redo (Ctrl+Y)"
           >
             <Redo className="h-4 w-4" />
@@ -202,27 +225,45 @@ export default function Toolbar({
         {/* Tools */}
         <div className="flex items-center space-x-1 border-r border-gray-200 pr-2">
           <button
-            onClick={() => onToolChange('select')}
+            onClick={() => onToolChange("select")}
             className={`rounded p-1.5 ${
-              tool === 'select'
-                ? 'bg-blue-100 text-blue-600'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              tool === "select"
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             }`}
             title="Select Tool"
           >
             <MousePointer2 className="h-4 w-4" />
           </button>
           <button
-            onClick={() => onToolChange('pan')}
+            onClick={() => onToolChange("pan")}
             className={`rounded p-1.5 ${
-              tool === 'pan'
-                ? 'bg-blue-100 text-blue-600'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              tool === "pan"
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             }`}
             title="Pan Tool"
           >
             <Hand className="h-4 w-4" />
           </button>
+          {onToggleMeasurement && (
+            <button
+              onClick={onToggleMeasurement}
+              className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              title="Measurement Tools"
+            >
+              <Ruler className="h-4 w-4" />
+            </button>
+          )}
+          {onToggleAnnotation && (
+            <button
+              onClick={onToggleAnnotation}
+              className="rounded p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              title="Annotation Tools"
+            >
+              <MessageSquare className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* View controls */}
@@ -256,8 +297,8 @@ export default function Toolbar({
             onClick={toggleGrid}
             className={`rounded p-1.5 ${
               isGridVisible
-                ? 'bg-blue-100 text-blue-600'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             }`}
             title="Toggle Grid"
           >
@@ -281,12 +322,10 @@ export default function Toolbar({
           type="text"
           value={drawingName}
           onChange={(e) => setDrawingName(e.target.value)}
-          className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           placeholder="Drawing Name"
         />
-        {isDirty && (
-          <span className="text-xs text-orange-600 font-medium">Unsaved changes</span>
-        )}
+        {isDirty && <span className="text-xs font-medium text-orange-600">Unsaved changes</span>}
       </div>
 
       {/* Hidden file input for import */}
@@ -295,7 +334,7 @@ export default function Toolbar({
         type="file"
         accept=".json"
         onChange={handleFileImport}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
     </div>
   );

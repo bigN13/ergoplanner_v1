@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface FlowMeterNodeData {
   label: string;
-  type: 'electromagnetic' | 'ultrasonic' | 'turbine' | 'vortex';
+  type: "electromagnetic" | "ultrasonic" | "turbine" | "vortex";
   unit?: string;
   value?: string;
 }
@@ -12,7 +13,7 @@ const FlowMeterNode = memo(({ data, selected }: NodeProps<FlowMeterNodeData>) =>
   return (
     <div
       className={`relative flex h-16 w-16 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <Handle
@@ -34,7 +35,7 @@ const FlowMeterNode = memo(({ data, selected }: NodeProps<FlowMeterNodeData>) =>
           cx="30"
           cy="30"
           r="20"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="white"
         />
@@ -44,7 +45,7 @@ const FlowMeterNode = memo(({ data, selected }: NodeProps<FlowMeterNodeData>) =>
           textAnchor="middle"
           fontSize="14"
           fontWeight="bold"
-          fill={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
         >
           FI
         </text>
@@ -55,7 +56,7 @@ const FlowMeterNode = memo(({ data, selected }: NodeProps<FlowMeterNodeData>) =>
           y1="30"
           x2="50"
           y2="30"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
       </svg>
@@ -67,20 +68,20 @@ const FlowMeterNode = memo(({ data, selected }: NodeProps<FlowMeterNodeData>) =>
       />
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
 
       {data.value && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-blue-600 font-semibold">
-          {data.value} {data.unit || 'm³/h'}
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-semibold whitespace-nowrap text-blue-600">
+          {data.value} {data.unit || "m³/h"}
         </div>
       )}
     </div>
   );
 });
 
-FlowMeterNode.displayName = 'FlowMeterNode';
+FlowMeterNode.displayName = "FlowMeterNode";
 
 export default FlowMeterNode;

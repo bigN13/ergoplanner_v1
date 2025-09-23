@@ -12,10 +12,8 @@ export default function Home(): React.ReactElement {
       <Stack spacing="xl">
         {/* Hero Section */}
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            {config.app.name} AI Suite
-          </h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <h1 className="mb-4 text-5xl font-bold text-gray-900">{config.app.name} AI Suite</h1>
+          <p className="mb-8 text-xl text-gray-600">
             Intelligent P&ID Management System for Engineering Excellence
           </p>
           <Stack direction="horizontal" spacing="md" justify="center">
@@ -40,14 +38,14 @@ export default function Home(): React.ReactElement {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card variant="bordered">
             <Stack spacing="md">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Layers className="w-6 h-6 text-blue-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                <Layers className="h-6 w-6 text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold">P&ID Drawing</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-gray-600">
                 Professional P&ID creation with ISA-5.1 and ISO 14617 standard symbols
               </p>
             </Stack>
@@ -55,11 +53,11 @@ export default function Home(): React.ReactElement {
 
           <Card variant="bordered">
             <Stack spacing="md">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-green-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                <FileText className="h-6 w-6 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold">Auto BoQ</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-gray-600">
                 Automatic Bill of Quantities generation synced with your drawings
               </p>
             </Stack>
@@ -67,11 +65,11 @@ export default function Home(): React.ReactElement {
 
           <Card variant="bordered">
             <Stack spacing="md">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Cpu className="w-6 h-6 text-purple-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                <Cpu className="h-6 w-6 text-purple-600" />
               </div>
               <h3 className="text-lg font-semibold">AI Assistant</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-gray-600">
                 Natural language to P&ID generation and intelligent design validation
               </p>
             </Stack>
@@ -79,11 +77,11 @@ export default function Home(): React.ReactElement {
 
           <Card variant="bordered">
             <Stack spacing="md">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-orange-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+                <Users className="h-6 w-6 text-orange-600" />
               </div>
               <h3 className="text-lg font-semibold">Collaboration</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-gray-600">
                 Real-time collaboration with presence indicators and activity tracking
               </p>
             </Stack>
@@ -94,7 +92,7 @@ export default function Home(): React.ReactElement {
         <Card variant="elevated" className="mt-8">
           <Stack spacing="md">
             <h2 className="text-2xl font-semibold">System Status</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
                 <p className="text-sm text-gray-600">Version</p>
                 <p className="font-medium">{config.app.version}</p>
@@ -105,19 +103,17 @@ export default function Home(): React.ReactElement {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Features</p>
-                <div className="flex gap-2 mt-1">
+                <div className="mt-1 flex gap-2">
                   {config.features.ai && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
-                      AI
-                    </span>
+                    <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">AI</span>
                   )}
                   {config.features.collaboration && (
-                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
+                    <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">
                       Collaboration
                     </span>
                   )}
                   {config.features.offlineMode && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                    <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700">
                       Offline
                     </span>
                   )}

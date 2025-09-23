@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface PressureGaugeNodeData {
   label: string;
@@ -12,7 +13,7 @@ const PressureGaugeNode = memo(({ data, selected }: NodeProps<PressureGaugeNodeD
   return (
     <div
       className={`relative flex h-16 w-16 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <Handle
@@ -34,7 +35,7 @@ const PressureGaugeNode = memo(({ data, selected }: NodeProps<PressureGaugeNodeD
           cx="30"
           cy="25"
           r="20"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="white"
         />
@@ -44,7 +45,7 @@ const PressureGaugeNode = memo(({ data, selected }: NodeProps<PressureGaugeNodeD
           textAnchor="middle"
           fontSize="14"
           fontWeight="bold"
-          fill={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
         >
           PI
         </text>
@@ -55,26 +56,26 @@ const PressureGaugeNode = memo(({ data, selected }: NodeProps<PressureGaugeNodeD
           y1="45"
           x2="30"
           y2="55"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
       </svg>
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
 
       {data.value && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-green-600 font-semibold">
-          {data.value} {data.unit || 'bar'}
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-semibold whitespace-nowrap text-green-600">
+          {data.value} {data.unit || "bar"}
         </div>
       )}
     </div>
   );
 });
 
-PressureGaugeNode.displayName = 'PressureGaugeNode';
+PressureGaugeNode.displayName = "PressureGaugeNode";
 
 export default PressureGaugeNode;

@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface PumpNodeData {
   label: string;
-  type: 'centrifugal' | 'positive-displacement' | 'vacuum';
+  type: "centrifugal" | "positive-displacement" | "vacuum";
   flowRate?: string;
   head?: string;
   power?: string;
@@ -13,7 +14,7 @@ const PumpNode = memo(({ data, selected }: NodeProps<PumpNodeData>) => {
   return (
     <div
       className={`relative flex h-20 w-20 items-center justify-center rounded-full border-2 bg-white transition-all ${
-        selected ? 'border-blue-500 shadow-lg' : 'border-gray-700'
+        selected ? "border-blue-500 shadow-lg" : "border-gray-700"
       }`}
     >
       <Handle
@@ -31,14 +32,7 @@ const PumpNode = memo(({ data, selected }: NodeProps<PumpNodeData>) => {
         className="pointer-events-none"
       >
         {/* Pump symbol - circle with triangle */}
-        <circle
-          cx="30"
-          cy="30"
-          r="25"
-          stroke="currentColor"
-          strokeWidth="2"
-          fill="white"
-        />
+        <circle cx="30" cy="30" r="25" stroke="currentColor" strokeWidth="2" fill="white" />
         <path
           d="M 20 30 L 40 20 L 40 40 Z"
           fill="currentColor"
@@ -54,7 +48,7 @@ const PumpNode = memo(({ data, selected }: NodeProps<PumpNodeData>) => {
       />
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
@@ -62,6 +56,6 @@ const PumpNode = memo(({ data, selected }: NodeProps<PumpNodeData>) => {
   );
 });
 
-PumpNode.displayName = 'PumpNode';
+PumpNode.displayName = "PumpNode";
 
 export default PumpNode;

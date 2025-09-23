@@ -1,17 +1,18 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface CheckValveNodeData {
   label: string;
-  type?: 'swing' | 'lift' | 'ball';
-  flowDirection?: 'left-to-right' | 'right-to-left';
+  type?: "swing" | "lift" | "ball";
+  flowDirection?: "left-to-right" | "right-to-left";
 }
 
 const CheckValveNode = memo(({ data, selected }: NodeProps<CheckValveNodeData>) => {
   return (
     <div
       className={`relative flex h-16 w-16 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <Handle
@@ -33,7 +34,7 @@ const CheckValveNode = memo(({ data, selected }: NodeProps<CheckValveNodeData>) 
           cx="30"
           cy="30"
           r="15"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="white"
         />
@@ -41,7 +42,7 @@ const CheckValveNode = memo(({ data, selected }: NodeProps<CheckValveNodeData>) 
         {/* Arrow indicating flow direction */}
         <path
           d="M 20 30 L 35 30 M 35 30 L 30 25 M 35 30 L 30 35"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -53,7 +54,7 @@ const CheckValveNode = memo(({ data, selected }: NodeProps<CheckValveNodeData>) 
           y1="20"
           x2="40"
           y2="40"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="3"
         />
       </svg>
@@ -65,7 +66,7 @@ const CheckValveNode = memo(({ data, selected }: NodeProps<CheckValveNodeData>) 
       />
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
@@ -73,6 +74,6 @@ const CheckValveNode = memo(({ data, selected }: NodeProps<CheckValveNodeData>) 
   );
 });
 
-CheckValveNode.displayName = 'CheckValveNode';
+CheckValveNode.displayName = "CheckValveNode";
 
 export default CheckValveNode;

@@ -1,0 +1,87 @@
+Testing TypeScript compilation...
+Project path: C:/Users/siveg/OneDrive/Έγγραφα/PROJECTS/Ergoplanner/Ergoplanner_v1/frontend
+TypeScript compilation had errors:
+STDERR: 
+STDOUT: src/components/drawing/AdvancedToolbar.tsx(263,41): error TS2339: Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; shortcut: string; action: () => void; } | ... 12 more ... | { ...; }'.
+  Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; }'.
+src/components/drawing/AdvancedToolbar.tsx(263,62): error TS2339: Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; shortcut: string; action: () => void; } | ... 12 more ... | { ...; }'.
+  Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; }'.
+src/components/drawing/AdvancedToolbar.tsx(269,21): error TS2339: Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; shortcut: string; action: () => void; } | ... 12 more ... | { ...; }'.
+  Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; }'.
+src/components/drawing/AdvancedToolbar.tsx(270,60): error TS2339: Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; shortcut: string; action: () => void; } | ... 12 more ... | { ...; }'.
+  Property 'shortcut' does not exist on type '{ id: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; label: string; }'.
+src/components/drawing/BoQPanel.tsx(46,32): error TS2339: Property 'category' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(48,37): error TS2551: Property 'specification' does not exist on type 'PIDNodeData'. Did you mean 'specifications'?
+src/components/drawing/BoQPanel.tsx(48,74): error TS2339: Property 'size' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(48,113): error TS2339: Property 'material' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(51,33): error TS2339: Property 'unitPrice' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(52,34): error TS2339: Property 'unitPrice' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(53,32): error TS2339: Property 'supplier' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(54,32): error TS2339: Property 'leadTime' does not exist on type 'PIDNodeData'.
+src/components/drawing/BoQPanel.tsx(321,28): error TS6133: 'e' is declared but its value is never read.
+src/components/drawing/HistoryPanel.tsx(4,44): error TS6133: 'Activity' is declared but its value is never read.
+src/components/drawing/LayersPanel.tsx(47,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(54,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(61,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(69,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(75,40): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(91,48): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(126,18): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(126,21): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(127,17): error TS7006: Parameter 'layer' implicitly has an 'any' type.
+src/components/drawing/LayersPanel.tsx(260,42): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/components/drawing/MinimapPanel.tsx(3,17): error TS6133: 'useEffect' is declared but its value is never read.
+src/components/drawing/MinimapPanel.tsx(3,28): error TS6133: 'useRef' is declared but its value is never read.
+src/components/layout/DockLayout.tsx(57,19): error TS2532: Object is possibly 'undefined'.
+src/components/layout/DockLayout.tsx(60,42): error TS2532: Object is possibly 'undefined'.
+src/components/layout/DockLayout.tsx(83,9): error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'PanelData'.
+src/components/layout/DockLayout.tsx(89,7): error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'PanelData'.
+src/components/layout/DockLayout.tsx(119,27): error TS2532: Object is possibly 'undefined'.
+src/components/layout/DockLayout.tsx(215,9): error TS2322: Type '(tab: TabData) => PanelData' is not assignable to type '(tab: TabBase) => TabData'.
+  Type 'PanelData' is missing the following properties from type 'TabData': title, content
+src/components/layout/DockLayout.tsx(217,9): error TS2322: Type '(newLayout: LayoutData | null) => void' is not assignable to type '(newLayout: LayoutBase, currentTabId?: string | undefined, direction?: DropDirection | undefined) => void'.
+  Types of parameters 'newLayout' and 'newLayout' are incompatible.
+    Type 'LayoutBase' is not assignable to type 'LayoutData'.
+      The types of 'dockbox.children' are incompatible between these types.
+        Type '(BoxBase | PanelBase)[]' is not assignable to type '(BoxData | PanelData)[]'.
+          Type 'BoxBase | PanelBase' is not assignable to type 'BoxData | PanelData'.
+            Type 'BoxBase' is not assignable to type 'BoxData | PanelData'.
+src/store/enhanced-drawing-store.ts(1,27): error TS6196: 'Node' is declared but never used.
+src/store/enhanced-drawing-store.ts(1,33): error TS6196: 'Edge' is declared but never used.
+src/store/enhanced-drawing-store.ts(14,3): error TS6196: 'PIDEdgeData' is declared but never used.
+src/store/enhanced-drawing-store.ts(220,25): error TS2322: Type 'PIDNode | { data: { layer: string; label: string; symbolType: SymbolType; tagNumber?: string | undefined; description?: string | undefined; specifications?: Record<string, unknown> | undefined; rotation?: number | undefined; isLocked?: boolean | undefined; }; ... 26 more ...; [internalsSymbol]?: { ...; } | undefined...' is not assignable to type 'PIDNode'.
+  Type '{ data: { layer: string; label: string; symbolType: SymbolType; tagNumber?: string; description?: string; specifications?: Record<string, unknown>; rotation?: number; isLocked?: boolean; }; ... 26 more ...; [internalsSymbol]?: { z?: number; handleBounds?: NodeHandleBounds; isParent?: boolean; }; }' is not assignable to type 'PIDNode'.
+    The types of 'data.layer' are incompatible between these types.
+      Type 'string' is not assignable to type 'number'.
+src/store/enhanced-drawing-store.ts(220,35): error TS2322: Type '{ data: { layer: string; label: string; symbolType: SymbolType; tagNumber?: string; description?: string; specifications?: Record<string, unknown>; rotation?: number; isLocked?: boolean; }; ... 26 more ...; [internalsSymbol]?: { z?: number; handleBounds?: NodeHandleBounds; isParent?: boolean; }; }' is not assignable to type 'PIDNode'.
+  The types of 'data.layer' are incompatible between these types.
+    Type 'string' is not assignable to type 'number'.
+src/store/enhanced-drawing-store.ts(233,17): error TS2322: Type '(PIDNode | { data: { layer: string; label: string; symbolType: SymbolType; tagNumber?: string | undefined; description?: string | undefined; specifications?: Record<string, unknown> | undefined; rotation?: number | undefined; isLocked?: boolean | undefined; }; ... 26 more ...; [internalsSymbol]?: { ...; } | undefine...' is not assignable to type 'PIDNode[]'.
+  Type 'PIDNode | { data: { layer: string; label: string; symbolType: SymbolType; tagNumber?: string | undefined; description?: string | undefined; specifications?: Record<string, unknown> | undefined; rotation?: number | undefined; isLocked?: boolean | undefined; }; ... 26 more ...; [internalsSymbol]?: { ...; } | undefined...' is not assignable to type 'PIDNode'.
+    Type '{ data: { layer: string; label: string; symbolType: SymbolType; tagNumber?: string; description?: string; specifications?: Record<string, unknown>; rotation?: number; isLocked?: boolean; }; ... 26 more ...; [internalsSymbol]?: { z?: number; handleBounds?: NodeHandleBounds; isParent?: boolean; }; }' is not assignable to type 'PIDNode'.
+      The types of 'data.layer' are incompatible between these types.
+        Type 'string' is not assignable to type 'number'.
+src/store/enhanced-drawing-store.ts(418,15): error TS18048: 'lastNode' is possibly 'undefined'.
+src/store/enhanced-drawing-store.ts(418,37): error TS18048: 'firstNode' is possibly 'undefined'.
+src/store/enhanced-drawing-store.ts(419,15): error TS18048: 'lastNode' is possibly 'undefined'.
+src/store/enhanced-drawing-store.ts(419,37): error TS18048: 'firstNode' is possibly 'undefined'.
+src/store/enhanced-drawing-store.ts(432,31): error TS18048: 'firstNode' is possibly 'undefined'.
+src/store/enhanced-drawing-store.ts(434,31): error TS18048: 'firstNode' is possibly 'undefined'.
+src/store/enhanced-drawing-store.ts(668,15): error TS2322: Type 'string' is not assignable to type 'number'.
+src/store/enhanced-drawing-store.ts(1017,36): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string' have no overlap.
+src/types/dock-layout.ts(3,22): error TS6133: 'TabData' is declared but its value is never read.
+src/types/dock-layout.ts(56,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(66,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(82,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(94,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(111,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(117,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(127,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(151,17): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(157,17): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(171,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(183,21): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(196,17): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+src/types/dock-layout.ts(202,17): error TS2322: Type 'string' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | ((tab: TabData) => ReactElement<unknown, string | JSXElementConstructor<any>>)'.
+
+Error code: 2

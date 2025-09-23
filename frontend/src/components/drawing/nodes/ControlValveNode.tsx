@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface ControlValveNodeData {
   label: string;
-  controlType?: 'pneumatic' | 'electric' | 'hydraulic';
+  controlType?: "pneumatic" | "electric" | "hydraulic";
   position?: number; // 0-100 percentage
   signal?: string;
 }
@@ -14,7 +15,7 @@ const ControlValveNode = memo(({ data, selected }: NodeProps<ControlValveNodeDat
   return (
     <div
       className={`relative flex h-20 w-20 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <Handle
@@ -42,14 +43,14 @@ const ControlValveNode = memo(({ data, selected }: NodeProps<ControlValveNodeDat
         {/* Control valve body */}
         <path
           d="M 20 35 L 30 25 L 30 45 Z"
-          fill={selected ? '#3B82F6' : 'currentColor'}
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
         <path
           d="M 50 35 L 40 25 L 40 45 Z"
-          fill={selected ? '#3B82F6' : 'currentColor'}
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
 
@@ -82,7 +83,7 @@ const ControlValveNode = memo(({ data, selected }: NodeProps<ControlValveNodeDat
           y1="35"
           x2="40"
           y2="35"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
         />
       </svg>
@@ -95,13 +96,13 @@ const ControlValveNode = memo(({ data, selected }: NodeProps<ControlValveNodeDat
       />
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
 
       {data.position !== undefined && (
-        <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-blue-600 font-semibold">
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-semibold whitespace-nowrap text-blue-600">
           {position}%
         </div>
       )}
@@ -109,6 +110,6 @@ const ControlValveNode = memo(({ data, selected }: NodeProps<ControlValveNodeDat
   );
 });
 
-ControlValveNode.displayName = 'ControlValveNode';
+ControlValveNode.displayName = "ControlValveNode";
 
 export default ControlValveNode;

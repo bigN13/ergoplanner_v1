@@ -101,9 +101,7 @@ export const useDrawingStore = create<DrawingStore>()(
 
       updateNode: (id, updates) => {
         set((state) => ({
-          nodes: state.nodes.map((node) =>
-            node.id === id ? { ...node, ...updates } : node
-          ),
+          nodes: state.nodes.map((node) => (node.id === id ? { ...node, ...updates } : node)),
         }));
         get().saveToHistory();
       },
@@ -132,9 +130,7 @@ export const useDrawingStore = create<DrawingStore>()(
 
       updateEdge: (id, updates) => {
         set((state) => ({
-          edges: state.edges.map((edge) =>
-            edge.id === id ? { ...edge, ...updates } : edge
-          ),
+          edges: state.edges.map((edge) => (edge.id === id ? { ...edge, ...updates } : edge)),
         }));
         get().saveToHistory();
       },
@@ -171,9 +167,7 @@ export const useDrawingStore = create<DrawingStore>()(
 
       updateLayer: (id, updates) =>
         set((state) => ({
-          layers: state.layers.map((layer) =>
-            layer.id === id ? { ...layer, ...updates } : layer
-          ),
+          layers: state.layers.map((layer) => (layer.id === id ? { ...layer, ...updates } : layer)),
         })),
 
       deleteLayer: (id) => {

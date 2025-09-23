@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
       const token = localStorage.getItem(config.storage.tokenKey);
       if (token && requestConfig.headers) {
         // Set the authorization header without mutation
-        requestConfig.headers.set('Authorization', `Bearer ${token}`);
+        requestConfig.headers.set("Authorization", `Bearer ${token}`);
       }
     }
     return requestConfig;

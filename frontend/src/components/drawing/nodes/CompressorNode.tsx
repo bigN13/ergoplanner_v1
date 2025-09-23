@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface CompressorNodeData {
   label: string;
-  type?: 'centrifugal' | 'reciprocating' | 'screw';
+  type?: "centrifugal" | "reciprocating" | "screw";
   pressure?: string;
   power?: string;
 }
@@ -12,7 +13,7 @@ const CompressorNode = memo(({ data, selected }: NodeProps<CompressorNodeData>) 
   return (
     <div
       className={`relative flex h-20 w-20 items-center justify-center transition-all ${
-        selected ? 'scale-110' : ''
+        selected ? "scale-110" : ""
       }`}
     >
       <Handle
@@ -34,7 +35,7 @@ const CompressorNode = memo(({ data, selected }: NodeProps<CompressorNodeData>) 
           cx="35"
           cy="35"
           r="25"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="white"
         />
@@ -42,13 +43,13 @@ const CompressorNode = memo(({ data, selected }: NodeProps<CompressorNodeData>) 
         {/* Compressor blades/impeller */}
         <path
           d="M 35 20 L 30 35 L 35 50 M 35 20 L 40 35 L 35 50"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="none"
         />
         <path
           d="M 20 35 L 35 30 L 50 35 M 20 35 L 35 40 L 50 35"
-          stroke={selected ? '#3B82F6' : 'currentColor'}
+          stroke={selected ? "#3B82F6" : "currentColor"}
           strokeWidth="2"
           fill="none"
         />
@@ -60,7 +61,7 @@ const CompressorNode = memo(({ data, selected }: NodeProps<CompressorNodeData>) 
           textAnchor="middle"
           fontSize="10"
           fontWeight="bold"
-          fill={selected ? '#3B82F6' : 'currentColor'}
+          fill={selected ? "#3B82F6" : "currentColor"}
         >
           C
         </text>
@@ -73,13 +74,13 @@ const CompressorNode = memo(({ data, selected }: NodeProps<CompressorNodeData>) 
       />
 
       {data.label && (
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium">
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
           {data.label}
         </div>
       )}
 
       {data.pressure && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-orange-600 font-semibold">
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-semibold whitespace-nowrap text-orange-600">
           {data.pressure}
         </div>
       )}
@@ -87,6 +88,6 @@ const CompressorNode = memo(({ data, selected }: NodeProps<CompressorNodeData>) 
   );
 });
 
-CompressorNode.displayName = 'CompressorNode';
+CompressorNode.displayName = "CompressorNode";
 
 export default CompressorNode;
