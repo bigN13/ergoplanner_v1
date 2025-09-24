@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import DrawingCanvas from "@/components/drawing/DrawingCanvas";
 import SymbolLibrary from "@/components/drawing/SymbolLibrary";
 import PropertyPanel from "@/components/drawing/PropertyPanel";
-import LayersPanel from "@/components/drawing/LayersPanel";
+import LayerPanel from "@/components/drawing/LayerPanel";
 import MainToolbar from "@/components/drawing/MainToolbar";
 
 interface DrawioLayoutProps {
@@ -200,7 +200,7 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
                     </div>
                   </div>
                 )}
-                {rightActiveTab === "layers" && <LayersPanel />}
+                {rightActiveTab === "layers" && <LayerPanel />}
               </div>
             )}
           </div>

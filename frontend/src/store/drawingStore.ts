@@ -8,6 +8,16 @@ export interface DrawingHistory {
   edges: Edge[];
 }
 
+export interface Layer {
+  id: string;
+  name: string;
+  visible: boolean;
+  locked: boolean;
+  opacity: number;
+  order: number;
+  color?: string;
+}
+
 export interface DrawingState {
   // Core state
   nodes: Node[];
@@ -24,6 +34,11 @@ export interface DrawingState {
   drawingName: string;
   lastSaved: Date | null;
   isDirty: boolean;
+
+  // Layer management
+  layers: Layer[];
+  activeLayerId: string;
+  layerVisibility: Record<string, boolean>;
 
   // UI state
   isGridVisible: boolean;
@@ -62,6 +77,18 @@ export interface DrawingState {
   exportDrawing: (format: "json" | "svg" | "png") => Promise<void>;
   importDrawing: (data: string) => void;
 
+  // Layer actions
+  addLayer: (name?: string) => void;
+  deleteLayer: (layerId: string) => void;
+  renameLayer: (layerId: string, name: string) => void;
+  setActiveLayer: (layerId: string) => void;
+  toggleLayerVisibility: (layerId: string) => void;
+  toggleLayerLock: (layerId: string) => void;
+  setLayerOpacity: (layerId: string, opacity: number) => void;
+  reorderLayers: (fromIndex: number, toIndex: number) => void;
+  assignNodeToLayer: (nodeId: string, layerId: string) => void;
+  getNodeLayer: (nodeId: string) => string | undefined;
+
   // UI actions
   toggleGrid: () => void;
   toggleSnapToGrid: () => void;
@@ -75,6 +102,16 @@ export interface DrawingState {
 
 const MAX_HISTORY = 50;
 
+const defaultLayer: Layer = {
+  id: "layer-default",
+  name: "Default Layer",
+  visible: true,
+  locked: false,
+  opacity: 1,
+  order: 0,
+  color: "#3b82f6",
+};
+
 const initialState = {
   nodes: [],
   edges: [],
@@ -86,6 +123,9 @@ const initialState = {
   drawingName: "Untitled Drawing",
   lastSaved: null,
   isDirty: false,
+  layers: [defaultLayer],
+  activeLayerId: defaultLayer.id,
+  layerVisibility: { [defaultLayer.id]: true },
   isGridVisible: true,
   snapToGrid: true,
   gridSize: 20,
@@ -135,8 +175,16 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       addNode: (node) => {
-        const { nodes } = get();
-        set({ nodes: [...nodes, node], isDirty: true });
+        const { nodes, activeLayerId } = get();
+        // Add layer info to node data
+        const nodeWithLayer = {
+          ...node,
+          data: {
+            ...node.data,
+            layerId: activeLayerId,
+          },
+        };
+        set({ nodes: [...nodes, nodeWithLayer], isDirty: true });
         get().pushHistory();
       },
 
@@ -411,6 +459,151 @@ export const useDrawingStore = create<DrawingState>()(
 
       markClean: () => {
         set({ isDirty: false });
+      },
+
+      // Layer management actions
+      addLayer: (name) => {
+        const { layers } = get();
+        const newLayer: Layer = {
+          id: `layer-${Date.now()}`,
+          name: name || `Layer ${layers.length + 1}`,
+          visible: true,
+          locked: false,
+          opacity: 1,
+          order: layers.length,
+          color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+        };
+        set({
+          layers: [...layers, newLayer],
+          layerVisibility: { ...get().layerVisibility, [newLayer.id]: true },
+          isDirty: true,
+        });
+      },
+
+      deleteLayer: (layerId) => {
+        const { layers, nodes, activeLayerId } = get();
+        if (layers.length <= 1 || layerId === "layer-default") return;
+
+        const filteredLayers = layers.filter((l) => l.id !== layerId);
+        const layerVisibility = { ...get().layerVisibility };
+        delete layerVisibility[layerId];
+
+        // Move nodes from deleted layer to default layer
+        const updatedNodes = nodes.map((node) => {
+          if (node.data?.layerId === layerId) {
+            return {
+              ...node,
+              data: { ...node.data, layerId: "layer-default" },
+            };
+          }
+          return node;
+        });
+
+        set({
+          layers: filteredLayers,
+          layerVisibility,
+          nodes: updatedNodes,
+          activeLayerId: activeLayerId === layerId ? "layer-default" : activeLayerId,
+          isDirty: true,
+        });
+      },
+
+      renameLayer: (layerId, name) => {
+        const { layers } = get();
+        const updatedLayers = layers.map((layer) =>
+          layer.id === layerId ? { ...layer, name } : layer
+        );
+        set({ layers: updatedLayers, isDirty: true });
+      },
+
+      setActiveLayer: (layerId) => {
+        set({ activeLayerId: layerId });
+      },
+
+      toggleLayerVisibility: (layerId) => {
+        const { layers, layerVisibility, nodes } = get();
+        const newVisibility = !layerVisibility[layerId];
+
+        // Update nodes visibility based on layer visibility
+        const updatedNodes = nodes.map((node) => {
+          if (node.data?.layerId === layerId) {
+            return {
+              ...node,
+              hidden: !newVisibility,
+            };
+          }
+          return node;
+        });
+
+        set({
+          layerVisibility: { ...layerVisibility, [layerId]: newVisibility },
+          layers: layers.map((l) =>
+            l.id === layerId ? { ...l, visible: newVisibility } : l
+          ),
+          nodes: updatedNodes,
+          isDirty: true,
+        });
+      },
+
+      toggleLayerLock: (layerId) => {
+        const { layers } = get();
+        const updatedLayers = layers.map((layer) =>
+          layer.id === layerId ? { ...layer, locked: !layer.locked } : layer
+        );
+        set({ layers: updatedLayers, isDirty: true });
+      },
+
+      setLayerOpacity: (layerId, opacity) => {
+        const { layers, nodes } = get();
+        const updatedLayers = layers.map((layer) =>
+          layer.id === layerId ? { ...layer, opacity } : layer
+        );
+
+        // Update node styles with layer opacity
+        const updatedNodes = nodes.map((node) => {
+          if (node.data?.layerId === layerId) {
+            return {
+              ...node,
+              style: {
+                ...node.style,
+                opacity,
+              },
+            };
+          }
+          return node;
+        });
+
+        set({ layers: updatedLayers, nodes: updatedNodes, isDirty: true });
+      },
+
+      reorderLayers: (fromIndex, toIndex) => {
+        const { layers } = get();
+        const reordered = [...layers];
+        const [moved] = reordered.splice(fromIndex, 1);
+        if (moved) {
+          reordered.splice(toIndex, 0, moved);
+          const updatedLayers = reordered.map((layer, index) => ({
+            ...layer,
+            order: index,
+          }));
+          set({ layers: updatedLayers, isDirty: true });
+        }
+      },
+
+      assignNodeToLayer: (nodeId, layerId) => {
+        const { nodes } = get();
+        const updatedNodes = nodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, layerId } }
+            : node
+        );
+        set({ nodes: updatedNodes, isDirty: true });
+      },
+
+      getNodeLayer: (nodeId) => {
+        const { nodes } = get();
+        const node = nodes.find((n) => n.id === nodeId);
+        return node?.data?.layerId;
       },
     }),
     {
