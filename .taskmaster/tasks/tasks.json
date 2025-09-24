@@ -145,7 +145,7 @@
             "id": 4,
             "title": "Implement smart pipe routing with local pathfinding",
             "description": "Add client-side A* pathfinding for automatic pipe routing between symbols",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Create pure JavaScript implementation of A* algorithm for pipe routing. Build PathfindingService that works entirely client-side. Implement orthogonal and diagonal routing modes. Add obstacle avoidance for existing symbols and pipes.",
             "testStrategy": ""
@@ -772,7 +772,7 @@
         "description": "Create a comprehensive edit operations toolbar section with undo/redo controls, clipboard operations, and format painter tool, integrating with the existing drawing store and clipboard management system",
         "details": "Implement EditOperationsToolbar component at frontend/src/components/drawing/EditOperationsToolbar.tsx that matches draw.io's edit section exactly. The component will integrate with the existing drawingStore.ts undo/redo system and enhance clipboard operations:\n\n1. **Component Structure:**\n   - Create EditOperationsToolbar.tsx with three sub-sections separated by dividers\n   - Section 1: Undo/Redo with history dropdown\n   - Section 2: Cut/Copy/Paste with paste special dropdown\n   - Section 3: Format painter tool\n\n2. **Undo/Redo Implementation:**\n   - Use curved arrow icons (Undo2/Redo2 from lucide-react)\n   - Connect to drawingStore's undo(), redo(), canUndo(), canRedo() methods\n   - Add dropdown arrow next to each button showing history list (max 10 items)\n   - History items should display action names like \"Move Pump\", \"Add Valve\", \"Delete Connection\"\n   - Enable/disable buttons based on history availability\n   - Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Y (redo)\n\n3. **Clipboard Operations:**\n   - Cut button (Scissors icon) - Copy and delete selection\n   - Copy button (Copy icon) - Copy selection to clipboard\n   - Paste button (Clipboard icon) - Paste from clipboard at cursor position\n   - Paste Special dropdown with options:\n     - Paste with formatting\n     - Paste values only\n     - Paste as duplicate (offset position)\n   - Store clipboard data in drawingStore with structure:\n     ```typescript\n     interface ClipboardData {\n       nodes: Node[];\n       edges: Edge[];\n       timestamp: Date;\n       sourceDrawingId: string;\n     }\n     ```\n   - Support multi-node/edge selection copying\n   - Keyboard shortcuts: Ctrl+X (cut), Ctrl+C (copy), Ctrl+V (paste)\n\n4. **Format Painter Tool:**\n   - Paintbrush icon that toggles format painter mode\n   - When active, cursor changes to paintbrush\n   - Click source element to copy style (fill, stroke, font, etc.)\n   - Click target elements to apply style\n   - ESC key or clicking tool again exits mode\n   - Store format data in temporary state\n   - Double-click to lock format painter for multiple applications\n\n5. **Enhanced Store Integration:**\n   - Extend drawingStore.ts with:\n     ```typescript\n     clipboardData: ClipboardData | null;\n     historyDescriptions: Map<number, string>;\n     formatPainterData: FormatData | null;\n     isFormatPainterActive: boolean;\n     copyToClipboard: (nodes: Node[], edges: Edge[]) => void;\n     cutToClipboard: (nodes: Node[], edges: Edge[]) => void;\n     pasteFromClipboard: (position?: {x: number, y: number}) => void;\n     pasteSpecial: (mode: 'formatting' | 'values' | 'duplicate') => void;\n     setFormatPainter: (data: FormatData | null) => void;\n     applyFormat: (targetIds: string[]) => void;\n     getHistoryDescription: (index: number) => string;\n     ```\n\n6. **Visual Feedback:**\n   - Tooltips showing action names and shortcuts\n   - Visual indication when clipboard has content\n   - Highlight on hover with proper accessibility\n   - Dropdown menus with smooth animations\n   - Badge showing undo/redo stack depth\n\n7. **Integration Points:**\n   - Import and use in DrawioLayout.tsx toolbar section\n   - Connect with ContextMenu.tsx for consistent clipboard operations\n   - Sync with keyboard shortcut handlers\n   - Update history descriptions when actions occur",
         "testStrategy": "Unit tests for EditOperationsToolbar component verifying button states based on history/clipboard availability, dropdown menu rendering, and keyboard shortcut registration. Integration tests ensuring proper store updates for all clipboard operations, format painter state management, and history navigation. Test undo/redo stack limits (50 items max), clipboard data persistence across component unmounts, and format painter mode toggling. E2E tests for complete copy/paste workflows including multi-element selection, cross-drawing paste operations, and format painter application to multiple targets. Performance tests ensuring smooth operation with large clipboard data (100+ nodes/edges).",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           37
         ],
@@ -862,7 +862,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-23T21:07:23.197Z",
+      "updated": "2025-09-24T21:57:55.696Z",
       "description": "Tasks for master context"
     }
   }
