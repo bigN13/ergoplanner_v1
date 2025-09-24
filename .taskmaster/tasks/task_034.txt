@@ -1,0 +1,11 @@
+# Task ID: 34
+# Title: Build Import/Export System with Multiple Format Support
+# Status: cancelled
+# Dependencies: 26, 29
+# Priority: medium
+# Description: Comprehensive data exchange system supporting DWG/DXF, Visio, PDF, images, and CSV for equipment lists with preview, mapping templates, and batch operations
+# Details:
+Create ImportExport service at frontend/src/services/importExport.ts. For imports: implement DWG/DXF parser using dwg-js or similar, Visio VSDX reader, PDF with pdf.js including OCR for scanned drawings, image imports (SVG, PNG, JPG) with optimization, CSV/Excel for equipment lists using xlsx library. Add import preview dialog, coordinate system mapping, symbol recognition for legacy drawings, mapping templates for data fields. For exports: implement PDF generation with jsPDF/react-pdf (vector quality), DWG/DXF writer, SVG export (scalable), PNG/JPG with configurable DPI (72-300), Excel with element properties. Add batch import/export, format conversion settings, progress indicators for large files.
+
+# Test Strategy:
+Unit tests for file parsers and format converters. Integration tests for import preview and mapping. E2E tests for complete import/export workflows. Compatibility tests with AutoCAD, Visio, and Excel files. Performance tests for large file handling (>10MB).

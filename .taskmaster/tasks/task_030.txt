@@ -1,0 +1,11 @@
+# Task ID: 30
+# Title: Develop Intelligent Connection System with Smart Routing
+# Status: cancelled
+# Dependencies: 26, 29
+# Priority: high
+# Description: Build smart pipe routing system with connection validation, orthogonal/curved routing options, waypoint management, and P&ID-specific connection rules for proper flow representation
+# Details:
+Extend ReactFlow edge system at frontend/src/components/drawing/connections/. Implement custom edge types: straight, orthogonal (right-angle), curved/bezier, step connectors. Create smart routing algorithm using pathfinding (A* or similar) to avoid overlaps. Add connection point detection with magnetic snapping (10px threshold), connection validation rules (compatible types only - e.g., pipe to valve, not pipe to instrument), waypoint management (add/remove/move control points), flow direction indicators (arrows, animated dashes). Implement line styles (solid, dashed, dotted, double), configurable line weights (1-10px), connection highlighting on hover, junction handling (automatic tees/crosses detection). Add P&ID-specific rules for pipe classes, material specifications.
+
+# Test Strategy:
+Unit tests for routing algorithms, connection validation rules, and waypoint calculations. Integration tests for snap behavior, edge type switching, and junction creation. Performance tests for routing with 500+ connections. Visual tests for line styles and flow indicators.

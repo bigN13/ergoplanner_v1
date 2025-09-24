@@ -1,0 +1,90 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ergoplanner
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: ergoplanner
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install backend dependencies
+      run: dotnet restore
+      working-directory: backend
+
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: frontend
+
+    - name: Build backend
+      run: dotnet build --no-restore --configuration Release
+      working-directory: backend
+
+    - name: Build frontend
+      run: npm run build
+      working-directory: frontend
+
+    - name: Run backend
+      run: |
+        dotnet run --project src/Ergoplanner.API --configuration Release &
+        sleep 10
+      working-directory: backend
+      env:
+        ASPNETCORE_ENVIRONMENT: Development
+        ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=ergoplanner;Username=ergoplanner;Password=testpassword"
+        ConnectionStrings__Redis: "localhost:6379"
+
+    - name: Run integration tests
+      run: |
+        # Add your integration test commands here
+        # For example: npm run test:e2e
+        curl -f http://localhost:5266/health || exit 1
+      working-directory: frontend
+
+    - name: Docker Compose Test
+      run: |
+        docker-compose up -d
+        sleep 30
+        curl -f http://localhost:5266/health || exit 1
+        curl -f http://localhost:3000 || exit 1
+        docker-compose down

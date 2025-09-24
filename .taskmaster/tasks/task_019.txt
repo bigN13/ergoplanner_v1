@@ -1,0 +1,11 @@
+# Task ID: 19
+# Title: Develop Drag and Drop Behaviors
+# Status: cancelled
+# Dependencies: 18
+# Priority: medium
+# Description: Implement comprehensive drag-drop system for symbols, nodes, edges, and panel rearrangement
+# Details:
+Use react-dnd or native HTML5 drag-drop API. Implement drag sources (sidebar symbols, canvas nodes, panel headers) and drop targets (canvas, connection points, panel docks). Add visual feedback with drag preview, drop zone highlighting, and invalid drop indicators. Support multi-selection drag with Shift/Ctrl. Implement auto-connection when dropping near ports. Add modifier keys for constrained movement (Shift for straight lines, Alt for duplicate).
+
+# Test Strategy:
+Unit tests for drag state management. Integration tests for different drag-drop scenarios. E2E tests for touch/stylus support. Performance tests for smooth dragging at 60fps.

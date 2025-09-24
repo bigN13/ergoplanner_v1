@@ -1,0 +1,11 @@
+# Task ID: 32
+# Title: Implement Main Toolbar with Drawing and Editing Tools
+# Status: cancelled
+# Dependencies: 26
+# Priority: medium
+# Description: Build comprehensive toolbar system with selection, drawing, text, and arrangement tools including customizable layout, tooltips, keyboard shortcuts, and context-sensitive availability
+# Details:
+Create Toolbar component at frontend/src/components/drawing/Toolbar.tsx. Implement tool groups: Selection (pointer, lasso, hand/pan), Drawing (line, polyline, curve, rectangle, circle), Text (text, note, callout with font options), Arrangement (align left/center/right/top/middle/bottom, distribute H/V, group/ungroup). Add tool states management (active, disabled, hover), rich tooltips showing keyboard shortcuts, customizable toolbar with drag-to-reorder, quick access toolbar for favorites, context-sensitive tool availability based on selection, touch-friendly 44px minimum target size, tool options panel (e.g., line thickness for drawing tools), recent tools tracking, tool presets with save/load. Integrate with canvas for tool activation.
+
+# Test Strategy:
+Unit tests for tool state management and shortcut handling. Integration tests for tool activation and canvas interaction. Accessibility tests for keyboard navigation and tooltip visibility. Usability tests for touch targets and tool discovery.

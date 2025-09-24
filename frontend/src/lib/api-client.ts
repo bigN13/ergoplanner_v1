@@ -1,0 +1,113 @@
+import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios";
+
+import { config } from "./config";
+
+/**
+ * Create axios instance with default configuration
+ */
+const apiClient: AxiosInstance = axios.create({
+  baseURL: config.api.baseUrl,
+  timeout: config.api.timeout,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+/**
+ * Request interceptor to add authentication token
+ */
+apiClient.interceptors.request.use(
+  (requestConfig) => {
+    // Add auth token if available
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem(config.storage.tokenKey);
+      if (token && requestConfig.headers) {
+        // Set the authorization header without mutation
+        requestConfig.headers.set("Authorization", `Bearer ${token}`);
+      }
+    }
+    return requestConfig;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
+);
+
+/**
+ * Response interceptor for error handling and token refresh
+ */
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+    // Handle 401 Unauthorized - attempt token refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem(config.storage.refreshTokenKey);
+        if (refreshToken) {
+          const response = await axios.post(`${config.api.baseUrl}/auth/refresh`, {
+            refreshToken,
+          });
+
+          const { token, refreshToken: newRefreshToken } = response.data;
+          localStorage.setItem(config.storage.tokenKey, token);
+          localStorage.setItem(config.storage.refreshTokenKey, newRefreshToken);
+
+          // Retry original request with new token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
+          return apiClient(originalRequest);
+        }
+      } catch {
+        // Refresh failed, redirect to login
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(config.storage.tokenKey);
+          localStorage.removeItem(config.storage.refreshTokenKey);
+          localStorage.removeItem(config.storage.userKey);
+          window.location.href = "/login";
+        }
+      }
+    }
+
+    // Log errors in debug mode
+    if (config.app.debugMode) {
+      console.error("API Error:", {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
+
+/**
+ * Type-safe API error
+ */
+export interface ApiError {
+  message: string;
+  statusCode: number;
+  errors?: Record<string, string[]>;
+}
+
+/**
+ * Extract error message from axios error
+ */
+export const extractErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    const apiError = error.response?.data as ApiError | undefined;
+    return apiError?.message || error.message || "An unexpected error occurred";
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "An unexpected error occurred";
+};

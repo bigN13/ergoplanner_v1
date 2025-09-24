@@ -1,0 +1,11 @@
+# Task ID: 21
+# Title: Build Main Toolbar with Drawing Tools
+# Status: cancelled
+# Dependencies: 16
+# Priority: medium
+# Description: Create the primary toolbar with all drawing, editing, and view control tools
+# Details:
+Implement toolbar groups: File operations (new, open, save), Edit tools (cut, copy, paste, undo/redo), Drawing tools (select, pan, connect, text), View controls (zoom, grid, layers), and Arrange tools (align, distribute, group). Add contextual tool enabling based on selection. Implement dropdown menus for tool variants. Add keyboard shortcut indicators. Create touch-friendly mode with larger buttons. Support toolbar customization and profiles.
+
+# Test Strategy:
+Unit tests for tool state management. Integration tests for tool interactions with canvas. E2E tests for all tool operations. Accessibility tests for keyboard-only operation.

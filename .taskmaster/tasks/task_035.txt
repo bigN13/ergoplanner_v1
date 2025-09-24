@@ -1,0 +1,11 @@
+# Task ID: 35
+# Title: Implement BoQ Integration with Real-time Synchronization
+# Status: cancelled
+# Dependencies: 31
+# Priority: high
+# Description: Build bidirectional synchronization between P&ID drawings and Bill of Quantities with SignalR real-time updates, automatic calculations, conflict resolution, and external system APIs
+# Details:
+Create BoQ integration at frontend/src/services/boq/ and backend endpoints. Implement SignalR client for real-time sync at frontend/src/lib/signalr.ts. Build automatic quantity calculation from drawing elements (pipe lengths, equipment counts, valve quantities). Create property-to-BoQ field mapping with validation, change tracking with detailed history, conflict resolution UI for concurrent edits. Add bulk update operations with progress tracking, BoQ template management (create, edit, apply), cost calculation with currency formatting, report generation (PDF, Excel) using backend API. Implement external BoQ system integration via REST APIs, webhooks for changes, data validation before sync. Handle offline mode with sync queue.
+
+# Test Strategy:
+Unit tests for quantity calculations and mapping logic. Integration tests for SignalR real-time updates and conflict resolution. E2E tests for drawing-to-BoQ workflows. Load tests for concurrent user updates. API tests for external system integration.

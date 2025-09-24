@@ -1,0 +1,193 @@
+/* Draw.io Professional Styles */
+
+/* Tooltips */
+.tooltip {
+  position: relative;
+}
+
+.tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  margin-top: 4px;
+}
+
+/* Professional toolbar button styles */
+.toolbar-btn {
+  @apply p-1.5 rounded hover:bg-gray-100 transition-colors duration-150;
+}
+
+.toolbar-btn:active {
+  @apply bg-gray-200;
+}
+
+.toolbar-btn.active {
+  @apply bg-blue-50 text-blue-600;
+}
+
+/* Sidebar resize handle */
+.resize-handle {
+  position: relative;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  cursor: col-resize;
+}
+
+.resize-handle:hover::after {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.resize-handle.dragging::after {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+/* Menu dropdown styles */
+.menu-dropdown {
+  @apply absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg py-1 min-w-[200px] z-50;
+}
+
+.menu-item {
+  @apply px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center justify-between;
+}
+
+.menu-item.disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.menu-divider {
+  @apply border-t border-gray-200 my-1;
+}
+
+/* Professional scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Panel styles */
+.panel-header {
+  @apply flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200;
+}
+
+.panel-title {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.panel-content {
+  @apply p-3 overflow-auto;
+}
+
+/* Tab styles */
+.tab-bar {
+  @apply flex border-b border-gray-200 bg-gray-50;
+}
+
+.tab {
+  @apply px-3 py-1.5 text-sm border-b-2 border-transparent hover:bg-gray-100 cursor-pointer transition-colors;
+}
+
+.tab.active {
+  @apply bg-white border-blue-500 text-blue-600;
+}
+
+/* Status bar styles */
+.status-item {
+  @apply text-xs text-gray-600 px-2;
+}
+
+.status-divider {
+  @apply text-gray-400;
+}
+
+/* Professional input styles */
+.form-input {
+  @apply w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500;
+}
+
+.form-label {
+  @apply block text-xs font-medium text-gray-700 mb-1;
+}
+
+/* Button styles */
+.btn {
+  @apply px-3 py-1.5 text-sm font-medium rounded transition-colors;
+}
+
+.btn-primary {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
+/* Color picker styles */
+.color-picker {
+  @apply w-8 h-8 border-2 border-gray-300 rounded cursor-pointer;
+}
+
+/* Professional shadows */
+.shadow-panel {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}

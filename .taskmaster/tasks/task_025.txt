@@ -1,0 +1,11 @@
+# Task ID: 25
+# Title: Build BoQ Integration and Synchronization
+# Status: cancelled
+# Dependencies: 23
+# Priority: high
+# Description: Create bidirectional synchronization between P&ID drawings and Bill of Quantities system
+# Details:
+Design BoQ data model linked to drawing elements. Implement real-time sync using SignalR for collaborative updates. Create BoQ panel showing equipment counts, pipe lengths, and costs. Build automatic quantity calculation from drawing geometry. Add manual override capability for quantities. Implement change tracking and audit trail. Create BoQ templates for different project types. Add export to procurement systems.
+
+# Test Strategy:
+Unit tests for quantity calculations. Integration tests for sync mechanisms. E2E tests for drawing-to-BoQ workflows. Performance tests for real-time updates with multiple users.

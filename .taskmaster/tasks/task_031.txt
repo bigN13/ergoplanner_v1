@@ -1,0 +1,11 @@
+# Task ID: 31
+# Title: Build Context-Sensitive Property Panel System
+# Status: cancelled
+# Dependencies: 27, 29
+# Priority: medium
+# Description: Create comprehensive property management panel for diagram elements with P&ID-specific properties, dynamic forms, validation, bulk editing, and BoQ item mapping capabilities
+# Details:
+Create PropertyPanel component at frontend/src/components/drawing/PropertyPanel.tsx. Implement tabbed interface: Style (colors, lines, fills with color picker), Text (fonts, alignment, formatting with rich text), Arrange (position X/Y, size W/H, rotation angle, z-index), Data (custom properties, metadata fields). Add P&ID properties: equipment data (tag number, description, specifications), process conditions (pressure, temperature, flow rate with units), material specifications dropdown, BoQ item mapping with auto-complete. Use react-hook-form with zod validation, implement bulk editing for multiple selections, property templates/presets management, calculated properties (formulas), property history with undo. Export to Excel/CSV functionality.
+
+# Test Strategy:
+Unit tests for form validation, property calculations, and bulk editing logic. Integration tests for property updates, template application, and BoQ mapping. Accessibility tests for form controls and keyboard navigation. E2E tests for property editing workflows.

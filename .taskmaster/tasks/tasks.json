@@ -5,7 +5,7 @@
         "id": 1,
         "title": "Set up project infrastructure and development environment",
         "description": "Initialize the Ergoplanner AI Suite project with proper structure, containerization, and CI/CD setup",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [],
         "details": "Create the foundational project structure including backend (.NET Core 8+), frontend (Next.js 14+), ML services (ML.NET), and infrastructure setup with Docker and Kubernetes configurations",
@@ -15,49 +15,49 @@
             "id": 1,
             "title": "Create backend .NET Core solution structure",
             "description": "Set up Clean Architecture with Domain, Application, Infrastructure, and API projects",
-            "status": "pending",
+            "status": "done",
             "details": "Create Ergoplanner.Domain, Ergoplanner.Application, Ergoplanner.Infrastructure, Ergoplanner.API, and Ergoplanner.Shared projects"
           },
           {
             "id": 2,
             "title": "Initialize Next.js frontend with TypeScript",
             "description": "Create Next.js 14+ app with App Router, TypeScript, Tailwind CSS, and ESLint",
-            "status": "pending",
+            "status": "done",
             "details": "npx create-next-app@latest with --typescript --tailwind --eslint --app flags"
           },
           {
             "id": 3,
             "title": "Set up ML.NET services project",
             "description": "Create .NET project structure for ML services with ML.NET and ONNX Runtime",
-            "status": "pending",
+            "status": "done",
             "details": "Create Ergoplanner.MLServices with ML.NET, Microsoft.ML.OnnxRuntime packages"
           },
           {
             "id": 4,
             "title": "Configure Docker environment",
             "description": "Create Dockerfiles and docker-compose.yml for all services with multi-stage builds",
-            "status": "pending",
+            "status": "done",
             "details": "Multi-stage Dockerfiles for optimized images, docker-compose with all services"
           },
           {
             "id": 5,
             "title": "Set up PostgreSQL database with migrations",
             "description": "Configure PostgreSQL with PostGIS, create initial schema, set up Entity Framework Core migrations",
-            "status": "pending",
+            "status": "done",
             "details": "Install EF Core, configure DbContext, create initial migration"
           },
           {
             "id": 6,
             "title": "Configure Redis caching",
             "description": "Set up Redis for session management and caching with proper connection pooling",
-            "status": "pending",
+            "status": "done",
             "details": "Install StackExchange.Redis, configure distributed caching"
           },
           {
             "id": 7,
             "title": "Implement CI/CD with GitHub Actions",
             "description": "Create workflows for build, test, and deployment",
-            "status": "pending",
+            "status": "done",
             "details": "Create .github/workflows for backend, frontend, and ML services"
           }
         ]
@@ -107,132 +107,211 @@
       {
         "id": 3,
         "title": "Build P&ID drawing engine with ReactFlow",
-        "description": "Implement the core drawing functionality using ReactFlow",
-        "status": "pending",
+        "description": "Implement a standalone P&ID drawing component using ReactFlow that functions independently like draw.io, without requiring authentication or backend services",
+        "status": "in-progress",
+        "dependencies": [],
         "priority": "high",
-        "dependencies": [
-          "1"
-        ],
+        "details": "Create a self-contained P&ID drawing component in frontend/src/components/drawing/ that provides full drawing capabilities without external dependencies. The component should leverage the existing ReactFlow installation (v11.11.4) and drawing types defined in frontend/src/types/drawing.ts. Build upon the PIDNode, PIDEdge, and DrawingState interfaces already established. This component will serve as the core drawing engine that can later be integrated with backend services but must function completely offline first.",
+        "testStrategy": "Unit tests for drawing utilities and symbol manipulation. Integration tests for ReactFlow canvas interactions. Visual regression tests for symbol rendering. E2E tests simulating complete drawing workflows including save/load to local storage.",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up ReactFlow canvas",
-            "description": "Initialize ReactFlow with basic canvas and controls",
-            "status": "pending"
+            "title": "Set up ReactFlow canvas with offline storage",
+            "description": "Initialize ReactFlow canvas component with local storage persistence for offline functionality",
+            "status": "done",
+            "dependencies": [],
+            "details": "Create DrawingCanvas.tsx component in frontend/src/components/drawing/ using the existing ReactFlow setup. Implement local storage adapter to save/load drawing state using the DrawingState interface from types/drawing.ts. Add basic controls for zoom, pan, and minimap.",
+            "testStrategy": ""
           },
           {
             "id": 2,
             "title": "Implement grid system and snapping",
-            "description": "Add orthogonal, isometric, and polar grid options",
-            "status": "pending"
+            "description": "Add orthogonal, isometric, and polar grid options with configurable snapping",
+            "status": "done",
+            "dependencies": [],
+            "details": "Build grid overlay system with three modes: orthogonal (standard), isometric (30°/60°), and polar (radial). Implement snap-to-grid functionality with adjustable grid size. Create GridControls component for toggling grid visibility and snap settings.",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Create custom node types for symbols",
-            "description": "Develop ReactFlow custom nodes for P&ID symbols",
-            "status": "pending"
+            "title": "Create custom node types for P&ID symbols",
+            "description": "Develop ReactFlow custom nodes for all SymbolType variants defined in drawing.ts",
+            "status": "done",
+            "dependencies": [],
+            "details": "Implement custom React components for each symbol type (pump, valve, tank, etc.) in frontend/src/components/drawing/symbols/. Use the PIDNodeData interface for node properties. Include rotation, scaling, and property editing capabilities for each symbol.",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement smart pipe routing",
-            "description": "Add A* pathfinding for automatic pipe routing",
-            "status": "pending"
+            "title": "Implement smart pipe routing with local pathfinding",
+            "description": "Add client-side A* pathfinding for automatic pipe routing between symbols",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create pure JavaScript implementation of A* algorithm for pipe routing. Build PathfindingService that works entirely client-side. Implement orthogonal and diagonal routing modes. Add obstacle avoidance for existing symbols and pipes.",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Add layer management",
-            "description": "Create layer system for organizing drawing elements",
-            "status": "pending"
+            "title": "Add layer management system",
+            "description": "Create layer system using the Layer interface for organizing drawing elements",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Implement LayerPanel component for managing layers defined in drawing.ts. Add layer visibility toggles, opacity controls, and ordering. Ensure all drawing elements respect layer settings. Store layer state in local storage.",
+            "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "Implement undo/redo functionality",
-            "description": "Add command pattern for unlimited undo/redo",
-            "status": "pending"
+            "title": "Implement undo/redo with command pattern",
+            "description": "Add command pattern for unlimited undo/redo using local history management",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create CommandManager class to track all drawing operations. Implement DrawingHistoryEntry interface for action tracking. Add keyboard shortcuts (Ctrl+Z/Ctrl+Y). Store history in memory with configurable limit. Display action history in UI panel.",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Build standalone toolbar and property panels",
+            "description": "Create self-contained UI components for drawing tools and property editing",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Develop DrawingToolbar component with all drawing tools (select, pan, add symbols, delete). Create PropertyPanel for editing selected node/edge properties. Implement SymbolPalette with drag-and-drop from symbol library. All components should work without backend connectivity.",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Add import/export functionality for offline use",
+            "description": "Implement file import/export for drawings without server dependency",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Add JSON export/import using the Drawing interface structure. Implement SVG export for visual output. Create PNG export using canvas rendering. Add clipboard support for copy/paste operations. All operations should use browser APIs only.",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 4,
         "title": "Develop comprehensive symbol library system",
-        "description": "Create and manage symbol libraries for multiple industry standards",
+        "description": "Create and manage symbol libraries for multiple industry standards as an integral part of the P&ID drawing component",
         "status": "pending",
-        "priority": "high",
         "dependencies": [
           "3"
         ],
+        "priority": "high",
+        "details": "Build a comprehensive symbol library system integrated with the standalone drawing component at frontend/src/components/drawing/. Leverage the existing SymbolLibraryItem interface in frontend/src/types/drawing.ts which already supports multiple standards (ISA-5.1, ISO 14617). Create symbol components in frontend/src/components/drawing/symbols/ directory. Store symbol SVG/React components in frontend/public/symbols/ organized by standard. Implement drag-and-drop from symbol sidebar using ReactFlow's built-in DnD capabilities. Build symbol conversion engine that transforms between standards while preserving semantic meaning. Create custom symbol builder using parametric definitions. Integrate with drawing-store.ts for symbol state management. Symbol library should work offline without backend dependencies initially.",
+        "testStrategy": "Unit tests for symbol conversion algorithms and parametric generation. Visual regression tests for symbol rendering across standards. Integration tests for drag-drop functionality. Performance tests for loading 500+ symbols. E2E tests for symbol search, filtering, and placement workflows.",
         "subtasks": [
           {
             "id": 1,
             "title": "Create ISA-5.1 symbol library",
-            "description": "Implement 200+ ISA-5.1 standard symbols",
-            "status": "pending"
+            "description": "Implement 200+ ISA-5.1 standard symbols as React components/SVGs in frontend/public/symbols/isa-5.1/",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
             "title": "Add ISO 14617 symbols",
-            "description": "Implement ISO 14617 international standard symbols",
-            "status": "pending"
+            "description": "Implement ISO 14617 international standard symbols in frontend/public/symbols/iso-14617/",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Implement UK water company standards",
-            "description": "Add Thames Water, Severn Trent, United Utilities symbols",
-            "status": "pending"
+            "description": "Add Thames Water, Severn Trent, United Utilities symbols in frontend/public/symbols/uk-water/",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
             "title": "Build symbol conversion engine",
-            "description": "Create one-click conversion between standards",
-            "status": "pending"
+            "description": "Create one-click conversion between standards using mapping definitions in frontend/src/components/drawing/symbols/SymbolConverter.tsx",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Add custom symbol creator",
-            "description": "Implement parametric symbol creation tool",
-            "status": "pending"
+            "description": "Implement parametric symbol creation tool in frontend/src/components/drawing/symbols/SymbolBuilder.tsx",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 5,
         "title": "Implement bidirectional BoQ synchronization",
-        "description": "Create automatic Bill of Quantities generation with real-time sync",
+        "description": "Create automatic Bill of Quantities generation with offline-first approach and optional real-time sync",
         "status": "pending",
-        "priority": "high",
         "dependencies": [
           "3"
         ],
+        "priority": "high",
+        "details": "Implement BoQ functionality that works entirely in the browser using IndexedDB/localStorage for the standalone drawing component. The BoQ should automatically extract components from the ReactFlow drawing canvas, display them in an Excel-like grid, and persist data locally. Later phases will add SignalR integration for real-time sync when the backend is available. Key implementation areas: frontend/src/store for state management, frontend/src/components/boq for UI components, frontend/src/lib for IndexedDB wrapper.",
+        "testStrategy": "Unit tests for BoQ extraction logic and calculations. Integration tests for IndexedDB operations. Component tests for data grid interactions. E2E tests for drawing-to-BoQ synchronization workflow. Performance tests ensuring smooth operation with 500+ components.",
         "subtasks": [
           {
             "id": 1,
-            "title": "Design BoQ data model",
-            "description": "Create database schema for BoQ items and relationships",
-            "status": "pending"
+            "title": "Design offline BoQ data model and IndexedDB schema",
+            "description": "Create browser-based storage schema for BoQ items with IndexedDB",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Define TypeScript interfaces for BoQ items, categories, and pricing. Implement IndexedDB wrapper in frontend/src/lib/storage/boq-storage.ts with tables for: boq_items, categories, pricing_rules, and currency_settings. Use Dexie.js or native IndexedDB API. Include versioning and migration support.",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Build data grid component",
-            "description": "Implement Excel-like grid with AG-Grid or similar",
-            "status": "pending"
+            "title": "Build client-side data grid component",
+            "description": "Implement Excel-like grid using TanStack Table or AG-Grid Community",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create BoQ grid component in frontend/src/components/boq/BoQGrid.tsx. Features: inline editing, sorting, filtering, column resizing, copy/paste support, and keyboard navigation. Use virtualization for performance with large datasets. Store grid state in Zustand store.",
+            "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Create component extraction service",
-            "description": "Automatically extract components from drawings",
-            "status": "pending"
+            "description": "Build client-side service to extract components from ReactFlow drawings",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Implement extraction logic in frontend/src/lib/boq/extractor.ts that reads nodes from drawing-store and generates BoQ items. Map symbol types to BoQ categories, count quantities, and track properties. Update automatically when drawing changes using Zustand subscriptions.",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement real-time sync with SignalR",
-            "description": "Set up bidirectional sync between drawing and BoQ",
-            "status": "pending"
+            "title": "Implement local bidirectional sync",
+            "description": "Create two-way sync between drawing and BoQ in browser",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Build sync mechanism in frontend/src/lib/boq/sync.ts using Zustand middleware. Drawing changes update BoQ immediately, BoQ edits can highlight/select corresponding drawing elements. Use debouncing for performance. Store sync state in localStorage for persistence.",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Add cost calculation engine",
-            "description": "Implement pricing logic with multi-currency support",
-            "status": "pending"
+            "title": "Add offline cost calculation engine",
+            "description": "Implement client-side pricing logic with multi-currency support",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create calculation engine in frontend/src/lib/boq/calculator.ts with formulas, unit conversions, and currency rates (stored locally). Support custom pricing rules and discounts. Cache calculations for performance. Export results to CSV/Excel formats.",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Prepare SignalR integration points",
+            "description": "Add hooks for future real-time sync when backend is available",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Design sync adapter pattern in frontend/src/lib/boq/sync-adapter.ts with offline/online modes. Queue changes when offline for later sync. Add connection status indicator. Prepare conflict resolution strategy for when backend integration is added.",
+            "testStrategy": ""
           }
         ]
       },
@@ -365,28 +444,426 @@
       },
       {
         "id": 16,
-        "title": "Transition POC to production-ready MVP foundation",
-        "description": "Refactor and enhance the successful POC implementation into a production-ready MVP architecture with proper separation of concerns, testing, and scalability patterns",
-        "details": "Based on the validated POC implementation in frontend-poc/, this task focuses on transitioning the proof-of-concept into a production-ready MVP foundation. Key activities include:\n\n1. **Refactor Frontend Architecture**:\n   - Move POC components from frontend-poc/ to a new production frontend/ directory\n   - Implement proper component structure following frontend/src/components/drawing/, frontend/src/components/boq/, frontend/src/components/ui/ organization\n   - Extract hard-coded values to configuration files\n   - Implement proper TypeScript interfaces and types for all data structures\n   - Add error boundaries and loading states\n   - Implement proper form validation with react-hook-form or similar\n\n2. **Enhance State Management**:\n   - Expand the Zustand store (lib/store.ts) to handle more complex state\n   - Implement proper action creators and selectors\n   - Add state persistence with localStorage/sessionStorage\n   - Implement undo/redo functionality for diagram changes\n\n3. **Improve ReactFlow Implementation**:\n   - Create custom node types for all equipment types (beyond pump, valve, tank)\n   - Implement proper edge/connection validation rules\n   - Add smart routing for pipes\n   - Implement zoom controls and minimap\n   - Add grid snapping and alignment guides\n\n4. **Enhance Data Grid**:\n   - Implement virtualization for large datasets\n   - Add column sorting, filtering, and resizing\n   - Implement bulk edit operations\n   - Add CSV/Excel export functionality\n\n5. **Upgrade AI Integration**:\n   - Move AI service to proper backend API instead of direct OpenRouter calls\n   - Implement proper API key management (environment variables)\n   - Add command history and suggestions\n   - Implement more sophisticated natural language understanding\n\n6. **Add Data Persistence Layer**:\n   - Design and implement API client service\n   - Add proper DTOs and API contracts\n   - Implement optimistic updates\n   - Add offline support with service workers\n\n7. **Implement Security & Performance**:\n   - Add input sanitization\n   - Implement proper CORS handling\n   - Add request rate limiting logic\n   - Implement code splitting and lazy loading\n   - Optimize bundle size with tree shaking\n\n8. **Setup Testing Infrastructure**:\n   - Configure Jest and React Testing Library\n   - Write unit tests for all utilities and hooks\n   - Add integration tests for major workflows\n   - Setup Playwright for E2E tests\n\n9. **Documentation & Development Experience**:\n   - Create component documentation with Storybook\n   - Add JSDoc comments for all public APIs\n   - Create development setup guide\n   - Add pre-commit hooks with Husky\n\nThis transition maintains all successful POC features while establishing a solid foundation for the full Ergoplanner implementation.",
-        "testStrategy": "1. Run 'npm run build' to ensure no TypeScript errors\n2. Execute 'npm run lint -- --max-warnings 0' to verify code quality\n3. Run 'npm test' to ensure all unit tests pass\n4. Test drag-and-drop functionality with multiple equipment types\n5. Verify bidirectional sync between canvas and data grid\n6. Test AI commands with various inputs\n7. Verify proper error handling when API is unavailable\n8. Test performance with 100+ equipment items on canvas\n9. Verify responsive design on different screen sizes\n10. Test keyboard navigation and accessibility features\n11. Verify data persistence across page refreshes\n12. Load test the application with multiple concurrent users simulation",
-        "status": "done",
+        "title": "Implement Canvas and Viewport Management System",
+        "description": "Create the foundational infinite canvas with ReactFlow including grid system, zoom/pan controls, and viewport management",
+        "details": "Implement the core ReactFlow canvas with infinite scroll capabilities, configurable grid overlay (dots/lines), zoom controls (10%-400%), pan with middle-click/spacebar, ruler system, and performance optimization for 1000+ elements at 60fps. Use ReactFlow's built-in viewport controls and extend with custom grid rendering using SVG patterns. Implement viewport state management in Zustand store with persistence.",
+        "testStrategy": "Unit tests for viewport calculations and state management. Integration tests for zoom/pan operations. Performance tests ensuring 60fps with 1000 nodes. E2E tests for user interactions like keyboard shortcuts and mouse controls.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Build Dockable Layout System with rc-dock",
+        "description": "Implement the flexible panel framework that allows docking, floating, resizing, and tabbed interfaces matching draw.io's layout",
+        "details": "Install and configure rc-dock or FlexLayout-react. Create DockableLayout wrapper component supporting drag-to-dock operations, resizable splitters, floating windows, tabbed panel groups, and layout persistence in localStorage. Implement responsive breakpoints for mobile/tablet. Define default layout configurations for left sidebar (300px), right properties panel (350px), and bottom panels. Support layout presets and user-customizable workspace arrangements.",
+        "testStrategy": "Integration tests for docking/undocking panels. Unit tests for layout serialization/deserialization. Visual regression tests for different screen sizes. E2E tests for drag operations and panel resizing.",
+        "priority": "high",
         "dependencies": [
-          3,
-          4,
-          5
+          16
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Create Left Sidebar Stencil System",
+        "description": "Build the symbol library panel with search, categories, and drag-drop functionality for P&ID symbols",
+        "details": "Implement collapsible accordion categories for General, P&ID Equipment, Valves, Instruments, and UK Water standards. Create SearchableSymbolGrid component with fuzzy search using Fuse.js. Build DraggableSymbol components with ghost image previews. Implement Scratchpad area for temporary symbols. Load symbol definitions from JSON/SVG assets following ISA-5.1 and ISO 14617 standards. Add recent/favorite symbols tracking.",
+        "testStrategy": "Unit tests for search algorithm and category filtering. Integration tests for drag initiation from sidebar. E2E tests for complete symbol placement workflow. Accessibility tests for keyboard navigation.",
+        "priority": "high",
+        "dependencies": [
+          17
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Develop Drag and Drop Behaviors",
+        "description": "Implement comprehensive drag-drop system for symbols, nodes, edges, and panel rearrangement",
+        "details": "Use react-dnd or native HTML5 drag-drop API. Implement drag sources (sidebar symbols, canvas nodes, panel headers) and drop targets (canvas, connection points, panel docks). Add visual feedback with drag preview, drop zone highlighting, and invalid drop indicators. Support multi-selection drag with Shift/Ctrl. Implement auto-connection when dropping near ports. Add modifier keys for constrained movement (Shift for straight lines, Alt for duplicate).",
+        "testStrategy": "Unit tests for drag state management. Integration tests for different drag-drop scenarios. E2E tests for touch/stylus support. Performance tests for smooth dragging at 60fps.",
+        "priority": "medium",
+        "dependencies": [
+          18
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Implement Engineering Symbols and Standards",
+        "description": "Create comprehensive P&ID symbol library with metadata and connection points following industry standards",
+        "details": "Design symbol architecture with SVG/React components for 200+ symbols. Implement ISA-5.1 instrumentation symbols (transmitters, controllers, valves). Create ISO 14617 process equipment (pumps, vessels, heat exchangers). Add UK water industry symbols per Thames Water/United Utilities standards. Define connection port system with inlet/outlet/control ports. Include symbol metadata (tags, equipment IDs, specifications). Build symbol editor for custom symbols.",
+        "testStrategy": "Visual tests comparing rendered symbols to standards. Unit tests for connection point calculations. Integration tests for symbol property updates. Compliance tests against ISA/ISO specifications.",
+        "priority": "high",
+        "dependencies": [
+          19
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 21,
+        "title": "Build Main Toolbar with Drawing Tools",
+        "description": "Create the primary toolbar with all drawing, editing, and view control tools",
+        "details": "Implement toolbar groups: File operations (new, open, save), Edit tools (cut, copy, paste, undo/redo), Drawing tools (select, pan, connect, text), View controls (zoom, grid, layers), and Arrange tools (align, distribute, group). Add contextual tool enabling based on selection. Implement dropdown menus for tool variants. Add keyboard shortcut indicators. Create touch-friendly mode with larger buttons. Support toolbar customization and profiles.",
+        "testStrategy": "Unit tests for tool state management. Integration tests for tool interactions with canvas. E2E tests for all tool operations. Accessibility tests for keyboard-only operation.",
+        "priority": "medium",
+        "dependencies": [
+          16
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 22,
+        "title": "Develop Intelligent Connection System",
+        "description": "Build smart edge routing with validation rules and P&ID-specific connection behaviors",
+        "details": "Implement edge types (straight, orthogonal, bezier) with ReactFlow's edge system. Create smart routing algorithm avoiding node overlaps using pathfinding (A* or similar). Add connection validation rules (compatible port types, flow direction). Implement waypoint system for manual route adjustment. Add edge labels for pipe specifications (size, material, flow rate). Support multi-segment pipes with elbows/tees. Create connection animation for flow visualization.",
+        "testStrategy": "Unit tests for routing algorithms and validation logic. Integration tests for connection creation/editing. Performance tests for routing calculation speed. E2E tests for connection workflows.",
+        "priority": "high",
+        "dependencies": [
+          20
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 23,
+        "title": "Create Property Panel System",
+        "description": "Build comprehensive property editing interface for all diagram elements with P&ID-specific fields",
+        "details": "Create tabbed property panel with Style (colors, line width, fonts), Text (labels, annotations), Arrange (position, size, rotation), and P&ID Data (equipment specs, process conditions, tags) tabs. Implement dynamic property forms based on symbol type using JSON schema. Add calculated fields (flow rates, pressure drops). Create property templates and presets. Implement bulk property editing for multiple selections. Add property validation with error messages.",
+        "testStrategy": "Unit tests for property form generation and validation. Integration tests for property updates affecting canvas. E2E tests for complex property workflows. Performance tests for large property datasets.",
+        "priority": "medium",
+        "dependencies": [
+          17,
+          22
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Implement Import/Export System",
+        "description": "Build comprehensive file format support for CAD integration and data exchange",
+        "details": "Implement CAD format parsers/writers: DWG using dwg-js or TeighaFileConverter, DXF using dxf-parser, SVG using native DOM. Create PDF export with jsPDF including vector graphics. Build image export (PNG, JPEG) using canvas.toBlob(). Implement JSON format for native saves with full fidelity. Add CSV/Excel export for BoQ data. Create batch import/export operations. Implement format conversion with mapping rules.",
+        "testStrategy": "Unit tests for format parsers/serializers. Integration tests for round-trip conversion. Visual tests comparing imported/exported drawings. Performance tests for large file handling.",
+        "priority": "medium",
+        "dependencies": [
+          22
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Build BoQ Integration and Synchronization",
+        "description": "Create bidirectional synchronization between P&ID drawings and Bill of Quantities system",
+        "details": "Design BoQ data model linked to drawing elements. Implement real-time sync using SignalR for collaborative updates. Create BoQ panel showing equipment counts, pipe lengths, and costs. Build automatic quantity calculation from drawing geometry. Add manual override capability for quantities. Implement change tracking and audit trail. Create BoQ templates for different project types. Add export to procurement systems.",
+        "testStrategy": "Unit tests for quantity calculations. Integration tests for sync mechanisms. E2E tests for drawing-to-BoQ workflows. Performance tests for real-time updates with multiple users.",
+        "priority": "high",
+        "dependencies": [
+          23
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 26,
+        "title": "Implement ReactFlow Canvas Foundation with Infinite Pan and Zoom",
+        "description": "Set up the core ReactFlow-based drawing canvas with infinite canvas capabilities, grid system, snap-to-grid, ruler system, minimap navigation, and canvas state persistence",
+        "details": "Install and configure ReactFlow 11.11.4 with TypeScript support. Create Canvas component at frontend/src/components/drawing/Canvas.tsx. Implement viewport management with pan/zoom (10%-500% range), configurable grid spacing (10px/25px/50px), snap-to-grid toggle, draggable rulers from edges, minimap component, background patterns (grid/dots/lines), localStorage persistence for canvas state, and undo/redo system with 50-step history. Use ReactFlow's built-in controls and custom hooks for viewport management. Implement performance optimizations with virtualization for 1000+ elements at 60fps using React.memo and useMemo hooks.",
+        "testStrategy": "Unit tests for canvas state management, viewport calculations, and snap-to-grid logic. Integration tests for pan/zoom controls, ruler interactions, and state persistence. Performance tests ensuring 60fps with 1000+ elements using React Profiler. E2E tests for user workflows like creating drawings, navigating canvas, and using grid/snap features.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 27,
+        "title": "Build Dockable Layout System with rc-dock or FlexLayout",
+        "description": "Implement flexible, professional dockable interface framework for panels with drag-and-drop, resizing, tabbing, and layout persistence matching draw.io's interface",
+        "details": "Install rc-dock or FlexLayout-react for panel management. Create DockableLayout wrapper at frontend/src/components/layout/DockableLayout.tsx. Implement draggable panels with visual drop zones, resizable panels with min/max constraints (e.g., min: 200px, max: 600px), tabbed panel groups, floating window support, collapsible panels with smooth animations, layout presets (Engineering/Design/Review modes), dark/light theme integration with Tailwind CSS, keyboard navigation (Tab, Arrow keys), ARIA labels for accessibility. Store layout state in localStorage and provide layout reset functionality. Create useLayout hook for panel management.",
+        "testStrategy": "Unit tests for layout state management and panel configuration. Integration tests for drag-and-drop operations, panel resizing, and tab switching. Accessibility tests ensuring WCAG 2.1 AA compliance with axe-core. Cross-browser tests for layout consistency. Performance tests for smooth animations and responsive breakpoints.",
+        "priority": "high",
+        "dependencies": [
+          26
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 28,
+        "title": "Create Symbol Library Sidebar with Stencil System",
+        "description": "Build comprehensive symbol library interface in left sidebar with categorized P&ID symbols, search functionality, drag-to-canvas initialization, and favorites management",
+        "details": "Create SymbolLibrary component at frontend/src/components/drawing/SymbolLibrary.tsx. Implement collapsible accordion groups (General, P&ID, Electrical, Process Equipment, Piping Components), fuzzy search with fuse.js, recently used symbols section with timestamp tracking, favorites management with star icons, symbol preview tooltips on hover, drag initialization with react-dnd or native HTML5 drag API. Store symbols as React components or SVGs in frontend/public/symbols/. Create symbol metadata JSON with categories, tags, ISA/ISO standards compliance. Implement scratchpad area for temporary symbols, custom symbol import (SVG/PNG upload), keyboard shortcuts (1-9 for quick access).",
+        "testStrategy": "Unit tests for search functionality, symbol categorization, and favorites management. Integration tests for drag-and-drop to canvas, symbol preview, and accordion interactions. Accessibility tests for keyboard navigation and screen reader support. Performance tests for loading 500+ symbols efficiently.",
+        "priority": "high",
+        "dependencies": [
+          27
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 29,
+        "title": "Implement Engineering Symbols Library with Standards Compliance",
+        "description": "Create comprehensive P&ID symbol library following ISA-5.1, ISO 14617, and UK water industry standards with 100+ engineering symbols including pumps, vessels, valves, and instruments",
+        "details": "Create symbol components in frontend/src/components/symbols/ directory. Implement ISA-5.1 standard symbols: pumps (centrifugal, positive displacement, vacuum), vessels (vertical, horizontal, pressure), heat exchangers (shell-tube, plate, air-cooled), compressors/turbines, separators/filters. Add piping components: valves (gate, globe, ball, check, butterfly, control), fittings (elbows, tees, reducers, flanges), instruments (pressure, temperature, flow, level indicators). Include UK water standards (Thames Water, United Utilities). Each symbol as parameterized React component with rotation (90° increments), mirroring (H/V), dynamic sizing, connection points definition using ReactFlow handles, property templates. Create Symbol class with metadata, standards compliance tags, connection rules.",
+        "testStrategy": "Unit tests for symbol rendering, rotation, mirroring, and sizing. Visual regression tests using Percy or Chromatic for symbol appearance. Compliance tests validating ISA-5.1 and ISO 14617 standards. Integration tests for symbol-to-canvas placement and connection point validation.",
+        "priority": "high",
+        "dependencies": [
+          28
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 30,
+        "title": "Develop Intelligent Connection System with Smart Routing",
+        "description": "Build smart pipe routing system with connection validation, orthogonal/curved routing options, waypoint management, and P&ID-specific connection rules for proper flow representation",
+        "details": "Extend ReactFlow edge system at frontend/src/components/drawing/connections/. Implement custom edge types: straight, orthogonal (right-angle), curved/bezier, step connectors. Create smart routing algorithm using pathfinding (A* or similar) to avoid overlaps. Add connection point detection with magnetic snapping (10px threshold), connection validation rules (compatible types only - e.g., pipe to valve, not pipe to instrument), waypoint management (add/remove/move control points), flow direction indicators (arrows, animated dashes). Implement line styles (solid, dashed, dotted, double), configurable line weights (1-10px), connection highlighting on hover, junction handling (automatic tees/crosses detection). Add P&ID-specific rules for pipe classes, material specifications.",
+        "testStrategy": "Unit tests for routing algorithms, connection validation rules, and waypoint calculations. Integration tests for snap behavior, edge type switching, and junction creation. Performance tests for routing with 500+ connections. Visual tests for line styles and flow indicators.",
+        "priority": "high",
+        "dependencies": [
+          26,
+          29
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 31,
+        "title": "Build Context-Sensitive Property Panel System",
+        "description": "Create comprehensive property management panel for diagram elements with P&ID-specific properties, dynamic forms, validation, bulk editing, and BoQ item mapping capabilities",
+        "details": "Create PropertyPanel component at frontend/src/components/drawing/PropertyPanel.tsx. Implement tabbed interface: Style (colors, lines, fills with color picker), Text (fonts, alignment, formatting with rich text), Arrange (position X/Y, size W/H, rotation angle, z-index), Data (custom properties, metadata fields). Add P&ID properties: equipment data (tag number, description, specifications), process conditions (pressure, temperature, flow rate with units), material specifications dropdown, BoQ item mapping with auto-complete. Use react-hook-form with zod validation, implement bulk editing for multiple selections, property templates/presets management, calculated properties (formulas), property history with undo. Export to Excel/CSV functionality.",
+        "testStrategy": "Unit tests for form validation, property calculations, and bulk editing logic. Integration tests for property updates, template application, and BoQ mapping. Accessibility tests for form controls and keyboard navigation. E2E tests for property editing workflows.",
+        "priority": "medium",
+        "dependencies": [
+          27,
+          29
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 32,
+        "title": "Implement Main Toolbar with Drawing and Editing Tools",
+        "description": "Build comprehensive toolbar system with selection, drawing, text, and arrangement tools including customizable layout, tooltips, keyboard shortcuts, and context-sensitive availability",
+        "details": "Create Toolbar component at frontend/src/components/drawing/Toolbar.tsx. Implement tool groups: Selection (pointer, lasso, hand/pan), Drawing (line, polyline, curve, rectangle, circle), Text (text, note, callout with font options), Arrangement (align left/center/right/top/middle/bottom, distribute H/V, group/ungroup). Add tool states management (active, disabled, hover), rich tooltips showing keyboard shortcuts, customizable toolbar with drag-to-reorder, quick access toolbar for favorites, context-sensitive tool availability based on selection, touch-friendly 44px minimum target size, tool options panel (e.g., line thickness for drawing tools), recent tools tracking, tool presets with save/load. Integrate with canvas for tool activation.",
+        "testStrategy": "Unit tests for tool state management and shortcut handling. Integration tests for tool activation and canvas interaction. Accessibility tests for keyboard navigation and tooltip visibility. Usability tests for touch targets and tool discovery.",
+        "priority": "medium",
+        "dependencies": [
+          26
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 33,
+        "title": "Create Layers System for Diagram Organization",
+        "description": "Implement layer management system allowing complex P&ID organization with layer panel interface, operations, P&ID-specific presets, and performance optimization for multiple layers",
+        "details": "Create LayersPanel component at frontend/src/components/drawing/LayersPanel.tsx. Implement layer data structure with id, name, visible, locked, opacity (0-100%), z-index. Build layer UI: list with drag-to-reorder, visibility toggle (eye icon), lock toggle (lock icon), opacity slider, color coding. Add layer operations: create/duplicate/delete, merge layers, move elements between layers. Include P&ID presets: Equipment layer, Piping layer, Instrumentation layer, Annotation layer, Background layer. Implement layer filters/effects (blur, grayscale), layer export options (individual or combined), performance optimization using React virtualization for many layers. Store layer state in Zustand store.",
+        "testStrategy": "Unit tests for layer operations and state management. Integration tests for element-layer assignment and visibility toggling. Performance tests with 50+ layers and 1000+ elements. Visual regression tests for layer rendering and opacity.",
+        "priority": "medium",
+        "dependencies": [
+          26,
+          27
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 34,
+        "title": "Build Import/Export System with Multiple Format Support",
+        "description": "Comprehensive data exchange system supporting DWG/DXF, Visio, PDF, images, and CSV for equipment lists with preview, mapping templates, and batch operations",
+        "details": "Create ImportExport service at frontend/src/services/importExport.ts. For imports: implement DWG/DXF parser using dwg-js or similar, Visio VSDX reader, PDF with pdf.js including OCR for scanned drawings, image imports (SVG, PNG, JPG) with optimization, CSV/Excel for equipment lists using xlsx library. Add import preview dialog, coordinate system mapping, symbol recognition for legacy drawings, mapping templates for data fields. For exports: implement PDF generation with jsPDF/react-pdf (vector quality), DWG/DXF writer, SVG export (scalable), PNG/JPG with configurable DPI (72-300), Excel with element properties. Add batch import/export, format conversion settings, progress indicators for large files.",
+        "testStrategy": "Unit tests for file parsers and format converters. Integration tests for import preview and mapping. E2E tests for complete import/export workflows. Compatibility tests with AutoCAD, Visio, and Excel files. Performance tests for large file handling (>10MB).",
+        "priority": "medium",
+        "dependencies": [
+          26,
+          29
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 35,
+        "title": "Implement BoQ Integration with Real-time Synchronization",
+        "description": "Build bidirectional synchronization between P&ID drawings and Bill of Quantities with SignalR real-time updates, automatic calculations, conflict resolution, and external system APIs",
+        "details": "Create BoQ integration at frontend/src/services/boq/ and backend endpoints. Implement SignalR client for real-time sync at frontend/src/lib/signalr.ts. Build automatic quantity calculation from drawing elements (pipe lengths, equipment counts, valve quantities). Create property-to-BoQ field mapping with validation, change tracking with detailed history, conflict resolution UI for concurrent edits. Add bulk update operations with progress tracking, BoQ template management (create, edit, apply), cost calculation with currency formatting, report generation (PDF, Excel) using backend API. Implement external BoQ system integration via REST APIs, webhooks for changes, data validation before sync. Handle offline mode with sync queue.",
+        "testStrategy": "Unit tests for quantity calculations and mapping logic. Integration tests for SignalR real-time updates and conflict resolution. E2E tests for drawing-to-BoQ workflows. Load tests for concurrent user updates. API tests for external system integration.",
+        "priority": "high",
+        "dependencies": [
+          31
+        ],
+        "status": "cancelled",
+        "subtasks": []
+      },
+      {
+        "id": 36,
+        "title": "Create AI Chat Integration for P&ID Drawing Assistant",
+        "description": "Implement a conversational AI interface using Gemini API (or equivalent like OpenAI GPT-4/Claude) that enables natural language interaction with P&ID drawings, including creation, modification, querying, and intelligent assistance features.",
+        "details": "Create AIAssistantPanel component at frontend/src/components/drawing/AIAssistantPanel.tsx as a dockable panel integrated with the ReactFlow canvas. Implement AI service at backend/src/Ergoplanner.Application/Services/AIAssistantService.cs with Gemini/OpenAI/Claude API integration. Build natural language processing pipeline: parse commands using NLP models, map to drawing operations (add/modify/delete symbols, create connections, adjust properties), generate ReactFlow node/edge JSON from text descriptions. Implement command parser for instructions like 'Add centrifugal pump P-101 connected to valve V-102', 'Route pipe from tank T-201 to heat exchanger HX-301', 'What equipment is missing for this process?'. Create real-time preview system: show ghost nodes/edges before committing, highlight suggested placements, display confidence scores for AI suggestions. Add context management: maintain conversation history in frontend/src/store/ai-assistant-store.ts, track drawing state changes per conversation turn, implement multi-step operation support ('Now connect it to...', 'Make it bigger'). Integrate voice input using Web Speech API or Azure Speech Services, with push-to-talk and continuous listening modes. Implement drawing analysis features: compliance checking against ISA-5.1 and ISO 14617 standards, missing equipment detection based on process flow logic, optimization suggestions for pipe routing and layout. Create intelligent symbol placement: analyze existing layout for optimal positioning, maintain consistent spacing and alignment, suggest connection points based on symbol types. Build equipment specification recommendations: suggest pump types based on flow requirements, recommend valve types for process conditions, propose instrumentation based on control needs. Add documentation generation: create text descriptions from drawings, generate equipment lists with specifications, produce process narratives for training materials. Implement SignalR hub at backend/src/Ergoplanner.API/Hubs/AIAssistantHub.cs for real-time AI responses and drawing updates. Create prompt templates in backend/src/Ergoplanner.Application/AI/Prompts/ for different operations (creation, analysis, validation). Add rate limiting and token management for API calls. Implement caching layer using Redis for frequent queries and symbol mappings. Create error handling for ambiguous commands with clarification requests. Add undo/redo support for AI-generated changes. Store AI interaction logs for improvement and audit trails.",
+        "testStrategy": "Unit tests for command parsing, NLP interpretation, and drawing operation mapping. Integration tests for AI API calls with mock responses, real-time preview generation, and SignalR communication. E2E tests for complete conversation flows: creating drawings from scratch via chat, modifying existing drawings through natural language, voice input to drawing output. Performance tests for response time with complex drawings, concurrent AI requests handling, and context retention with long conversations. Validation tests for standards compliance checking, equipment recommendation accuracy, and drawing analysis correctness. Accessibility tests for screen reader compatibility with AI suggestions and keyboard navigation in chat interface.",
+        "status": "cancelled",
+        "dependencies": [
+          26,
+          29,
+          30
         ],
         "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 37,
+        "title": "Implement File Operations Toolbar Section",
+        "description": "Create the leftmost toolbar section with New, Open, Save, and Save As buttons matching draw.io exactly, with keyboard shortcuts, recent files dropdown, and responsive behavior",
+        "details": "Implement a comprehensive file operations toolbar section in frontend/src/components/drawing/FileOperationsToolbar.tsx that precisely matches draw.io's layout and behavior. The component should integrate with the existing drawingStore.ts file management system and be used in DrawioLayout.tsx. Key implementation requirements:\n\n1. Create FileOperationsToolbar component with buttons for New (Ctrl+N), Open (Ctrl+O), Save (Ctrl+S), and Save As (Ctrl+Shift+S) operations\n2. Each button should display both icon (from lucide-react) and text label, with tooltips showing keyboard shortcuts\n3. Implement dropdown arrow on Open button for recent files list (stored in localStorage as 'ergoplanner-recent-files')\n4. Add template selection dropdown for New button with options: 'Blank P&ID', 'Water Treatment Plant', 'Pumping Station', 'Distribution Network'\n5. Integrate with existing drawingStore methods: newDrawing(), saveDrawing(), loadDrawing(), with enhanced Save As functionality\n6. Implement keyboard shortcuts using react-hotkeys-hook package already installed\n7. Add responsive behavior: show icons-only when viewport width < 768px, full button with text on larger screens\n8. Style with Tailwind CSS matching existing toolbar styling in DrawioLayout.tsx (lines 149-178)\n9. Handle unsaved changes confirmation dialog when creating new drawing or opening file\n10. Implement file input for Open functionality supporting .json and future .dwg/.dxf formats\n11. Create useFileOperations hook for managing file operations logic and recent files list\n12. Add autosave indicator and last saved timestamp display next to Save button\n13. Integrate with existing AutoSaveManager component for autosave coordination",
+        "testStrategy": "Unit tests for FileOperationsToolbar component verifying button rendering, keyboard shortcut registration, and dropdown menu functionality. Integration tests for file operations ensuring proper store updates and localStorage persistence. Test recent files list management with max 10 items and proper ordering. E2E tests for complete file workflow: new with template, save, open recent, save as with name change. Test responsive behavior at different viewport widths. Verify unsaved changes dialog appears when appropriate. Test keyboard shortcuts work correctly and don't conflict with other shortcuts. Performance test ensuring toolbar renders within 16ms even with 10 recent files.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create FileOperationsToolbar component structure",
+            "description": "Build the base FileOperationsToolbar.tsx component with proper TypeScript interfaces, responsive layout structure using Tailwind CSS, and integration with existing DrawioLayout toolbar section. Include button container with proper spacing and visual separators.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 37
+          },
+          {
+            "id": 2,
+            "title": "Implement file operation buttons with icons and labels",
+            "description": "Create New, Open, Save, and Save As buttons using lucide-react icons (FilePlus, FolderOpen, Save, SaveAs). Implement responsive text display that shows icon+text on desktop (>768px) and icon-only on mobile. Add keyboard shortcut labels in tooltips.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 37
+          },
+          {
+            "id": 3,
+            "title": "Add dropdown menus and keyboard shortcuts",
+            "description": "Implement template dropdown for New button with P&ID templates, recent files dropdown for Open button (max 10 items from localStorage), and keyboard shortcut integration using react-hotkeys-hook for Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 37
+          },
+          {
+            "id": 4,
+            "title": "Integrate with drawing store and add autosave",
+            "description": "Connect file operations to drawingStore methods (newDrawing, saveDrawing, loadDrawing), implement useFileOperations hook for file management logic, add autosave indicator with timestamp, handle unsaved changes dialog, and integrate with AutoSaveManager component.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 37
+          }
+        ]
+      },
+      {
+        "id": 38,
+        "title": "Implement Edit Operations Toolbar Section",
+        "description": "Create a comprehensive edit operations toolbar section with undo/redo controls, clipboard operations, and format painter tool, integrating with the existing drawing store and clipboard management system",
+        "details": "Implement EditOperationsToolbar component at frontend/src/components/drawing/EditOperationsToolbar.tsx that matches draw.io's edit section exactly. The component will integrate with the existing drawingStore.ts undo/redo system and enhance clipboard operations:\n\n1. **Component Structure:**\n   - Create EditOperationsToolbar.tsx with three sub-sections separated by dividers\n   - Section 1: Undo/Redo with history dropdown\n   - Section 2: Cut/Copy/Paste with paste special dropdown\n   - Section 3: Format painter tool\n\n2. **Undo/Redo Implementation:**\n   - Use curved arrow icons (Undo2/Redo2 from lucide-react)\n   - Connect to drawingStore's undo(), redo(), canUndo(), canRedo() methods\n   - Add dropdown arrow next to each button showing history list (max 10 items)\n   - History items should display action names like \"Move Pump\", \"Add Valve\", \"Delete Connection\"\n   - Enable/disable buttons based on history availability\n   - Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Y (redo)\n\n3. **Clipboard Operations:**\n   - Cut button (Scissors icon) - Copy and delete selection\n   - Copy button (Copy icon) - Copy selection to clipboard\n   - Paste button (Clipboard icon) - Paste from clipboard at cursor position\n   - Paste Special dropdown with options:\n     - Paste with formatting\n     - Paste values only\n     - Paste as duplicate (offset position)\n   - Store clipboard data in drawingStore with structure:\n     ```typescript\n     interface ClipboardData {\n       nodes: Node[];\n       edges: Edge[];\n       timestamp: Date;\n       sourceDrawingId: string;\n     }\n     ```\n   - Support multi-node/edge selection copying\n   - Keyboard shortcuts: Ctrl+X (cut), Ctrl+C (copy), Ctrl+V (paste)\n\n4. **Format Painter Tool:**\n   - Paintbrush icon that toggles format painter mode\n   - When active, cursor changes to paintbrush\n   - Click source element to copy style (fill, stroke, font, etc.)\n   - Click target elements to apply style\n   - ESC key or clicking tool again exits mode\n   - Store format data in temporary state\n   - Double-click to lock format painter for multiple applications\n\n5. **Enhanced Store Integration:**\n   - Extend drawingStore.ts with:\n     ```typescript\n     clipboardData: ClipboardData | null;\n     historyDescriptions: Map<number, string>;\n     formatPainterData: FormatData | null;\n     isFormatPainterActive: boolean;\n     copyToClipboard: (nodes: Node[], edges: Edge[]) => void;\n     cutToClipboard: (nodes: Node[], edges: Edge[]) => void;\n     pasteFromClipboard: (position?: {x: number, y: number}) => void;\n     pasteSpecial: (mode: 'formatting' | 'values' | 'duplicate') => void;\n     setFormatPainter: (data: FormatData | null) => void;\n     applyFormat: (targetIds: string[]) => void;\n     getHistoryDescription: (index: number) => string;\n     ```\n\n6. **Visual Feedback:**\n   - Tooltips showing action names and shortcuts\n   - Visual indication when clipboard has content\n   - Highlight on hover with proper accessibility\n   - Dropdown menus with smooth animations\n   - Badge showing undo/redo stack depth\n\n7. **Integration Points:**\n   - Import and use in DrawioLayout.tsx toolbar section\n   - Connect with ContextMenu.tsx for consistent clipboard operations\n   - Sync with keyboard shortcut handlers\n   - Update history descriptions when actions occur",
+        "testStrategy": "Unit tests for EditOperationsToolbar component verifying button states based on history/clipboard availability, dropdown menu rendering, and keyboard shortcut registration. Integration tests ensuring proper store updates for all clipboard operations, format painter state management, and history navigation. Test undo/redo stack limits (50 items max), clipboard data persistence across component unmounts, and format painter mode toggling. E2E tests for complete copy/paste workflows including multi-element selection, cross-drawing paste operations, and format painter application to multiple targets. Performance tests ensuring smooth operation with large clipboard data (100+ nodes/edges).",
+        "status": "pending",
+        "dependencies": [
+          37
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 39,
+        "title": "Implement Zoom Controls Toolbar Section",
+        "description": "Create a comprehensive zoom controls toolbar section with editable percentage field, preset buttons, dropdown menu, and full ReactFlow viewport integration matching draw.io's zoom functionality exactly",
+        "details": "Implement ZoomControlsToolbar component at frontend/src/components/drawing/ZoomControlsToolbar.tsx that provides professional zoom controls integrated with ReactFlow's viewport system. The component should be inserted into DrawioLayout.tsx replacing the existing basic zoom controls (lines 221-242).\n\n**Component Structure:**\n1. **Editable Zoom Field:** Create an input field showing current zoom percentage (e.g., '100%') that accepts custom values from 10% to 5000%. Use a controlled input with validation, supporting both Enter key and blur events to apply changes.\n\n2. **Zoom Increment Buttons:** \n   - Minus button: Decrease zoom by 10% (minimum 10%)\n   - Plus button: Increase zoom by 10% (maximum 5000%)\n   - Both buttons should use lucide-react's Minus and Plus icons\n\n3. **Zoom Presets Dropdown:**\n   - Implement dropdown with chevron indicator using a custom menu or select component\n   - Preset options: 25%, 50%, 75%, 100%, 150%, 200%, 400%\n   - Special actions: 'Fit to Screen', 'Fit Selection', 'Actual Size'\n   - Show current zoom level with checkmark if matching a preset\n\n**ReactFlow Integration:**\n```typescript\nimport { useReactFlow } from 'reactflow';\n\nconst { getZoom, setViewport, getViewport, fitView, fitBounds, getNodes } = useReactFlow();\n\n// Get current zoom\nconst currentZoom = Math.round(getZoom() * 100);\n\n// Set specific zoom level\nconst setZoomLevel = (percentage: number) => {\n  const viewport = getViewport();\n  setViewport({\n    x: viewport.x,\n    y: viewport.y,\n    zoom: percentage / 100\n  }, { duration: 200 });\n};\n\n// Fit to screen\nconst handleFitToScreen = () => {\n  fitView({ padding: 0.1, duration: 200 });\n};\n\n// Fit selection (if nodes selected)\nconst handleFitSelection = () => {\n  const selectedNodes = getNodes().filter(n => n.selected);\n  if (selectedNodes.length > 0) {\n    const bounds = /* calculate bounds from selected nodes */;\n    fitBounds(bounds, { padding: 0.2, duration: 200 });\n  }\n};\n```\n\n**Store Integration:**\nUpdate drawingStore.ts zoom property to sync with ReactFlow's viewport zoom:\n- Remove the standalone zoom state (line 89)\n- Update setZoom to use ReactFlow's setViewport\n- Ensure zoom changes persist in localStorage with drawing state\n\n**Keyboard Shortcuts:**\n- Ctrl/Cmd + 0: Fit to screen\n- Ctrl/Cmd + 1: Actual size (100%)\n- Ctrl/Cmd + Plus: Zoom in\n- Ctrl/Cmd + Minus: Zoom out\n- Ctrl/Cmd + Mouse wheel: Smooth zoom\n\n**UI/UX Requirements:**\n- Zoom percentage field: 60px width, center-aligned text\n- Update in real-time as user scrolls/zooms on canvas\n- Smooth transitions with 200ms duration\n- Disable zoom out at 10%, zoom in at 5000%\n- Show tooltip on hover for all controls\n- Maintain zoom level in drawing persistence\n\n**File Updates Required:**\n1. Create frontend/src/components/drawing/ZoomControlsToolbar.tsx\n2. Update DrawioLayout.tsx to import and use ZoomControlsToolbar\n3. Modify drawingStore.ts to properly sync zoom with ReactFlow viewport\n4. Ensure DrawingCanvas.tsx properly reports zoom changes to store",
+        "testStrategy": "Unit tests for ZoomControlsToolbar component verifying zoom percentage input validation (accepts 10-5000, rejects invalid), button state management (disabled at limits), dropdown menu rendering with all presets. Integration tests ensuring ReactFlow viewport updates when zoom changes, fitView/fitBounds called correctly for special actions, keyboard shortcuts trigger appropriate zoom changes. Test zoom persistence in localStorage across page reloads. Performance tests ensuring smooth 60fps during zoom animations with 1000+ nodes. E2E tests for complete zoom workflow including custom entry, preset selection, and canvas interaction.",
+        "status": "pending",
+        "dependencies": [
+          37,
+          38
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 40,
+        "title": "Implement Primary Drawing Tools Section",
+        "description": "Create a comprehensive drawing tools toolbar section with selection, text, shapes, connector, and freehand tools that integrate seamlessly with ReactFlow's node and edge system for P&ID diagram creation",
+        "details": "Implement PrimaryDrawingToolsToolbar component at frontend/src/components/drawing/PrimaryDrawingToolsToolbar.tsx that provides essential drawing tools matching draw.io's functionality and integrating with the existing ReactFlow-based drawing system.\n\n**Component Structure:**\n\n1. **Selection Tool (Mouse Pointer Icon):**\n   - Create SelectionTool component with multi-select support using ReactFlow's SelectionMode.Partial\n   - Implement marquee selection by holding shift/ctrl and dragging\n   - Add lasso selection mode for irregular shapes\n   - Integrate with drawingStore's setSelectedNode/setSelectedEdge methods\n   - Support additive selection (Ctrl+Click) and subtractive selection (Alt+Click)\n   - Display selection count in status bar when multiple items selected\n\n2. **Text Tool (T Icon):**\n   - Implement TextTool that creates text nodes in ReactFlow\n   - Create TextNode component extending ReactFlow's Node type with contentEditable div\n   - Support inline editing by double-clicking text nodes\n   - Add text formatting options: font family, size, color, bold, italic, underline\n   - Implement auto-resize based on text content\n   - Store text data in node.data.text field with formatting metadata\n\n3. **Shapes Dropdown (Rectangle, Rounded Rectangle, Ellipse, Rhombus):**\n   - Create ShapesTool dropdown with shape selection menu\n   - Implement shape node types: RectangleNode, RoundedRectangleNode, EllipseNode, RhombusNode\n   - Each shape should extend ReactFlow Node with SVG rendering\n   - Support drag-to-create from toolbar or click-and-drag on canvas\n   - Add shape-specific properties: corner radius for rounded rectangle, aspect ratio lock\n   - Integrate with existing PIDNodeData type structure\n\n4. **Connector Tool with Intelligent Routing:**\n   - Implement ConnectorTool for creating edges between nodes\n   - Support three routing modes: straight, orthogonal (manhattan), curved (bezier)\n   - Create custom edge types: StraightPipeEdge, OrthogonalPipeEdge, CurvedPipeEdge\n   - Implement intelligent routing that avoids node overlaps using pathfinding\n   - Add connection validation using existing ConnectionValidation interface\n   - Support edge labels and flow direction indicators\n   - Integrate with PIDEdgeData for pipe specifications\n\n5. **Freehand Drawing Tool (Pencil Icon):**\n   - Create FreehandTool for drawing custom paths\n   - Implement path smoothing using Catmull-Rom spline algorithm\n   - Convert freehand paths to SVG path nodes in ReactFlow\n   - Support pressure sensitivity if available (PointerEvent.pressure)\n   - Add stroke options: width, color, opacity, line style (solid/dashed/dotted)\n   - Implement path simplification to reduce points while maintaining shape\n\n**Integration Requirements:**\n\n1. **Tool State Management:**\n   - Add currentTool state to drawingStore: 'select' | 'text' | 'rectangle' | 'rounded-rectangle' | 'ellipse' | 'rhombus' | 'connector' | 'freehand'\n   - Implement tool activation/deactivation logic\n   - Add keyboard shortcuts: V (select), T (text), R (rectangle), C (connector), P (pencil)\n\n2. **Canvas Interaction:**\n   - Override DrawingCanvas mouse events based on active tool\n   - Implement tool-specific cursor styles\n   - Add visual feedback during shape/connector creation\n   - Support tool cancellation with Escape key\n\n3. **Node Type Registration:**\n   - Register new node types in DrawingCanvas nodeTypes object\n   - Ensure all custom nodes support selection, deletion, and property editing\n   - Implement consistent styling with existing P&ID nodes\n\n4. **Toolbar Integration:**\n   - Replace/enhance the existing tool buttons in DrawioLayout.tsx (lines 262-273)\n   - Create tool groups with visual separators\n   - Add tool state indicators (active/inactive)\n   - Implement tooltips showing tool name and shortcut\n\n**Technical Implementation Details:**\n\n```typescript\n// frontend/src/components/drawing/PrimaryDrawingToolsToolbar.tsx\ninterface PrimaryDrawingToolsToolbarProps {\n  activeTool: string;\n  onToolChange: (tool: string) => void;\n  connectorMode: 'straight' | 'orthogonal' | 'curved';\n  onConnectorModeChange: (mode: 'straight' | 'orthogonal' | 'curved') => void;\n}\n\n// Tool button structure\nconst toolButtons = [\n  { id: 'select', icon: MousePointer, label: 'Selection Tool', shortcut: 'V' },\n  { id: 'text', icon: Type, label: 'Text Tool', shortcut: 'T' },\n  // Shapes dropdown\n  {\n    id: 'shapes',\n    label: 'Shapes',\n    children: [\n      { id: 'rectangle', icon: Square, label: 'Rectangle', shortcut: 'R' },\n      { id: 'rounded-rectangle', icon: RoundedSquare, label: 'Rounded Rectangle' },\n      { id: 'ellipse', icon: Circle, label: 'Ellipse', shortcut: 'E' },\n      { id: 'rhombus', icon: Diamond, label: 'Rhombus' }\n    ]\n  },\n  { id: 'connector', icon: Share2, label: 'Connector Tool', shortcut: 'C' },\n  { id: 'freehand', icon: Pencil, label: 'Freehand Drawing', shortcut: 'P' }\n];\n```\n\n**Path Smoothing Algorithm Example:**\n```typescript\nfunction smoothPath(points: Point[], smoothingFactor = 0.3): string {\n  if (points.length < 3) return pointsToPath(points);\n  \n  const smoothed: Point[] = [points[0]];\n  \n  for (let i = 1; i < points.length - 1; i++) {\n    const prev = points[i - 1];\n    const curr = points[i];\n    const next = points[i + 1];\n    \n    smoothed.push({\n      x: curr.x + (prev.x + next.x - 2 * curr.x) * smoothingFactor,\n      y: curr.y + (prev.y + next.y - 2 * curr.y) * smoothingFactor\n    });\n  }\n  \n  smoothed.push(points[points.length - 1]);\n  return catmullRomToPath(smoothed);\n}\n```",
+        "testStrategy": "Unit tests for PrimaryDrawingToolsToolbar component verifying tool button rendering, active state management, dropdown menu functionality for shapes, keyboard shortcut registration. Integration tests ensuring proper tool activation updates drawingStore.currentTool, canvas cursor changes based on active tool, tool-specific event handlers are attached/detached. Test multi-select functionality with shift/ctrl modifiers, text node creation and editing, shape node creation with proper ReactFlow integration. Validate connector tool's routing algorithms produce valid paths, connection validation works correctly. Test freehand drawing path smoothing and simplification. E2E tests for complete drawing workflows using each tool, tool switching via keyboard shortcuts, creating complex diagrams with mixed node types. Performance tests ensuring smooth freehand drawing at 60fps, efficient multi-select with 100+ nodes, fast connector routing calculation.",
+        "status": "pending",
+        "dependencies": [
+          37,
+          38,
+          39
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 41,
+        "title": "Implement Secondary Tools Section",
+        "description": "Create Insert menu dropdown, Arrange menu, and Format dropdown tools that integrate with ReactFlow nodes and provide comprehensive drawing manipulation capabilities matching draw.io's secondary toolbar functionality",
+        "details": "Implement SecondaryToolsToolbar component at frontend/src/components/drawing/SecondaryToolsToolbar.tsx that provides advanced insertion, arrangement, and formatting tools fully integrated with the ReactFlow-based drawing system.\n\n**Component Architecture:**\n\n1. **Insert Menu Dropdown (Plus Icon):**\n   - Create InsertMenu component with dropdown supporting:\n     - Images: Upload via file picker, paste from clipboard, drag-drop support\n     - Tables: ReactFlow custom node with configurable rows/columns\n     - Links: URL/email/anchor links attached to nodes\n     - Equations: LaTeX/MathML support using KaTeX renderer\n     - Diagrams from Templates: Pre-built P&ID templates\n     - External Content: Embed URLs, iframe content\n   - Integration points:\n     - Use drawingStore.addNode() for inserting custom nodes\n     - Create ImageNode, TableNode, EquationNode custom ReactFlow nodes\n     - Store in frontend/src/components/drawing/nodes/\n\n2. **Arrange Menu (Grid Icon):**\n   - Create ArrangeMenu component with operations:\n     - Alignment: Left, Center, Right, Top, Middle, Bottom\n     - Distribution: Horizontal/Vertical spacing equalization\n     - Order Controls: Bring to Front, Send to Back, Move Forward/Backward\n     - Group/Ungroup: Combine multiple nodes into groups\n     - Lock/Unlock: Prevent/allow node modifications\n     - Rotation Presets: 90°, 180°, 270°, custom angle input\n     - Flip Operations: Horizontal/Vertical flip\n   - Implementation:\n     - Extend drawingStore with arrangeNodes(), groupNodes(), lockNodes()\n     - Use ReactFlow's node.style.zIndex for ordering\n     - Store group metadata in node.data.group\n     - Implement transform calculations for rotation/flip\n\n3. **Format Dropdown (Paintbrush Icon):**\n   - Create FormatMenu component with features:\n     - Style Copy/Apply: Extract and apply node styles\n     - Themes: Predefined style sets (Engineering, Modern, Classic)\n     - Style Panel Access: Quick link to PropertyPanel\n     - Format Painter: Click to copy, click to apply styles\n     - Clear Formatting: Reset to default styles\n   - State Management:\n     - Add formatPainterState to drawingStore\n     - Store copiedStyles object with node formatting\n     - Implement applyFormatting() action\n\n**Technical Implementation:**\n\n```typescript\n// SecondaryToolsToolbar.tsx structure\ninterface SecondaryToolsState {\n  activeMenu: 'insert' | 'arrange' | 'format' | null;\n  formatPainterActive: boolean;\n  copiedFormat: NodeFormatting | null;\n  selectedNodes: string[];\n}\n\n// Custom node types for Insert menu\nconst nodeTypes = {\n  image: ImageNode,\n  table: TableNode,\n  equation: EquationNode,\n  external: ExternalContentNode,\n};\n\n// Arrange operations\nconst arrangeOperations = {\n  alignLeft: (nodes: Node[]) => {...},\n  distributeHorizontal: (nodes: Node[]) => {...},\n  groupNodes: (nodes: Node[]) => {...},\n  rotateNodes: (nodes: Node[], angle: number) => {...},\n};\n```\n\n**Integration Requirements:**\n\n1. Insert into DrawioLayout.tsx after PrimaryDrawingToolsToolbar\n2. Add keyboard shortcuts:\n   - Ctrl+Shift+I: Open Insert menu\n   - Ctrl+G: Group selected\n   - Ctrl+Shift+G: Ungroup\n   - Ctrl+Shift+C: Copy formatting\n   - Ctrl+Shift+V: Paste formatting\n3. Update drawingStore.ts with new actions:\n   - insertContent(type, data)\n   - arrangeNodes(operation, nodeIds)\n   - applyFormatting(nodeIds, format)\n4. Create new custom nodes in frontend/src/components/drawing/nodes/:\n   - ImageNode.tsx (with resize handles)\n   - TableNode.tsx (with cell editing)\n   - EquationNode.tsx (with LaTeX rendering)\n   - ExternalContentNode.tsx (with iframe)\n\n**UI/UX Requirements:**\n\n- Match draw.io's dropdown menu styling with hover effects\n- Show previews for templates and themes\n- Implement drag cursors for arrangement operations\n- Visual feedback for format painter (cursor change, highlight)\n- Support multi-select for batch operations\n- Undo/redo support for all operations\n- Responsive dropdown positioning to avoid viewport overflow",
+        "testStrategy": "Unit tests for SecondaryToolsToolbar verifying dropdown menu rendering, keyboard shortcut registration, format painter state management. Integration tests ensuring proper node insertion with unique IDs, arrangement calculations maintaining relative positions, format copying preserving all style properties. Test custom node components for proper ReactFlow integration, data persistence, and event handling. E2E tests for complete workflows: insert image and resize, create and edit table, group/ungroup operations, format painter across multiple nodes. Performance tests ensuring smooth operation with 100+ nodes during arrangement operations. Accessibility tests for keyboard navigation through dropdown menus.",
+        "status": "pending",
+        "dependencies": [
+          37,
+          38,
+          39,
+          40
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 42,
+        "title": "Implement View Controls Section",
+        "description": "Create comprehensive view controls toolbar section with grid management, guides system, page view options, and layers panel toggle, integrating with ReactFlow canvas and existing drawing store",
+        "details": "Implement ViewControlsToolbar component at frontend/src/components/drawing/ViewControlsToolbar.tsx that provides complete view management matching draw.io's view controls functionality. This toolbar section should be inserted into DrawioLayout.tsx to replace the basic grid toggle (lines 245-259).\n\n**Component Architecture:**\n\n1. **Grid Controls Section:**\n   - Create GridControlsDropdown component with toggle button showing current state\n   - Implement grid size selector (5px to 50px range) with preset options (10, 15, 20, 25)\n   - Add grid style selector dropdown with options:\n     - Dots (BackgroundVariant.Dots)\n     - Lines (BackgroundVariant.Lines)\n     - Crosses (BackgroundVariant.Cross)\n   - Store grid configuration in drawingStore with new fields:\n     ```typescript\n     gridStyle: 'dots' | 'lines' | 'crosses'\n     gridColor: string  // Default: '#e0e0e0'\n     gridOpacity: number  // Default: 0.5\n     ```\n   - Update DrawingCanvas.tsx Background component to use these settings\n\n2. **Guides & Rulers Section:**\n   - Create GuidesControlDropdown with main toggle button\n   - Implement ruler display along canvas edges (top and left)\n   - Add guide lines system:\n     - Drag from rulers to create horizontal/vertical guides\n     - Store guides in drawingStore as arrays of positions\n     - Double-click guide to remove\n   - Implement snap-to-guide functionality:\n     - Detect when dragged nodes are within 5px of guide\n     - Show visual snap indicator line\n     - Temporarily override node position to align\n   - Add smart guides for alignment:\n     - Detect alignment with other nodes (center, edges)\n     - Show temporary dashed lines during drag\n     - Display distance measurements between elements\n\n3. **Page View Options:**\n   - Create PageViewDropdown with current view indicator\n   - Implement view modes:\n     - Single Page: Show one page boundary\n     - Multiple Pages: Show grid of page boundaries\n     - Continuous: No page boundaries (infinite canvas)\n     - Fit to Window: Auto-zoom to fit content\n   - Add page size configuration:\n     - A4, A3, Letter, Legal, Custom sizes\n     - Portrait/Landscape orientation toggle\n   - Store settings in drawingStore:\n     ```typescript\n     pageView: 'single' | 'multiple' | 'continuous' | 'fit'\n     pageSize: { width: number; height: number; name: string }\n     pageOrientation: 'portrait' | 'landscape'\n     showPageBreaks: boolean\n     ```\n\n4. **Layers Panel Toggle:**\n   - Create layers visibility toggle button with icon badge showing layer count\n   - Connect to existing LayersPanel visibility state\n   - Add quick layer actions dropdown:\n     - Show/Hide all layers\n     - Lock/Unlock all layers\n     - Merge visible layers\n     - Flatten to single layer\n   - Sync with rightActiveTab in DrawioLayout when toggled\n\n**Implementation Details:**\n\n1. **Smart Guides System:**\n   ```typescript\n   interface SmartGuide {\n     type: 'horizontal' | 'vertical'\n     position: number\n     temporary: boolean\n     source?: string  // Node ID that triggered the guide\n   }\n   \n   const detectAlignments = (draggedNode: Node, otherNodes: Node[]) => {\n     const guides: SmartGuide[] = []\n     // Check center alignments\n     // Check edge alignments\n     // Calculate and show distances\n     return guides\n   }\n   ```\n\n2. **Ruler Component:**\n   ```tsx\n   const Ruler = ({ orientation, zoom, offset }) => {\n     // Render ruler with tick marks\n     // Handle drag to create guides\n     // Update measurements based on zoom\n   }\n   ```\n\n3. **Grid Style Integration:**\n   - Modify DrawingCanvas to accept grid style from store\n   - Create custom Background component if needed for 'crosses' style\n   - Implement grid opacity and color controls\n\n4. **Keyboard Shortcuts:**\n   - Ctrl+G: Toggle grid\n   - Ctrl+Shift+G: Toggle guides\n   - Ctrl+L: Toggle layers panel\n   - Ctrl+R: Toggle rulers\n\n5. **Visual Feedback:**\n   - Highlight active view mode in dropdown\n   - Show grid preview in style selector\n   - Display guide positions in ruler\n   - Animate panel transitions\n\n**Integration Points:**\n\n1. Update DrawioLayout.tsx to use ViewControlsToolbar\n2. Extend drawingStore with new view-related state\n3. Modify DrawingCanvas Background component configuration\n4. Add ruler overlay components to canvas wrapper\n5. Implement guide rendering layer above ReactFlow",
+        "testStrategy": "Unit tests for ViewControlsToolbar verifying dropdown rendering, state toggle functionality, keyboard shortcut registration. Integration tests ensuring grid style changes update ReactFlow Background component, guide creation/deletion works correctly, snap-to-guide calculations are accurate, page view changes affect canvas rendering. Performance tests confirming smooth dragging with guides active (60fps with 20+ guides), ruler rendering doesn't impact zoom/pan performance. Visual regression tests for grid styles, ruler measurements at different zoom levels, guide alignment indicators",
+        "status": "pending",
+        "dependencies": [
+          37,
+          38,
+          39,
+          40,
+          41
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 43,
+        "title": "Implement Toolbar State Management System",
+        "description": "Create a centralized toolbar state manager handling tool activation/deactivation, contextual availability based on selection, history integration for undo/redo, tool state persistence, keyboard shortcut management, and toolbar configuration across all toolbar sections",
+        "details": "Implement a comprehensive ToolbarStateManager at frontend/src/store/toolbarStateManager.ts that provides centralized state management for all toolbar sections and tools. This system will coordinate between FileOperationsToolbar, EditOperationsToolbar, ZoomControlsToolbar, PrimaryDrawingToolsToolbar, SecondaryToolsToolbar, and ViewControlsToolbar components.\n\n**Core Implementation:**\n\n1. **Create ToolbarStateManager Store (Zustand):**\n```typescript\n// frontend/src/store/toolbarStateManager.ts\ninterface ToolbarState {\n  // Active Tool Management\n  activeTool: string;\n  previousTool: string | null;\n  toolHistory: string[];\n  \n  // Tool Availability States\n  toolStates: Map<string, ToolState>;\n  \n  // Contextual Availability\n  contextualRules: Map<string, ContextRule[]>;\n  selectedElements: { nodes: string[]; edges: string[] };\n  \n  // Keyboard Shortcuts\n  shortcuts: Map<string, ShortcutConfig>;\n  activeShortcuts: Set<string>;\n  \n  // Toolbar Configuration\n  toolbarConfig: ToolbarConfiguration;\n  customToolbars: CustomToolbar[];\n  \n  // Tool Groups\n  toolGroups: Map<string, ToolGroup>;\n  collapsedGroups: Set<string>;\n}\n```\n\n2. **Tool State Interface:**\n```typescript\ninterface ToolState {\n  id: string;\n  enabled: boolean;\n  visible: boolean;\n  active: boolean;\n  badge?: string | number;\n  tooltip?: string;\n  customClass?: string;\n  metadata?: Record<string, any>;\n}\n```\n\n3. **Contextual Rules System:**\n```typescript\ninterface ContextRule {\n  toolId: string;\n  condition: (context: SelectionContext) => boolean;\n  action: 'enable' | 'disable' | 'hide' | 'show';\n  priority: number;\n}\n\ninterface SelectionContext {\n  selectedNodes: PIDNode[];\n  selectedEdges: PIDEdge[];\n  clipboard: Clipboard;\n  canUndo: boolean;\n  canRedo: boolean;\n  historyLength: number;\n}\n```\n\n4. **Keyboard Shortcut Management:**\n   - Integrate with existing react-hotkeys-hook library\n   - Create ShortcutManager class for registration/deregistration\n   - Handle shortcut conflicts and priority\n   - Support custom shortcut mappings\n   - Implement shortcut groups (global, drawing, edit modes)\n\n5. **History Integration:**\n   - Connect to existing drawingStore undo/redo system\n   - Update tool states based on history availability\n   - Maintain tool activation history for quick switching\n   - Implement tool-specific history (e.g., format painter history)\n\n6. **Tool Persistence:**\n   - Save toolbar configurations to localStorage\n   - Persist user preferences (collapsed panels, custom layouts)\n   - Implement profile system for different workflows\n   - Export/import toolbar configurations\n\n7. **State Synchronization:**\n   - Create useToolbarSync hook for components\n   - Implement event bus for cross-toolbar communication\n   - Handle tool activation conflicts\n   - Manage exclusive tool groups (e.g., selection vs drawing tools)\n\n8. **Advanced Features:**\n   - Tool grouping and categorization\n   - Dynamic toolbar loading based on user role/permissions\n   - Tool usage analytics and frequently used tools\n   - Quick access toolbar customization\n   - Toolbar themes and layouts\n\n9. **Integration Points:**\n   - Connect with enhanced-drawing-store.ts for activeTool synchronization\n   - Update DrawioLayout.tsx to use centralized state\n   - Modify AdvancedToolbar.tsx to consume toolbar state\n   - Ensure all future toolbar sections use this system\n\n10. **Performance Optimizations:**\n    - Use React.memo for toolbar components\n    - Implement selective re-rendering based on tool state changes\n    - Lazy load toolbar sections\n    - Virtualize long tool lists",
+        "testStrategy": "Unit tests for ToolbarStateManager store verifying state updates, contextual rule evaluation, shortcut registration/conflict resolution. Integration tests ensuring proper synchronization between toolbar sections, history state updates trigger correct tool availability changes, persistence works across sessions. Component tests for toolbar sections consuming the state correctly. Performance tests ensuring state updates don't cause unnecessary re-renders. E2E tests for complete toolbar workflows including tool switching, keyboard shortcuts, and state persistence.",
+        "status": "pending",
+        "dependencies": [
+          37,
+          38,
+          39,
+          40,
+          41,
+          42
+        ],
+        "priority": "high",
         "subtasks": []
       }
     ],
     "metadata": {
-      "version": "1.1.0",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "lastUpdated": "2024-01-01T00:00:00Z",
-      "projectName": "Ergoplanner AI Suite",
-      "created": "2025-09-22T14:02:32.421Z",
-      "description": "Tasks for master context",
-      "updated": "2025-09-22T14:04:26.078Z"
+      "created": "2025-09-22T19:51:15.373Z",
+      "updated": "2025-09-23T21:07:23.197Z",
+      "description": "Tasks for master context"
     }
   }
 }

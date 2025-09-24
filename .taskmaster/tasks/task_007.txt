@@ -1,0 +1,43 @@
+# Task ID: 7
+# Title: Create engineering validation engine
+# Status: pending
+# Dependencies: 3, 4
+# Priority: high
+# Description: Implement continuous validation of P&IDs against engineering rules
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Define validation rule system [pending]
+### Dependencies: None
+### Description: Create extensible rule engine architecture
+### Details:
+
+
+## 2. Implement pressure rating checks [pending]
+### Dependencies: None
+### Description: Validate pressure consistency across connections
+### Details:
+
+
+## 3. Add material compatibility validation [pending]
+### Dependencies: None
+### Description: Check material compatibility between components
+### Details:
+
+
+## 4. Create pipe sizing verification [pending]
+### Dependencies: None
+### Description: Validate pipe sizes based on flow requirements
+### Details:
+
+
+## 5. Build visual error indicators [pending]
+### Dependencies: None
+### Description: Show validation errors directly on the drawing
+### Details:
+
+

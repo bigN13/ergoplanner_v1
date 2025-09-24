@@ -1,0 +1,11 @@
+# Task ID: 29
+# Title: Implement Engineering Symbols Library with Standards Compliance
+# Status: cancelled
+# Dependencies: 28
+# Priority: high
+# Description: Create comprehensive P&ID symbol library following ISA-5.1, ISO 14617, and UK water industry standards with 100+ engineering symbols including pumps, vessels, valves, and instruments
+# Details:
+Create symbol components in frontend/src/components/symbols/ directory. Implement ISA-5.1 standard symbols: pumps (centrifugal, positive displacement, vacuum), vessels (vertical, horizontal, pressure), heat exchangers (shell-tube, plate, air-cooled), compressors/turbines, separators/filters. Add piping components: valves (gate, globe, ball, check, butterfly, control), fittings (elbows, tees, reducers, flanges), instruments (pressure, temperature, flow, level indicators). Include UK water standards (Thames Water, United Utilities). Each symbol as parameterized React component with rotation (90° increments), mirroring (H/V), dynamic sizing, connection points definition using ReactFlow handles, property templates. Create Symbol class with metadata, standards compliance tags, connection rules.
+
+# Test Strategy:
+Unit tests for symbol rendering, rotation, mirroring, and sizing. Visual regression tests using Percy or Chromatic for symbol appearance. Compliance tests validating ISA-5.1 and ISO 14617 standards. Integration tests for symbol-to-canvas placement and connection point validation.

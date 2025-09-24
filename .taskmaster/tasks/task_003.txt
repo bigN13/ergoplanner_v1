@@ -1,0 +1,61 @@
+# Task ID: 3
+# Title: Build P&ID drawing engine with ReactFlow
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Implement a standalone P&ID drawing component using ReactFlow that functions independently like draw.io, without requiring authentication or backend services
+# Details:
+Create a self-contained P&ID drawing component in frontend/src/components/drawing/ that provides full drawing capabilities without external dependencies. The component should leverage the existing ReactFlow installation (v11.11.4) and drawing types defined in frontend/src/types/drawing.ts. Build upon the PIDNode, PIDEdge, and DrawingState interfaces already established. This component will serve as the core drawing engine that can later be integrated with backend services but must function completely offline first.
+
+# Test Strategy:
+Unit tests for drawing utilities and symbol manipulation. Integration tests for ReactFlow canvas interactions. Visual regression tests for symbol rendering. E2E tests simulating complete drawing workflows including save/load to local storage.
+
+# Subtasks:
+## 1. Set up ReactFlow canvas with offline storage [pending]
+### Dependencies: None
+### Description: Initialize ReactFlow canvas component with local storage persistence for offline functionality
+### Details:
+Create DrawingCanvas.tsx component in frontend/src/components/drawing/ using the existing ReactFlow setup. Implement local storage adapter to save/load drawing state using the DrawingState interface from types/drawing.ts. Add basic controls for zoom, pan, and minimap.
+
+## 2. Implement grid system and snapping [pending]
+### Dependencies: None
+### Description: Add orthogonal, isometric, and polar grid options with configurable snapping
+### Details:
+Build grid overlay system with three modes: orthogonal (standard), isometric (30°/60°), and polar (radial). Implement snap-to-grid functionality with adjustable grid size. Create GridControls component for toggling grid visibility and snap settings.
+
+## 3. Create custom node types for P&ID symbols [pending]
+### Dependencies: None
+### Description: Develop ReactFlow custom nodes for all SymbolType variants defined in drawing.ts
+### Details:
+Implement custom React components for each symbol type (pump, valve, tank, etc.) in frontend/src/components/drawing/symbols/. Use the PIDNodeData interface for node properties. Include rotation, scaling, and property editing capabilities for each symbol.
+
+## 4. Implement smart pipe routing with local pathfinding [pending]
+### Dependencies: None
+### Description: Add client-side A* pathfinding for automatic pipe routing between symbols
+### Details:
+Create pure JavaScript implementation of A* algorithm for pipe routing. Build PathfindingService that works entirely client-side. Implement orthogonal and diagonal routing modes. Add obstacle avoidance for existing symbols and pipes.
+
+## 5. Add layer management system [pending]
+### Dependencies: None
+### Description: Create layer system using the Layer interface for organizing drawing elements
+### Details:
+Implement LayerPanel component for managing layers defined in drawing.ts. Add layer visibility toggles, opacity controls, and ordering. Ensure all drawing elements respect layer settings. Store layer state in local storage.
+
+## 6. Implement undo/redo with command pattern [pending]
+### Dependencies: None
+### Description: Add command pattern for unlimited undo/redo using local history management
+### Details:
+Create CommandManager class to track all drawing operations. Implement DrawingHistoryEntry interface for action tracking. Add keyboard shortcuts (Ctrl+Z/Ctrl+Y). Store history in memory with configurable limit. Display action history in UI panel.
+
+## 7. Build standalone toolbar and property panels [pending]
+### Dependencies: None
+### Description: Create self-contained UI components for drawing tools and property editing
+### Details:
+Develop DrawingToolbar component with all drawing tools (select, pan, add symbols, delete). Create PropertyPanel for editing selected node/edge properties. Implement SymbolPalette with drag-and-drop from symbol library. All components should work without backend connectivity.
+
+## 8. Add import/export functionality for offline use [pending]
+### Dependencies: None
+### Description: Implement file import/export for drawings without server dependency
+### Details:
+Add JSON export/import using the Drawing interface structure. Implement SVG export for visual output. Create PNG export using canvas rendering. Add clipboard support for copy/paste operations. All operations should use browser APIs only.
+

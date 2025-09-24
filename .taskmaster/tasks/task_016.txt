@@ -1,0 +1,11 @@
+# Task ID: 16
+# Title: Implement Canvas and Viewport Management System
+# Status: cancelled
+# Dependencies: None
+# Priority: high
+# Description: Create the foundational infinite canvas with ReactFlow including grid system, zoom/pan controls, and viewport management
+# Details:
+Implement the core ReactFlow canvas with infinite scroll capabilities, configurable grid overlay (dots/lines), zoom controls (10%-400%), pan with middle-click/spacebar, ruler system, and performance optimization for 1000+ elements at 60fps. Use ReactFlow's built-in viewport controls and extend with custom grid rendering using SVG patterns. Implement viewport state management in Zustand store with persistence.
+
+# Test Strategy:
+Unit tests for viewport calculations and state management. Integration tests for zoom/pan operations. Performance tests ensuring 60fps with 1000 nodes. E2E tests for user interactions like keyboard shortcuts and mouse controls.
