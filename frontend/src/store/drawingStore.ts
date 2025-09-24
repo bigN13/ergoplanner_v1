@@ -2,6 +2,15 @@ import type { Node, Edge, Connection, NodeChange, EdgeChange } from "reactflow";
 import { MarkerType, applyNodeChanges, applyEdgeChanges, addEdge } from "reactflow";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { commandManager, CommandManager } from "@/services/commandManager";
+import {
+  AddNodeCommand,
+  DeleteNodeCommand,
+  MoveNodeCommand,
+  AddEdgeCommand,
+  DeleteEdgeCommand,
+  FormatNodeCommand,
+} from "@/types/commands";
 
 export interface DrawingHistory {
   nodes: Node[];
@@ -15,7 +24,15 @@ export interface DrawingState {
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
 
-  // History for undo/redo
+  // Command history (managed by CommandManager)
+  commandHistory: {
+    entries: Array<{ id: string; name: string; timestamp: Date }>;
+    currentIndex: number;
+    canUndo: boolean;
+    canRedo: boolean;
+  };
+
+  // Legacy history for undo/redo (will be deprecated)
   history: DrawingHistory[];
   historyIndex: number;
 
@@ -48,7 +65,17 @@ export interface DrawingState {
   setSelectedNode: (nodeId: string | null) => void;
   setSelectedEdge: (edgeId: string | null) => void;
 
-  // History actions
+  // Command pattern actions
+  executeCommand: (command: any) => void;
+  undoCommand: () => void;
+  redoCommand: () => void;
+  canUndoCommand: () => boolean;
+  canRedoCommand: () => boolean;
+  getCommandHistory: () => Array<{ id: string; name: string; timestamp: Date }>;
+  jumpToCommand: (index: number) => void;
+  clearCommandHistory: () => void;
+
+  // Legacy history actions (will be deprecated)
   pushHistory: () => void;
   undo: () => void;
   redo: () => void;
@@ -80,6 +107,12 @@ const initialState = {
   edges: [],
   selectedNodeId: null,
   selectedEdgeId: null,
+  commandHistory: {
+    entries: [],
+    currentIndex: -1,
+    canUndo: false,
+    canRedo: false,
+  },
   history: [],
   historyIndex: -1,
   drawingId: null,
@@ -135,9 +168,10 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       addNode: (node) => {
-        const { nodes } = get();
-        set({ nodes: [...nodes, node], isDirty: true });
-        get().pushHistory();
+        const context = CommandManager.getCommandContext();
+        const command = new AddNodeCommand(node, context);
+        commandManager.execute(command);
+        get().updateCommandHistory();
       },
 
       updateNode: (nodeId, updates) => {
@@ -149,16 +183,10 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       deleteNode: (nodeId) => {
-        const { nodes, edges } = get();
-        const filteredNodes = nodes.filter((n) => n.id !== nodeId);
-        const filteredEdges = edges.filter((e) => e.source !== nodeId && e.target !== nodeId);
-        set({
-          nodes: filteredNodes,
-          edges: filteredEdges,
-          selectedNodeId: null,
-          isDirty: true,
-        });
-        get().pushHistory();
+        const context = CommandManager.getCommandContext();
+        const command = new DeleteNodeCommand(nodeId, context);
+        commandManager.execute(command);
+        get().updateCommandHistory();
       },
 
       deleteSelectedNode: () => {
@@ -169,9 +197,10 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       addEdge: (edge) => {
-        const { edges } = get();
-        set({ edges: [...edges, edge], isDirty: true });
-        get().pushHistory();
+        const context = CommandManager.getCommandContext();
+        const command = new AddEdgeCommand(edge, context);
+        commandManager.execute(command);
+        get().updateCommandHistory();
       },
 
       updateEdge: (edgeId, updates) => {
@@ -183,10 +212,10 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       deleteEdge: (edgeId) => {
-        const { edges } = get();
-        const filteredEdges = edges.filter((e) => e.id !== edgeId);
-        set({ edges: filteredEdges, selectedEdgeId: null, isDirty: true });
-        get().pushHistory();
+        const context = CommandManager.getCommandContext();
+        const command = new DeleteEdgeCommand(edgeId, context);
+        commandManager.execute(command);
+        get().updateCommandHistory();
       },
 
       deleteSelectedEdge: () => {
@@ -411,6 +440,66 @@ export const useDrawingStore = create<DrawingState>()(
 
       markClean: () => {
         set({ isDirty: false });
+      },
+
+      // Command pattern implementation
+      executeCommand: (command) => {
+        commandManager.execute(command);
+        get().updateCommandHistory();
+      },
+
+      undoCommand: () => {
+        const success = commandManager.undo();
+        if (success) {
+          get().updateCommandHistory();
+        }
+        return success;
+      },
+
+      redoCommand: () => {
+        const success = commandManager.redo();
+        if (success) {
+          get().updateCommandHistory();
+        }
+        return success;
+      },
+
+      canUndoCommand: () => commandManager.canUndo(),
+
+      canRedoCommand: () => commandManager.canRedo(),
+
+      getCommandHistory: () => {
+        return commandManager.getHistory().map(entry => ({
+          id: entry.id,
+          name: entry.name,
+          timestamp: entry.timestamp,
+        }));
+      },
+
+      jumpToCommand: (index) => {
+        commandManager.jumpToIndex(index);
+        get().updateCommandHistory();
+      },
+
+      clearCommandHistory: () => {
+        commandManager.clear();
+        get().updateCommandHistory();
+      },
+
+      updateCommandHistory: () => {
+        const history = commandManager.getHistory();
+        set({
+          commandHistory: {
+            entries: history.map(h => ({
+              id: h.id,
+              name: h.name,
+              timestamp: h.timestamp,
+            })),
+            currentIndex: commandManager.getCurrentIndex(),
+            canUndo: commandManager.canUndo(),
+            canRedo: commandManager.canRedo(),
+          },
+        });
       },
     }),
     {
