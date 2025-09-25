@@ -54,8 +54,8 @@ export default function StatusBar({
     gridSize,
     // canUndo,
     // canRedo,
-    currentHistoryIndex,
-    history,
+    // currentHistoryIndex,
+    // history,
   } = useDrawingStore();
 
   // Performance monitoring
@@ -164,8 +164,8 @@ export default function StatusBar({
   };
 
   const getHistoryStatus = (): React.JSX.Element => {
-    const totalSteps = history.length;
-    const currentStep = currentHistoryIndex + 1;
+    const totalSteps = 0; // TODO: Get from history when available
+    const currentStep = 0; // TODO: Get from history when available
 
     return (
       <div className="flex items-center gap-1 text-gray-600">

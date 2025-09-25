@@ -297,20 +297,25 @@ export class PathfindingService {
   private optimizePath(path: XYPosition[]): XYPosition[] {
     if (path.length <= 2) return path;
 
-    const optimized: XYPosition[] = [path[0]];
+    const firstPoint = path[0];
+    const lastPoint = path[path.length - 1];
+
+    if (!firstPoint || !lastPoint) return path;
+
+    const optimized: XYPosition[] = [firstPoint];
 
     for (let i = 1; i < path.length - 1; i++) {
       const prev = path[i - 1];
       const current = path[i];
       const next = path[i + 1];
 
-      // Check if current point is necessary for the path
-      if (!this.areCollinear(prev, current, next)) {
+      // Check if all points exist and if current point is necessary for the path
+      if (prev && current && next && !this.areCollinear(prev, current, next)) {
         optimized.push(current);
       }
     }
 
-    optimized.push(path[path.length - 1]);
+    optimized.push(lastPoint);
     return optimized;
   }
 
@@ -340,6 +345,9 @@ export class PathfindingService {
 
     const start = path[0];
     const end = path[path.length - 1];
+
+    if (!start || !end) return false;
+
     const steps = Math.max(
       Math.abs(end.x - start.x) / this.gridSize,
       Math.abs(end.y - start.y) / this.gridSize
@@ -373,7 +381,12 @@ export class PathfindingService {
   private calculatePathDistance(path: XYPosition[]): number {
     let distance = 0;
     for (let i = 1; i < path.length; i++) {
-      distance += this.calculateDistance(path[i - 1], path[i]);
+      const prevPoint = path[i - 1];
+      const currentPoint = path[i];
+
+      if (prevPoint && currentPoint) {
+        distance += this.calculateDistance(prevPoint, currentPoint);
+      }
     }
     return distance;
   }

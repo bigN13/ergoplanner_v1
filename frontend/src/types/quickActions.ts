@@ -1,15 +1,24 @@
 export interface QuickAction {
   id: string;
   label: string;
-  icon?: string;
+  icon: string;
   category: string;
   shortcut?: string;
-  action: () => void;
+  execute: () => void;
+  canExecute?: () => boolean;
   isContextual?: boolean;
-  requiredContext?: Partial<ActionContext>;
+  requiredContext?: Partial<DrawingActionContext>;
 }
 
-export interface ActionContext {
+export type ActionContext =
+  | "no-selection"
+  | "single-node"
+  | "multiple-nodes"
+  | "single-edge"
+  | "multiple-edges"
+  | "mixed-selection";
+
+export interface DrawingActionContext {
   selectedNodes: string[];
   selectedEdges: string[];
   canUndo: boolean;
@@ -17,6 +26,12 @@ export interface ActionContext {
   zoom: number;
   gridEnabled: boolean;
   snapEnabled: boolean;
+}
+
+export interface ActionSuggestion {
+  actionId: string;
+  reason: string;
+  priority?: number;
 }
 
 export interface ActionMacro {

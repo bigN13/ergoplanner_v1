@@ -1,30 +1,22 @@
 import { useState, useCallback, useMemo } from "react";
 
-import type { QuickAction, ActionContext, ActionMacro } from "@/types/quickActions";
+import type { QuickAction, ActionContext, ActionMacro, ActionSuggestion, DrawingActionContext } from "@/types/quickActions";
 
 export function useQuickActions(): {
   context: ActionContext;
   availableActions: QuickAction[];
   frequentActions: QuickAction[];
   pinnedActionsList: QuickAction[];
-  suggestions: QuickAction[];
+  suggestions: ActionSuggestion[];
   actionHistory: QuickAction[];
   macros: ActionMacro[];
   executeAction: (action: QuickAction) => void;
   togglePin: (actionId: string) => void;
   isPinned: (actionId: string) => boolean;
-  createMacroFromHistory: (name: string, description?: string) => void;
+  createMacroFromHistory: (count: number) => void;
   executeMacro: (macro: ActionMacro) => void;
 } {
-  const [context] = useState<ActionContext>({
-    selectedNodes: [],
-    selectedEdges: [],
-    canUndo: false,
-    canRedo: false,
-    zoom: 1,
-    gridEnabled: false,
-    snapEnabled: false,
-  });
+  const [context] = useState<ActionContext>("no-selection");
 
   const [pinnedActions, setPinnedActions] = useState<Set<string>>(new Set());
   const [actionHistory] = useState<QuickAction[]>([]);
@@ -33,7 +25,7 @@ export function useQuickActions(): {
   const availableActions = useMemo<QuickAction[]>(() => [], []);
   const frequentActions = useMemo<QuickAction[]>(() => [], []);
   const pinnedActionsList = useMemo<QuickAction[]>(() => [], []);
-  const suggestions = useMemo<QuickAction[]>(() => [], []);
+  const suggestions = useMemo<ActionSuggestion[]>(() => [], []);
 
   const executeAction = useCallback((action: QuickAction) => {
     // TODO: Implement action execution
@@ -54,10 +46,10 @@ export function useQuickActions(): {
   }, []);
 
   const createMacroFromHistory = useCallback(
-    (name: string, description?: string) => {
+    (count: number) => {
       // TODO: Implement macro creation
       // eslint-disable-next-line no-console
-      console.log("Creating macro:", name, description);
+      console.log("Creating macro from last", count, "actions");
     },
     []
   );

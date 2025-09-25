@@ -28,7 +28,7 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
   const [exportFormat, setExportFormat] = useState<"png" | "svg" | "pdf" | "json" | "dxf">("png");
 
   const { fitView } = useReactFlow();
-  const { nodes, edges, drawingName, setNodes, setEdges, setDrawingName, addToHistory } =
+  const { nodes, edges, drawingName, setNodes, setEdges, setDrawingName } =
     useDrawingStore();
 
   // Export Functions
@@ -319,7 +319,7 @@ EOF`;
               setDrawingName(data.metadata.name);
             }
 
-            addToHistory();
+            // TODO: Add history tracking when available
 
             // Fit view after import
             setTimeout(() => fitView({ padding: 0.1 }), 100);
@@ -340,7 +340,7 @@ EOF`;
 
       reader.readAsText(file);
     },
-    [setNodes, setEdges, setDrawingName, addToHistory, fitView]
+    [setNodes, setEdges, setDrawingName, fitView]
   );
 
   const handleFileImport = useCallback(

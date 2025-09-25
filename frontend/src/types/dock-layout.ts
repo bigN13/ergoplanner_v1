@@ -1,10 +1,37 @@
 // Dock Layout Types
-import type { LayoutData, TabData as RcDockTabData } from "rc-dock";
+import type { TabData as RcDockTabData } from "rc-dock";
 import type React from "react";
 
 // Extended TabData to allow string content (panel component keys)
 export interface TabData extends Omit<RcDockTabData, 'content'> {
   content?: string | React.ReactElement | ((tab: TabData) => React.ReactElement);
+}
+
+// Custom tab type for layout presets that uses string identifiers
+export interface DockTab {
+  id: string;
+  title: string;
+  content: string; // Component identifier string
+  group?: string;
+  closable?: boolean;
+}
+
+// Custom layout types that use string identifiers
+export interface DockBox {
+  mode?: 'horizontal' | 'vertical' | 'float';
+  size?: number;
+  children?: (DockBox | DockPanel)[];
+  tabs?: DockTab[];
+}
+
+export interface DockPanel {
+  tabs: DockTab[];
+  size?: number;
+}
+
+export interface LayoutData {
+  dockbox: DockBox;
+  floatbox?: DockBox;
 }
 
 export interface DockPanelConfig {

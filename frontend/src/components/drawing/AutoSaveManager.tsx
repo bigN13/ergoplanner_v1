@@ -192,6 +192,7 @@ export default function AutoSaveManager({
       const timer = setTimeout(() => setSaveStatus("idle"), 2000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [nodes, edges, drawingName, saveStatus]);
 
   // Set up auto-save interval

@@ -7,7 +7,7 @@ import {
   AlignVerticalJustifyStart,
   AlignVerticalJustifyCenter,
   AlignVerticalJustifyEnd,
-  Grid,
+  Grid2x2,
   RotateCw,
   FlipHorizontal,
   FlipVertical,
@@ -23,7 +23,6 @@ import {
   Pin,
   Unplug,
   Sparkles,
-  // History,
   Workflow,
   X,
   ChevronDown,
@@ -35,7 +34,7 @@ import {
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import { useQuickActions } from "@/hooks/useQuickActions";
-import type { QuickAction, ActionContext } from "@/types/quickActions";
+import type { QuickAction, ActionContext, ActionSuggestion } from "@/types/quickActions";
 
 // Icon mapping
 const iconMap: Record<string, React.ElementType> = {
@@ -57,7 +56,7 @@ const iconMap: Record<string, React.ElementType> = {
   ZoomIn,
   ZoomOut,
   Maximize,
-  Grid2x2: Grid,
+  Grid2x2,
   Magnet,
   Workflow,
 };
@@ -175,6 +174,7 @@ export default function QuickActionsPanel({
         document.removeEventListener("mouseup", handleDragEnd);
       };
     }
+    return undefined;
   }, [isDragging, handleDrag, handleDragEnd]);
 
   // Toggle category expansion
@@ -263,8 +263,8 @@ export default function QuickActionsPanel({
   };
 
   // Render suggestion
-  const renderSuggestion = (actionId: string, reason: string): React.ReactElement | null => {
-    const action = availableActions.find((a) => a.id === actionId);
+  const renderSuggestion = (suggestion: ActionSuggestion): React.ReactElement | null => {
+    const action = availableActions.find((a) => a.id === suggestion.actionId);
     if (!action) return null;
 
     const Icon = iconMap[action.icon] || Sparkles;
@@ -272,7 +272,7 @@ export default function QuickActionsPanel({
 
     return (
       <div
-        key={actionId}
+        key={suggestion.actionId}
         className={`
           flex items-center gap-2 px-3 py-2 rounded-lg
           bg-gradient-to-r from-blue-50 to-transparent
@@ -285,7 +285,7 @@ export default function QuickActionsPanel({
         <Icon className="w-4 h-4 text-gray-600" />
         <div className="flex-1">
           <span className="text-sm text-gray-700">{action.label}</span>
-          <span className="text-xs text-gray-500 block">{reason}</span>
+          <span className="text-xs text-gray-500 block">{suggestion.reason}</span>
         </div>
       </div>
     );
@@ -353,7 +353,7 @@ export default function QuickActionsPanel({
               <TrendingUp className="w-3 h-3 text-blue-500" />
             </div>
             {suggestions.map((suggestion) =>
-              renderSuggestion(suggestion.actionId, suggestion.reason)
+              renderSuggestion(suggestion)
             )}
           </div>
         )}

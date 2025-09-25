@@ -178,9 +178,9 @@ const HistoryPanel: React.FC = () => {
           <div className="p-4 text-center text-sm text-gray-500">No history items</div>
         ) : (
           <div className="divide-y">
-            {filteredHistory.map((item: HistoryItem, index: number) => {
+            {filteredHistory.map((item: HistoryItem, _index: number) => {
               const isExpanded = expandedItems.has(item.id);
-              const isCurrentPosition = index === historyIndex;
+              const isCurrentPosition = false; // TODO: Implement current position tracking
 
               return (
                 <div

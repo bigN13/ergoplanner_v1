@@ -29,14 +29,13 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
     addNode,
     addEdge,
     setSelectedNode,
-    setSelectedEdge: _setSelectedEdge,
   } = useDrawingStore();
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState<DrawingPoint[]>([]);
   const [startPosition, setStartPosition] = useState<XYPosition | null>(null);
   const [previewNode, setPreviewNode] = useState<Node | null>(null);
-  const [previewEdge, _setPreviewEdge] = useState<Edge | null>(null);
+  const [previewEdge, setPreviewEdge] = useState<Edge | null>(null);
   const [connectingNodeId, setConnectingNodeId] = useState<string | null>(null);
 
   const drawingRef = useRef<{
@@ -153,19 +152,23 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
           },
         };
         addNode(textNode);
+      } else if (activeTool === "drawEdge" && connectingNodeId) {
+        // Cancel edge drawing if clicking on canvas
+        setConnectingNodeId(null);
+        setPreviewEdge(null);
       }
     },
-    [activeTool, addNode]
+    [activeTool, addNode, connectingNodeId]
   );
 
   // Handle canvas mouse move
   const handleCanvasMouseMove = useCallback(
     (_event: React.MouseEvent, position: XYPosition) => {
-      if (!isDrawing) return;
+      if (!isDrawing && !connectingNodeId) return;
 
-      if (activeTool === "freehand") {
+      if (isDrawing && activeTool === "freehand") {
         handleFreehandDrawing(position, false);
-      } else if (["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(activeTool)) {
+      } else if (isDrawing && ["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(activeTool)) {
         // Update preview shape
         if (startPosition) {
           const width = Math.abs(position.x - startPosition.x);
@@ -187,11 +190,32 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
             },
           });
         }
+      } else if (connectingNodeId && activeTool === "drawEdge") {
+        // Update preview edge position
+        const previewEdgeData: Edge = {
+          id: "preview-edge",
+          source: connectingNodeId,
+          target: "preview-target",
+          type: connectorMode === "straight" ? "straight" : connectorMode === "curved" ? "default" : "smoothstep",
+          sourceHandle: undefined,
+          targetHandle: undefined,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#3b82f6",
+            strokeDasharray: "5,5",
+          },
+        };
+        setPreviewEdge(previewEdgeData);
       }
 
       drawingRef.current.currentPos = position;
     },
-    [isDrawing, activeTool, startPosition, handleFreehandDrawing]
+    [isDrawing, activeTool, startPosition, handleFreehandDrawing, connectingNodeId, connectorMode]
   );
 
   // Handle canvas mouse down
@@ -265,7 +289,7 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
       drawingRef.current.startPos = null;
       drawingRef.current.currentPos = null;
     },
-    [isDrawing, activeTool, startPosition, currentPath, createShape, smoothPath, addNode]
+    [isDrawing, activeTool, startPosition, currentPath, createShape, addNode, smoothPath]
   );
 
   // Handle node click for connections
@@ -281,6 +305,7 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
           // Complete connection
           createConnector(connectingNodeId, node.id);
           setConnectingNodeId(null);
+          setPreviewEdge(null);
         }
       } else if (activeTool === "select") {
         setSelectedNode(node.id);
