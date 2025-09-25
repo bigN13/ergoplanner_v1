@@ -29,7 +29,7 @@ interface ZoomControlsToolbarProps {
 
 export default function ZoomControlsToolbar({
   className = ""
-}: ZoomControlsToolbarProps): JSX.Element {
+}: ZoomControlsToolbarProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [customZoomInput, setCustomZoomInput] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -134,7 +134,6 @@ export default function ZoomControlsToolbar({
 
           // Use fitBounds equivalent with setViewport
           const padding = 0.2;
-          const _viewport = getViewport();
           const containerWidth = window.innerWidth * 0.7; // Approximate canvas width
           const containerHeight = window.innerHeight * 0.7; // Approximate canvas height
 
@@ -161,7 +160,7 @@ export default function ZoomControlsToolbar({
         break;
     }
     setIsDropdownOpen(false);
-  }, [fitView, getNodes, getViewport, setViewport, setZoomLevel]);
+  }, [fitView, getNodes, setViewport, setZoomLevel]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -205,6 +204,8 @@ export default function ZoomControlsToolbar({
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
+
+    return undefined;
   }, [isDropdownOpen]);
 
   // Check if current zoom matches any preset

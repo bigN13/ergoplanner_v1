@@ -225,7 +225,7 @@ const initialState = {
     activeToolGroup: "selection" as ToolGroup,
     activeTool: "select" as DrawingTool_Type,
     toolOptions: {
-      lineStyle: "solid",
+      lineStyle: "solid" as "solid" | "dashed" | "dotted",
       lineWeight: 1,
       arrowStyle: "none",
       snapEnabled: true,
@@ -805,7 +805,12 @@ export const useDrawingStore = create<DrawingState>()(
         if (newIndex < 0 || newIndex >= layers.length) return;
 
         const newLayers = [...layers];
-        [newLayers[layerIndex], newLayers[newIndex]] = [newLayers[newIndex], newLayers[layerIndex]];
+        const layerAtIndex = newLayers[layerIndex];
+        const layerAtNewIndex = newLayers[newIndex];
+
+        if (layerAtIndex && layerAtNewIndex) {
+          [newLayers[layerIndex], newLayers[newIndex]] = [layerAtNewIndex, layerAtIndex];
+        }
 
         // Update order property
         newLayers.forEach((layer, index) => {

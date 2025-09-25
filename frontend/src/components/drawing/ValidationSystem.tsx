@@ -309,7 +309,7 @@ export default function ValidationSystem({
           };
 
           nodes.forEach((node) => {
-            const pattern = standardPatterns[node.type];
+            const pattern = node.type ? standardPatterns[node.type] : undefined;
             if (pattern && node.data.label) {
               if (!pattern.test(node.data.label)) {
                 issues.push({
@@ -322,7 +322,7 @@ export default function ValidationSystem({
                   elementType: "node",
                   position: node.position,
                   suggestions: [
-                    `Use format like ${getStandardExample(node.type)}`,
+                    `Use format like ${getStandardExample(node.type || 'pump')}`,
                     "Follow ISA-5.1 standard",
                     "Check company naming conventions",
                   ],
@@ -455,7 +455,7 @@ export default function ValidationSystem({
             let newTag = "";
             let counter = 101;
             do {
-              newTag = `${nodeType.charAt(0).toUpperCase()}-${counter}`;
+              newTag = `${nodeType?.charAt(0)?.toUpperCase() || 'S'}-${counter}`;
               counter++;
             } while (existingTags.includes(newTag));
 

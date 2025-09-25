@@ -231,7 +231,7 @@ export class MoveNodeCommand extends BaseCommand {
     this.context.setNodes(updatedNodes);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       nodeId: this.nodeId,
