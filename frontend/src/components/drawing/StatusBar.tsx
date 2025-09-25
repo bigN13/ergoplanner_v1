@@ -45,7 +45,7 @@ export default function StatusBar({
   const [memoryUsage, setMemoryUsage] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
 
-  const { getZoom, getViewport } = useReactFlow();
+  const { getZoom } = useReactFlow();
   const {
     nodes,
     edges,
@@ -120,7 +120,6 @@ export default function StatusBar({
   }, [nodes, edges]);
 
   const zoom = getZoom();
-  const _viewport = getViewport();
 
   const getToolIcon = (toolName: string): React.JSX.Element => {
     switch (toolName) {

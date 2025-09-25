@@ -111,15 +111,15 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
     });
   };
 
-  // Update parameter
-  const _updateParameter = (index: number, param: SymbolParameter): void => {
-    const newParams = [...symbolDef.parameters];
-    newParams[index] = param;
-    setSymbolDef({
-      ...symbolDef,
-      parameters: newParams
-    });
-  };
+  // Update parameter (unused but kept for future use)
+  // const _updateParameter = (index: number, param: SymbolParameter): void => {
+  //   const newParams = [...symbolDef.parameters];
+  //   newParams[index] = param;
+  //   setSymbolDef({
+  //     ...symbolDef,
+  //     parameters: newParams
+  //   });
+  // };
 
   // Generate SVG preview
   const generatePreview = useCallback(() => {

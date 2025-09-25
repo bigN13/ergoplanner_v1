@@ -228,6 +228,37 @@ const COMMON_FIELDS = {
   },
 };
 
+// Base instrument template for reuse
+const INSTRUMENT_BASE_TEMPLATE: FormField[] = [
+  COMMON_FIELDS.label,
+  COMMON_FIELDS.description,
+  COMMON_FIELDS.tagNumber,
+  {
+    name: "range",
+    label: "Measurement Range",
+    type: "text",
+    section: "instrumentation",
+    placeholder: "e.g., 0-100",
+    tooltip: "Measurement range",
+  },
+  {
+    name: "unit",
+    label: "Unit",
+    type: "text",
+    section: "instrumentation",
+    placeholder: "e.g., m³/h, bar, °C",
+    tooltip: "Measurement unit",
+  },
+  {
+    name: "accuracy",
+    label: "Accuracy",
+    type: "text",
+    section: "instrumentation",
+    placeholder: "e.g., ±1%",
+    tooltip: "Measurement accuracy",
+  },
+];
+
 /**
  * Property templates for each node type
  */
@@ -653,7 +684,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
 
   // Additional node types with basic configurations
   flowMeter: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
+    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
       field.name !== "instrumentType"
     ),
     {
@@ -674,7 +705,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   pressureGauge: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
+    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
       field.name !== "instrumentType"
     ),
     {
@@ -693,7 +724,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   temperatureSensor: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
+    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
       field.name !== "instrumentType"
     ),
     {
@@ -712,7 +743,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   levelIndicator: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
+    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
       field.name !== "instrumentType"
     ),
     {
