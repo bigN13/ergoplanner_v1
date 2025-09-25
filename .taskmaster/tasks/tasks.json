@@ -66,7 +66,7 @@
         "id": 2,
         "title": "Implement authentication and authorization system",
         "description": "Create JWT-based authentication system with role-based access control",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           "1"
@@ -76,31 +76,31 @@
             "id": 1,
             "title": "Design authentication database schema",
             "description": "Create User, Role, Organization, and Session entities",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 2,
             "title": "Implement JWT token generation and validation",
             "description": "Create JWT service with access/refresh token logic",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 3,
             "title": "Create authentication API endpoints",
             "description": "Implement login, logout, refresh token, and password reset",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 4,
             "title": "Implement role-based authorization",
             "description": "Create authorization policies for different roles",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 5,
             "title": "Add organization-based access control",
             "description": "Implement multi-tenancy with organization isolation",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -246,7 +246,7 @@
         "id": 4,
         "title": "Develop comprehensive symbol library system",
         "description": "Create and manage symbol libraries for multiple industry standards as an integral part of the P&ID drawing component",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           "3"
         ],
@@ -916,7 +916,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-25T09:58:02.973Z",
+      "updated": "2025-09-25T18:31:50.218Z",
       "description": "Tasks for master context"
     }
   }
