@@ -8,11 +8,13 @@ import type { HistoryItem } from "@/types/commands";
 import type { Layer } from "@/types/drawing";
 
 // Tool types for the drawing toolbar
-export type ToolGroup = "selection" | "drawing" | "annotation";
+export type ToolGroup = "selection" | "drawing" | "annotation" | "shapes";
 export type SelectionTool = "select" | "pan" | "multiSelect";
-export type DrawingTool = "addNode" | "drawEdge" | "freehand";
+export type DrawingTool = "addNode" | "drawEdge" | "freehand" | "rectangle" | "rounded-rectangle" | "ellipse" | "rhombus";
 export type AnnotationTool = "text" | "measurement" | "callout";
 export type DrawingTool_Type = SelectionTool | DrawingTool | AnnotationTool;
+
+export type ConnectorMode = "straight" | "orthogonal" | "curved";
 
 export interface ToolState {
   activeToolGroup: ToolGroup;
@@ -48,6 +50,8 @@ export interface DrawingState {
   edges: Edge[];
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
+  connectorMode: ConnectorMode;
+  activeTool: DrawingTool_Type;
 
   // Command-based history (replaces old history system)
   commandManager: CommandManager | null;
@@ -150,6 +154,7 @@ export interface DrawingState {
   setActiveToolGroup: (group: ToolGroup) => void;
   updateToolOptions: (options: Partial<ToolState['toolOptions']>) => void;
   getActiveToolConfig: () => { group: ToolGroup; tool: DrawingTool_Type; options: ToolState['toolOptions'] };
+  setConnectorMode: (mode: ConnectorMode) => void;
 }
 
 const defaultLayers: Layer[] = [
@@ -200,6 +205,8 @@ const initialState = {
   edges: [],
   selectedNodeId: null,
   selectedEdgeId: null,
+  connectorMode: "orthogonal" as ConnectorMode,
+  activeTool: "select" as DrawingTool_Type,
   commandManager: null,
   clipboardData: null,
   formatPainterData: null,
@@ -859,13 +866,14 @@ export const useDrawingStore = create<DrawingState>()(
         // Determine the correct tool group based on the tool
         if (['select', 'pan', 'multiSelect'].includes(tool)) {
           newToolGroup = 'selection';
-        } else if (['addNode', 'drawEdge', 'freehand'].includes(tool)) {
-          newToolGroup = 'drawing';
+        } else if (['addNode', 'drawEdge', 'freehand', 'rectangle', 'rounded-rectangle', 'ellipse', 'rhombus'].includes(tool)) {
+          newToolGroup = 'shapes';
         } else if (['text', 'measurement', 'callout'].includes(tool)) {
           newToolGroup = 'annotation';
         }
 
         set({
+          activeTool: tool,
           toolState: {
             ...toolState,
             activeTool: tool,
@@ -889,6 +897,11 @@ export const useDrawingStore = create<DrawingState>()(
           case 'drawing':
             if (!['addNode', 'drawEdge', 'freehand'].includes(toolState.activeTool)) {
               newActiveTool = 'addNode';
+            }
+            break;
+          case 'shapes':
+            if (!['rectangle', 'rounded-rectangle', 'ellipse', 'rhombus'].includes(toolState.activeTool)) {
+              newActiveTool = 'rectangle';
             }
             break;
           case 'annotation':
@@ -929,6 +942,10 @@ export const useDrawingStore = create<DrawingState>()(
           tool: toolState.activeTool,
           options: toolState.toolOptions,
         };
+      },
+
+      setConnectorMode: (mode) => {
+        set({ connectorMode: mode });
       },
     }),
     {

@@ -15,6 +15,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
+import { useDrawingTools } from "@/hooks/useDrawingTools";
 import { useSmartRouting } from "@/hooks/useSmartRouting";
 import { useDrawingStore } from "@/store/drawingStore";
 
@@ -82,6 +83,17 @@ function DrawingCanvasContent(): React.ReactElement {
     weight: 1.0,
     autoRoute: true
   });
+
+  // Drawing tools hook
+  const {
+    handleCanvasClick,
+    handleCanvasMouseMove: _handleCanvasMouseMove,
+    handleCanvasMouseDown: _handleCanvasMouseDown,
+    handleCanvasMouseUp: _handleCanvasMouseUp,
+    handleNodeClick: _handleDrawingNodeClick,
+    handleConnect: handleDrawingConnect,
+    previewNode: _previewNode,
+  } = useDrawingTools(reactFlowInstance);
 
   const {
     // nodes,
@@ -229,8 +241,10 @@ function DrawingCanvasContent(): React.ReactElement {
     (params: Connection) => {
       // Use smart routing for automatic pipe routing
       createSmartConnection(params);
+      // Also handle drawing tool connections
+      handleDrawingConnect(params);
     },
-    [createSmartConnection]
+    [createSmartConnection, handleDrawingConnect]
   );
 
   // const handleExportPNG = useCallback((): void => {
@@ -379,10 +393,20 @@ function DrawingCanvasContent(): React.ReactElement {
     [reactFlowInstance]
   );
 
-  // Click handler to close context menu
-  const handleCanvasClick = useCallback(() => {
+  // Click handler to close context menu and handle drawing tools
+  const onCanvasClick = useCallback((event: React.MouseEvent) => {
     setContextMenu((prev) => ({ ...prev, visible: false }));
-  }, []);
+
+    // Handle drawing tools click
+    const rect = reactFlowWrapper.current?.getBoundingClientRect();
+    if (rect && reactFlowInstance) {
+      const position = reactFlowInstance.project({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      });
+      handleCanvasClick(event, position);
+    }
+  }, [reactFlowInstance, handleCanvasClick]);
 
   return (
     <div className="flex h-full w-full">
@@ -399,7 +423,7 @@ function DrawingCanvasContent(): React.ReactElement {
             onSelectionChange={onSelectionChange}
             onContextMenu={handleContextMenu}
             onMouseMove={handleMouseMove}
-            onClick={handleCanvasClick}
+            onClick={onCanvasClick}
             nodeTypes={nodeTypes}
             snapToGrid={snapToGrid}
             snapGrid={[gridSize, gridSize]}

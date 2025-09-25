@@ -8,6 +8,7 @@ import DrawingToolbar from "@/components/drawing/DrawingToolbar";
 import EditOperationsToolbar from "@/components/drawing/EditOperationsToolbar";
 import LayersPanel from "@/components/drawing/LayersPanel";
 import MainToolbar from "@/components/drawing/MainToolbar";
+import PrimaryDrawingToolsToolbar from "@/components/drawing/PrimaryDrawingToolsToolbar";
 import PropertyPanel from "@/components/drawing/PropertyPanel";
 import SymbolLibrary from "@/components/drawing/SymbolLibrary";
 import ToolOptionsBar from "@/components/drawing/ToolOptionsBar";
@@ -196,6 +197,11 @@ export default function DrawioLayout({ children: _children }: DrawioLayoutProps)
           {/* Drawing Canvas */}
           <div className="flex-1 relative overflow-hidden">
             <DrawingCanvas />
+
+            {/* Primary Drawing Tools Toolbar - Floating */}
+            <div className="absolute top-4 left-4 z-10">
+              <PrimaryDrawingToolsToolbar orientation="horizontal" />
+            </div>
           </div>
         </div>
 
