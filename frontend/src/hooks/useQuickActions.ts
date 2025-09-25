@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 
-import type { QuickAction, ActionContext, ActionMacro, ActionSuggestion, DrawingActionContext } from "@/types/quickActions";
+import type { QuickAction, ActionContext, ActionMacro, ActionSuggestion } from "@/types/quickActions";
 
 export function useQuickActions(): {
   context: ActionContext;

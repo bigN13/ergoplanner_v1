@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import type { NodeProps } from 'reactflow';
+import { Handle, Position } from 'reactflow';
 
 export interface SymbolParameter {
   name: string;
   type: 'number' | 'string' | 'color' | 'boolean' | 'select';
-  defaultValue: any;
+  defaultValue: string | number | boolean;
   min?: number;
   max?: number;
   options?: string[];
@@ -83,11 +84,11 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
   });
 
   const [svgCode, setSvgCode] = useState('');
-  const [previewParams, setPreviewParams] = useState<Record<string, any>>({});
+  const [previewParams, setPreviewParams] = useState<Record<string, string | number | boolean>>({});
   const svgPreviewRef = useRef<HTMLDivElement>(null);
 
   // Add a parameter
-  const addParameter = () => {
+  const addParameter = (): void => {
     if (currentParameter.name) {
       setSymbolDef({
         ...symbolDef,
@@ -102,7 +103,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
   };
 
   // Remove a parameter
-  const removeParameter = (index: number) => {
+  const removeParameter = (index: number): void => {
     const newParams = symbolDef.parameters.filter((_, i) => i !== index);
     setSymbolDef({
       ...symbolDef,
@@ -111,7 +112,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
   };
 
   // Update parameter
-  const updateParameter = (index: number, param: SymbolParameter) => {
+  const _updateParameter = (index: number, param: SymbolParameter): void => {
     const newParams = [...symbolDef.parameters];
     newParams[index] = param;
     setSymbolDef({
@@ -143,7 +144,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
   }, [symbolDef, svgCode, previewParams]);
 
   // Handle save
-  const handleSave = () => {
+  const handleSave = (): void => {
     const finalSymbol: CustomSymbolDefinition = {
       ...symbolDef,
       id: symbolDef.id || `custom-${Date.now()}`,
@@ -442,7 +443,7 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
   data,
   selected
 }) => {
-  const [parameters, setParameters] = useState<Record<string, any>>({});
+  const [_parameters, _setParameters] = useState<Record<string, string | number | boolean>>({});
 
   // Generate SVG from template and parameters
   const generateSVG = useCallback(() => {

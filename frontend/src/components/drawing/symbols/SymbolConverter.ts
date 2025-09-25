@@ -3,7 +3,7 @@
  * Converts symbols between different standards while preserving semantic meaning
  */
 
-import { SymbolMetadata } from './SymbolCatalog';
+// import { SymbolMetadata } from './SymbolCatalog'; // Unused import, keeping for future use
 
 // Mapping of equivalent symbols between standards
 export const SymbolEquivalenceMap: Record<string, {
@@ -227,7 +227,7 @@ export function convertSymbol(
     }
 
     // Convert properties if provided
-    let convertedProperties: Record<string, unknown> = {};
+    const convertedProperties: Record<string, unknown> = {};
     const warnings: string[] = [];
 
     if (properties) {
@@ -450,9 +450,11 @@ export function canConvert(
   return conversions.some(c => c.standard === toStandard);
 }
 
-export default {
+const SymbolConverterModule = {
   convertSymbol,
   batchConvertSymbols,
   getAvailableConversions,
   canConvert
 };
+
+export default SymbolConverterModule;

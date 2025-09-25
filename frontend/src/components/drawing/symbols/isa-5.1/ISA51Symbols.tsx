@@ -85,7 +85,7 @@ export const GateValve: React.FC<ISASymbolProps> = ({
   width = 60,
   height = 60,
   color = '#000',
-  fillColor = '#fff',
+  fillColor: _fillColor = '#fff',
   strokeWidth = 1.5
 }) => (
   <svg width={width} height={height} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
