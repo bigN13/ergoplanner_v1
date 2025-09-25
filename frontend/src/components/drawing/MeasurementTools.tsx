@@ -293,7 +293,7 @@ export default function MeasurementTools({
 
           return (
             <g key={measurement.id}>
-              {measurement.type === "distance" && measurement.points.length === 2 && screenPoints.length === 2 && (
+              {measurement.type === "distance" && measurement.points.length === 2 && screenPoints.length === 2 && screenPoints[0] && screenPoints[1] && (
                 <>
                   <line
                     x1={screenPoints[0].x}
@@ -329,7 +329,7 @@ export default function MeasurementTools({
                 </>
               )}
 
-              {measurement.type === "area" && measurement.points.length >= 3 && screenPoints.length >= 3 && (
+              {measurement.type === "area" && measurement.points.length >= 3 && screenPoints.length >= 3 && screenPoints.every(p => p !== undefined) && (
                 <>
                   <polygon
                     points={screenPoints.map(p => `${p.x},${p.y}`).join(" ")}
@@ -360,7 +360,7 @@ export default function MeasurementTools({
                 </>
               )}
 
-              {measurement.type === "coordinate" && screenPoints.length >= 1 && (
+              {measurement.type === "coordinate" && screenPoints.length >= 1 && screenPoints[0] && (
                 <>
                   <circle
                     cx={screenPoints[0].x}

@@ -171,7 +171,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
         );
 
       default:
-        return null;
+        return <></>;
     }
   };
 

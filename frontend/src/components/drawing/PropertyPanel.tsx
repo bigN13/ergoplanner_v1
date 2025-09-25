@@ -59,10 +59,14 @@ export default function PropertyPanel({
 
   // Use props if provided, otherwise get from store
   const selectedNode = propSelectedNode ?? (selectedNodeId ? nodes.find(n => n.id === selectedNodeId) || null : null);
-  const selectedNodes = useMemo(() =>
-    propSelectedNodes ?? (selectedNodeId ? [nodes.find(n => n.id === selectedNodeId)].filter(Boolean) : []),
-    [propSelectedNodes, selectedNodeId, nodes]
-  );
+  const selectedNodes = useMemo(() => {
+    if (propSelectedNodes) return propSelectedNodes;
+    if (selectedNodeId) {
+      const node = nodes.find(n => n.id === selectedNodeId);
+      return node ? [node] : [];
+    }
+    return [];
+  }, [propSelectedNodes, selectedNodeId, nodes]);
   const selectedEdge = propSelectedEdge ?? (selectedEdgeId ? edges.find(e => e.id === selectedEdgeId) || null : null);
 
   // Default close handler
