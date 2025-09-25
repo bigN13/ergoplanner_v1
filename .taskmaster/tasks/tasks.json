@@ -912,11 +912,156 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 44,
+        "title": "Implement Enhanced Drag Preview System",
+        "description": "Create a sophisticated drag preview system with semi-transparent previews, smart positioning, and performance optimizations for smooth 60fps dragging operations",
+        "details": "Implement a custom drag preview system using React Portals and HTML5 Canvas for optimal performance. Create DragPreviewManager component that generates 50% opacity previews using html-to-image library for complex shapes. Implement preview positioning logic: center on cursor for stencil drags using getBoundingClientRect(), maintain grab offset for canvas elements. Add preview caching with Map<string, HTMLCanvasElement> for repeated elements. Scale previews larger than 500x500px using CSS transforms. For multi-selection, create composite preview showing all selected elements with relative positions preserved. Use requestAnimationFrame for smooth updates and throttle to 16ms intervals. Integrate with existing ReactFlow instance using useReactFlow hook. Store preview state in Zustand with actions: setPreviewElement, updatePreviewPosition, clearPreview. Use React.memo and useMemo for performance optimization. Implement preview generation worker for complex shapes with >100 vertices.",
+        "testStrategy": "Unit tests for preview generation logic, position calculations, and caching mechanisms. Integration tests for ReactFlow interaction and multi-element preview. Performance tests ensuring 60fps with Performance API monitoring. Visual regression tests using Playwright for preview appearance. E2E tests for complete drag preview workflow from stencil to canvas.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 45,
+        "title": "Build Visual Feedback and Drop Zone System",
+        "description": "Implement comprehensive visual feedback including drop zone highlighting, smart guides, alignment indicators, and grid visualization during drag operations",
+        "details": "Create DropZoneManager using React Context to manage drop zones across the application. Implement drop zone detection using Intersection Observer API for performance. Add visual feedback layers: valid zones with green overlay (rgba(0,255,0,0.1)), invalid zones with red overlay and prohibition cursor. Build SmartGuides component using SVG overlays for alignment lines (center, edge, distribution). Implement distance indicators showing pixel measurements between elements using Canvas 2D API. Create GridOverlay component that activates during drag, showing grid lines based on current snap settings (5px, 10px, 20px). Use CSS custom properties for theming feedback colors. Implement feedback state machine: idle -> hovering -> valid_drop -> invalid_drop. Add haptic feedback support for touch devices using Vibration API. Store feedback state in Zustand: dropZones, activeDropZone, smartGuides, gridVisible. Use React Spring for smooth feedback transitions.",
+        "testStrategy": "Unit tests for drop zone detection algorithms and state machine transitions. Integration tests for visual feedback rendering with different drop scenarios. Accessibility tests ensuring feedback is perceivable without color. Performance tests for feedback updates with 100+ drop zones. E2E tests for complete feedback flow during drag operations.",
+        "priority": "high",
+        "dependencies": [
+          44
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 46,
+        "title": "Develop Auto-Connection and Snap System",
+        "description": "Build intelligent auto-connection system that detects connection points, validates compatibility, and automatically creates connections with proper routing",
+        "details": "Implement ConnectionDetector class using spatial indexing (R-tree with rbush library) for efficient connection point detection within 20px. Create connection point registry storing type compatibility rules (pumps->pipes, pipes->valves, valves->tanks). Build AutoConnector service that creates edge elements using ReactFlow's addEdges API. Implement connection preview using temporary edges with dashed styling. Add magnetic snapping behavior using spring physics (react-spring). Create connection validation rules based on flow direction, pressure ratings, and material compatibility. Integrate with existing useSmartRouting hook for orthogonal routing. Implement connection rerouting to avoid overlaps using A* pathfinding. Store connection state: availableConnections, activeConnection, connectionPreview. Add visual feedback: green highlights for valid connections, red for invalid, animated connection lines. Support multiple simultaneous connections for manifolds and distributors.",
+        "testStrategy": "Unit tests for connection detection algorithms and compatibility validation. Integration tests for auto-connection with different node types. Performance tests for connection detection with 1000+ connection points. E2E tests for complete connection workflow including validation and routing. Visual tests for connection preview and feedback.",
+        "priority": "high",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 47,
+        "title": "Implement Multi-Selection Drag Operations",
+        "description": "Enhance multi-selection dragging with relative positioning preservation, performance optimization for large selections, and distribution pattern support",
+        "details": "Extend ReactFlow's selection system with custom SelectionManager class. Implement relative position preservation using offset calculations from selection center. Create optimized preview for large selections: simplified rendering for >50 items using bounding box representation. Add selection count badge using React Portal positioned near cursor. Implement distribution patterns: GridDistribution (rows/columns with customizable spacing), LineDistribution (even spacing along line), CircleDistribution (radial arrangement), CustomDistribution (user-defined patterns via UI). Build group drag physics with momentum and inertia using matter-js for natural feel. Preserve connections during movement with automatic rerouting. Maintain parent-child hierarchies using tree traversal. Add selection grouping/ungrouping with Ctrl+G/Ctrl+Shift+G. Store selection state: selectedNodes, selectionBounds, dragOffsets, distributionMode. Implement virtual scrolling for selection lists using react-window.",
+        "testStrategy": "Unit tests for position calculations and distribution algorithms. Integration tests for multi-selection with ReactFlow. Performance tests with 100+ selected elements ensuring 60fps. E2E tests for selection, grouping, and distribution workflows. Stress tests for memory usage with large selections.",
+        "priority": "medium",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 48,
+        "title": "Add Keyboard Modifier Support System",
+        "description": "Implement comprehensive keyboard modifier system for constrained movement, copy operations, and snap control with visual indicators",
+        "details": "Create ModifierKeyManager using keyboard event listeners with proper cleanup. Implement Shift key constraints: 45-degree angle snapping using vector math, 90-degree rotation increments, multiple copy creation for array operations. Add Ctrl/Cmd key for copy mode: show plus (+) badge cursor using CSS cursor property, generate new UUIDs for copied elements, preserve styling and properties, update BoQ with new items. Implement Alt/Option key for precision mode: temporarily disable grid snapping, allow pixel-level positioning, suppress smart guides, enable center-point resize for shapes. Create visual modifier indicator overlay showing active modifiers (pill-shaped badges in corner). Add modifier combinations: Shift+Ctrl for constrained copy, Alt+Shift for precise constrained movement. Store modifier state in Zustand: activeModifiers, modifierMode, copyCount. Integrate with existing useKeyboardShortcuts hook. Support touch modifier gestures for tablet devices.",
+        "testStrategy": "Unit tests for modifier key detection and constraint calculations. Integration tests for modifier combinations with drag operations. Cross-browser tests for key event handling. Accessibility tests for keyboard-only workflows. E2E tests for complete modifier-enhanced drag scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          44,
+          45,
+          47
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 49,
+        "title": "Create Container and Nested Drop System",
+        "description": "Implement advanced container drop targets supporting nested elements, automatic layout, boundary enforcement, and parent-child relationships",
+        "details": "Build ContainerManager class extending ReactFlow's group nodes with custom drop behavior. Implement container types: Swimlanes (horizontal/vertical lanes with auto-sizing), Groups (free-form containers with borders), Tables (grid-based layout with cells), Frames (viewport containers with scrolling). Add drop validation: check container capacity limits, enforce type restrictions (e.g., only instruments in instrument panel), validate nesting depth (max 5 levels). Create automatic layout engines: FlexLayout for swimlanes using CSS Flexbox algorithm, GridLayout for tables using CSS Grid, PackingLayout for optimal space usage using bin packing algorithm. Implement container boundaries with visual feedback during hover. Add auto-resize behavior with smooth animations using Framer Motion. Establish parent-child relationships in node data structure. Support container operations: expand/collapse, lock/unlock, show/hide children. Store container state: containers, containerHierarchy, layoutSettings. Add container-specific properties panel.",
+        "testStrategy": "Unit tests for container validation and layout algorithms. Integration tests for nested drops and parent-child relationships. Performance tests with deeply nested structures (5+ levels). Visual tests for container rendering and auto-resize. E2E tests for complete container workflows including creation, nesting, and management.",
+        "priority": "medium",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 50,
+        "title": "Implement External File Drop Integration",
+        "description": "Build comprehensive external file drop system supporting images, documents, and cross-application dragging with format conversion and validation",
+        "details": "Create FileDropHandler using HTML5 File API and DataTransfer API. Implement image drop support: accept PNG, JPG, SVG formats, convert to data URLs using FileReader, create image nodes with aspect ratio preservation, add image optimization using browser-image-compression library. Support document drops: PDF embedding using react-pdf, text file content extraction, CSV data import for BoQ. Handle URL drops: create link nodes with favicon fetching, embed external diagrams via iframe, support P&ID file formats (.p&id, .dxf via dxf-parser). Implement clipboard integration: paste as drop using Clipboard API, support rich content (HTML, images), handle copy from external apps (Excel, CAD). Add drag preview for external content using file type icons. Create validation system: file size limits (max 10MB), virus scanning integration, format verification. Store external content in blob storage with references. Add progress indicators for large file processing.",
+        "testStrategy": "Unit tests for file validation and format conversion. Integration tests for different file types and sources. Security tests for malicious file handling. Performance tests for large file drops (10MB+). E2E tests for complete external drop workflows including clipboard operations.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 51,
+        "title": "Optimize Performance and Visual Effects",
+        "description": "Implement advanced performance optimizations and smooth visual effects including auto-scrolling, hardware acceleration, and viewport culling",
+        "details": "Implement auto-scrolling near edges: detect proximity to viewport boundaries (50px threshold), calculate scroll velocity based on distance, use requestAnimationFrame for smooth scrolling, support diagonal scrolling. Add hardware acceleration: force GPU layers using will-change CSS property, use transform3d for element movement, implement WebGL renderer for 1000+ elements using PixiJS. Create viewport culling system: use Intersection Observer for visibility detection, render only visible elements plus buffer zone, implement virtual scrolling for symbol library. Build performance monitoring: track FPS using Performance API, measure render times with User Timing API, detect performance bottlenecks, auto-adjust quality settings based on performance. Add advanced animations: spring physics for natural movement using react-spring, momentum and inertia for drag release, parallax effects for layered elements. Implement progressive rendering: render in chunks for large diagrams, use Web Workers for heavy computations, add loading states for complex operations. Create performance settings panel with quality presets.",
+        "testStrategy": "Performance benchmarks for 1000+ elements maintaining 60fps. Memory leak tests using Chrome DevTools. Stress tests for auto-scrolling with large canvases. Visual regression tests for rendering quality. Load tests for progressive rendering with complex diagrams.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45,
+          46,
+          47
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 52,
+        "title": "Build Accessibility and Keyboard Navigation",
+        "description": "Implement comprehensive accessibility features including keyboard-only drag operations, screen reader support, and WCAG 2.1 AA compliance",
+        "details": "Create KeyboardDragManager for mouse-free operations: Arrow keys for 1 grid unit movement, Shift+Arrow for 10 unit movement, Enter to pick up/drop elements, Space for toggle selection, Tab for navigation between elements. Implement screen reader support: ARIA live regions for drag status announcements, descriptive labels for all draggable elements, role='application' for canvas area, announce drop zone availability and validation. Add high contrast mode: detect prefers-contrast media query, provide alternative color schemes, ensure 4.5:1 contrast ratios, add focus indicators with 3px outlines. Support reduced motion: detect prefers-reduced-motion, provide instant transitions option, disable auto-animations, maintain functionality without animation. Create accessibility settings panel: configurable movement increments, sound feedback options, keyboard shortcut customization. Implement focus management: trap focus during drag operations, restore focus after completion, provide skip links for navigation. Add alternative input methods: voice commands using Web Speech API, eye tracking support preparation.",
+        "testStrategy": "Accessibility audits using axe-core and WAVE. Keyboard-only testing for all operations. Screen reader tests with JAWS, NVDA, VoiceOver. WCAG 2.1 AA compliance validation. User testing with assistive technology users.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45,
+          47,
+          48
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 53,
+        "title": "Implement Error Handling and Recovery System",
+        "description": "Build robust error handling with graceful recovery, clear user feedback, conflict resolution, and comprehensive operation logging",
+        "details": "Create ErrorBoundary components for drag operation failures with fallback UI. Implement validation system: pre-drop validation with business rules engine, check user permissions using RBAC, verify capacity limits (max nodes per diagram), enforce diagram constraints. Build recovery mechanisms: automatic return to origin on failed drops with smooth animation, checkpoint system for complex operations, retry logic for network-related failures, undo/redo integration for quick recovery. Add conflict resolution: detect overlapping elements using collision detection, offer resolution options (replace, merge, cancel), implement automatic spacing adjustment, handle concurrent editing conflicts. Create error messaging: toast notifications using react-hot-toast, contextual error messages with actionable guidance, error details panel for debugging, multilingual error messages. Implement operation logging: track all drag operations with timestamps, log errors with stack traces to Sentry, create audit trail for compliance, add analytics using Mixpanel/Amplitude. Build telemetry system: measure operation success rates, track common error patterns, monitor performance metrics, generate usage heat maps.",
+        "testStrategy": "Unit tests for validation rules and error recovery logic. Integration tests for error boundaries and conflict resolution. Chaos testing for failure scenarios. E2E tests for complete error workflows. Analytics verification for logging accuracy.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45,
+          46,
+          47,
+          49,
+          50
+        ],
+        "status": "pending",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-25T18:58:45.584Z",
+      "updated": "2025-09-25T19:32:55.378Z",
       "description": "Tasks for master context"
     }
   }
