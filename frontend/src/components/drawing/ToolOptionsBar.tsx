@@ -70,7 +70,7 @@ const saveToolPreferences = (preferences: Record<string, unknown>): void => {
 
 export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps): React.ReactElement {
   const toolState = useDrawingStore((state) => ({
-    activeToolGroup: state.activeToolGroup,
+    activeToolGroup: state.toolState.activeToolGroup,
     activeTool: state.activeTool,
     snapToGrid: state.snapToGrid,
     isGridVisible: state.isGridVisible,

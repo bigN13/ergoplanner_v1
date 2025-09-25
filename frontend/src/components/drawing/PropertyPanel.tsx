@@ -191,7 +191,10 @@ export default function PropertyPanel({
   // Render form field with error handling
   const renderFormField = useCallback((field: FormField) => {
     const fieldValue = formValues[field.name];
-    const fieldError = formErrors[field.name]?.message;
+    const fieldErrorObj = formErrors[field.name];
+    const fieldError: string | undefined = typeof fieldErrorObj === 'object' && fieldErrorObj !== null && 'message' in fieldErrorObj
+      ? String(fieldErrorObj.message)
+      : undefined;
 
     return (
       <DynamicFormField

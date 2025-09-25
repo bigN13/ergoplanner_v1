@@ -88,7 +88,7 @@ export default function ValidationSystem({
                 elementType: "node",
                 position: node.position,
                 suggestions: [
-                  `Add tag like ${node.type.toUpperCase()}-101`,
+                  `Add tag like ${node.type?.toUpperCase() || 'SYMBOL'}-101`,
                   "Follow company tagging standards",
                   "Ensure tag is unique in drawing",
                 ],
@@ -167,9 +167,9 @@ export default function ValidationSystem({
           };
 
           nodes.forEach((node) => {
-            const requiredSpecs = criticalSpecs[node.type];
+            const requiredSpecs = node.type ? criticalSpecs[node.type] : undefined;
             if (requiredSpecs) {
-              const missingSpecs = requiredSpecs.filter((spec) => !node.data[spec]);
+              const missingSpecs = requiredSpecs.filter((spec: string) => !node.data[spec]);
               if (missingSpecs.length > 0) {
                 issues.push({
                   id: `missing-specs-${node.id}`,

@@ -129,7 +129,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
     symbolDef.parameters.forEach(param => {
       const value = previewParams[param.name] ?? param.defaultValue;
       const placeholder = new RegExp(`{{${param.name}}}`, 'g');
-      svg = svg.replace(placeholder, value);
+      svg = svg.replace(placeholder, String(value));
     });
 
     // Add default values for common properties
@@ -246,7 +246,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
             </select>
             <input
               type="text"
-              value={currentParameter.defaultValue}
+              value={String(currentParameter.defaultValue)}
               onChange={(e) => setCurrentParameter({ ...currentParameter, defaultValue: e.target.value })}
               placeholder="Default value"
             />
@@ -371,7 +371,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
                   {param.type === 'number' && (
                     <input
                       type="number"
-                      value={previewParams[param.name] ?? param.defaultValue}
+                      value={Number(previewParams[param.name] ?? param.defaultValue)}
                       onChange={(e) => setPreviewParams({
                         ...previewParams,
                         [param.name]: parseFloat(e.target.value)
@@ -383,7 +383,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
                   {param.type === 'string' && (
                     <input
                       type="text"
-                      value={previewParams[param.name] ?? param.defaultValue}
+                      value={String(previewParams[param.name] ?? param.defaultValue)}
                       onChange={(e) => setPreviewParams({
                         ...previewParams,
                         [param.name]: e.target.value
@@ -393,7 +393,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
                   {param.type === 'color' && (
                     <input
                       type="color"
-                      value={previewParams[param.name] ?? param.defaultValue}
+                      value={String(previewParams[param.name] ?? param.defaultValue)}
                       onChange={(e) => setPreviewParams({
                         ...previewParams,
                         [param.name]: e.target.value
@@ -403,7 +403,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
                   {param.type === 'boolean' && (
                     <input
                       type="checkbox"
-                      checked={previewParams[param.name] ?? param.defaultValue}
+                      checked={Boolean(previewParams[param.name] ?? param.defaultValue)}
                       onChange={(e) => setPreviewParams({
                         ...previewParams,
                         [param.name]: e.target.checked
@@ -412,7 +412,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
                   )}
                   {param.type === 'select' && param.options && (
                     <select
-                      value={previewParams[param.name] ?? param.defaultValue}
+                      value={String(previewParams[param.name] ?? param.defaultValue)}
                       onChange={(e) => setPreviewParams({
                         ...previewParams,
                         [param.name]: e.target.value
@@ -450,10 +450,10 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
     let svg = data.svgTemplate;
 
     // Replace parameter placeholders
-    data.parameters.forEach(param => {
-      const value = parameters[param.name] ?? param.defaultValue;
+    data.parameters.forEach((param: SymbolParameter) => {
+      const value = _parameters[param.name] ?? param.defaultValue;
       const placeholder = new RegExp(`{{${param.name}}}`, 'g');
-      svg = svg.replace(placeholder, value);
+      svg = svg.replace(placeholder, String(value));
     });
 
     // Replace default placeholders
@@ -465,7 +465,7 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
       .replace(/{{strokeWidth}}/g, '1.5');
 
     return svg;
-  }, [data]);
+  }, [data, _parameters]);
 
   return (
     <div className={`custom-symbol-node ${selected ? 'selected' : ''}`}>

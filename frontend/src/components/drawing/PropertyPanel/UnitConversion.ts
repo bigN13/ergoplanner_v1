@@ -325,8 +325,8 @@ export function parseValueWithUnit(input: string): {
   }
 
   const [, valueStr, unitStr] = match;
-  const value = parseFloat(valueStr);
-  const unit = unitStr.trim();
+  const value = parseFloat(valueStr || '');
+  const unit = unitStr?.trim() || '';
 
   if (isNaN(value)) {
     return { value: null, unit: null, success: false };

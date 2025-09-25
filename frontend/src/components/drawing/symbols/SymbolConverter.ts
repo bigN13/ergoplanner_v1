@@ -236,13 +236,13 @@ export function convertSymbol(
 
       for (const [key, value] of Object.entries(properties)) {
         // Find the generic property name
-        const genericProp = fromPropertyMap[key];
+        const genericProp = fromPropertyMap?.[key];
 
         if (genericProp) {
           // Find the target property name
-          const targetProp = Object.entries(toPropertyMap).find(
+          const targetProp = toPropertyMap ? Object.entries(toPropertyMap).find(
             ([_, genProp]) => genProp === genericProp
-          )?.[0];
+          )?.[0] : undefined;
 
           if (targetProp) {
             convertedProperties[targetProp] = convertPropertyValue(
@@ -307,13 +307,13 @@ function convertPropertyValue(
 /**
  * Convert flow rate units
  */
-function convertFlowRate(value: string, fromStandard: string, toStandard: string): string {
+function convertFlowRate(value: string, _fromStandard: string, toStandard: string): string {
   // Simplified conversion - in production would use proper unit conversion library
   const match = value.match(/^([\d.]+)\s*(.+)$/);
   if (!match) return value;
 
   const [, numStr, unit] = match;
-  const num = parseFloat(numStr);
+  const num = parseFloat(numStr || '0');
 
   // Convert m³/h to different standards
   if (unit === 'm³/h') {
@@ -331,12 +331,12 @@ function convertFlowRate(value: string, fromStandard: string, toStandard: string
 /**
  * Convert pressure units
  */
-function convertPressure(value: string, fromStandard: string, toStandard: string): string {
+function convertPressure(value: string, _fromStandard: string, toStandard: string): string {
   const match = value.match(/^([\d.]+)\s*(.+)$/);
   if (!match) return value;
 
   const [, numStr, unit] = match;
-  const num = parseFloat(numStr);
+  const num = parseFloat(numStr || '0');
 
   // Convert bar to different standards
   if (unit === 'bar' || unit === 'barg') {
@@ -354,12 +354,12 @@ function convertPressure(value: string, fromStandard: string, toStandard: string
 /**
  * Convert temperature units
  */
-function convertTemperature(value: string, fromStandard: string, toStandard: string): string {
+function convertTemperature(value: string, _fromStandard: string, toStandard: string): string {
   const match = value.match(/^([\d.]+)\s*°?([CF])$/);
   if (!match) return value;
 
   const [, numStr, unit] = match;
-  const num = parseFloat(numStr);
+  const num = parseFloat(numStr || '0');
 
   // Convert Celsius to Fahrenheit for UK Water standard
   if (unit === 'C' && toStandard === 'UK-Water') {
@@ -429,7 +429,7 @@ export function getAvailableConversions(
   const conversions: { standard: string; symbolId: string }[] = [];
   const mappings = SymbolEquivalenceMap[genericType];
 
-  for (const [standard, id] of Object.entries(mappings)) {
+  for (const [standard, id] of Object.entries(mappings || {})) {
     if (standard !== fromStandard && id) {
       conversions.push({ standard, symbolId: id });
     }

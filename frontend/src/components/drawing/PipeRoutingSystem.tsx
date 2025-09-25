@@ -351,6 +351,8 @@ export default function PipeRoutingSystem({
       const newEdge: Edge = {
         ...params,
         id: `pipe-${params.source}-${params.target}-${Date.now()}`,
+        source: params.source || '',
+        target: params.target || '',
         type: "smoothstep",
         animated: showFlowDirection,
         style: {
