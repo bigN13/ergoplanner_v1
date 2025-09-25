@@ -3,6 +3,7 @@
 import { Save, Cloud, CloudOff, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import type { ReactElement } from "react";
+import type { Node, Edge } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawingStore";
 
@@ -46,7 +47,7 @@ export default function AutoSaveManager({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastSaveDataRef = useRef<string>("");
 
-  const { nodes, edges, drawingName, addToHistory } = useDrawingStore();
+  const { nodes, edges, drawingName, markDirty } = useDrawingStore();
 
   // Monitor online status
   useEffect(() => {
@@ -156,14 +157,14 @@ export default function AutoSaveManager({
         onRestore(autoSave);
       } else {
         // Default restore behavior
-        useDrawingStore.getState().setNodes(autoSave.nodes);
-        useDrawingStore.getState().setEdges(autoSave.edges);
+        useDrawingStore.getState().setNodes(autoSave.nodes as Node[]);
+        useDrawingStore.getState().setEdges(autoSave.edges as Edge[]);
         useDrawingStore.getState().setDrawingName(autoSave.metadata.drawingName);
-        addToHistory();
+        markDirty();
       }
       setHasUnsavedChanges(false);
     },
-    [onRestore, addToHistory]
+    [onRestore, markDirty]
   );
 
   // Delete auto-save

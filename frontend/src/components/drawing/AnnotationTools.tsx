@@ -64,7 +64,7 @@ export default function AnnotationTools({
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
-  const { addToHistory } = useDrawingStore();
+  const { markDirty } = useDrawingStore();
 
   const colors = [
     "#ef4444",
@@ -118,17 +118,8 @@ export default function AnnotationTools({
           break;
       }
     },
-    [
-      activeTool,
-      screenToFlowPosition,
-      handleTextAnnotation,
-      handleCalloutAnnotation,
-      handleDimensionAnnotation,
-      handleArrowAnnotation,
-      handleShapeAnnotation,
-      handleFreehandStart,
-      handleHighlightAnnotation,
-    ]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeTool, screenToFlowPosition]
   );
 
   const handleTextAnnotation = useCallback((point: { x: number; y: number }): void => {
@@ -152,8 +143,8 @@ export default function AnnotationTools({
     };
 
     setAnnotations((prev) => [...prev, annotation]);
-    addToHistory();
-  }, [currentColor, currentFontSize, addToHistory]);
+    markDirty();
+  }, [currentColor, currentFontSize, markDirty]);
 
   const handleCalloutAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
@@ -188,9 +179,9 @@ export default function AnnotationTools({
       setAnnotations((prev) => [...prev, annotation]);
       setCurrentAnnotation(null);
       setIsDrawing(false);
-      addToHistory();
+      markDirty();
     }
-  }, [currentAnnotation, currentColor, currentFontSize, addToHistory]);
+  }, [currentAnnotation, currentColor, currentFontSize, markDirty]);
 
   const handleDimensionAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
@@ -230,9 +221,9 @@ export default function AnnotationTools({
       setAnnotations((prev) => [...prev, annotation]);
       setCurrentAnnotation(null);
       setIsDrawing(false);
-      addToHistory();
+      markDirty();
     }
-  }, [currentAnnotation, currentColor, currentStrokeWidth, addToHistory]);
+  }, [currentAnnotation, currentColor, currentStrokeWidth, markDirty]);
 
   const handleArrowAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
@@ -262,9 +253,9 @@ export default function AnnotationTools({
       setAnnotations((prev) => [...prev, annotation]);
       setCurrentAnnotation(null);
       setIsDrawing(false);
-      addToHistory();
+      markDirty();
     }
-  }, [currentAnnotation, currentColor, currentStrokeWidth, addToHistory]);
+  }, [currentAnnotation, currentColor, currentStrokeWidth, markDirty]);
 
   const handleShapeAnnotation = useCallback((point: { x: number; y: number }): void => {
     const shape = "rectangle"; // Default shape, could be made configurable
@@ -297,9 +288,9 @@ export default function AnnotationTools({
       setAnnotations((prev) => [...prev, annotation]);
       setCurrentAnnotation(null);
       setIsDrawing(false);
-      addToHistory();
+      markDirty();
     }
-  }, [currentAnnotation, currentColor, currentStrokeWidth, addToHistory]);
+  }, [currentAnnotation, currentColor, currentStrokeWidth, markDirty]);
 
   const handleFreehandStart = useCallback((point: { x: number; y: number }): void => {
     const annotation: Annotation = {
@@ -351,9 +342,9 @@ export default function AnnotationTools({
       setAnnotations((prev) => [...prev, annotation]);
       setCurrentAnnotation(null);
       setIsDrawing(false);
-      addToHistory();
+      markDirty();
     }
-  }, [currentAnnotation, currentColor, addToHistory]);
+  }, [currentAnnotation, currentColor, markDirty]);
 
   const deleteAnnotation = (id: string): void => {
     setAnnotations((prev) => prev.filter((a) => a.id !== id));
@@ -363,7 +354,7 @@ export default function AnnotationTools({
     //   newSet.delete(id);
     //   return newSet;
     // });
-    addToHistory();
+    markDirty();
   };
 
   const toggleAnnotationVisibility = (id: string): void => {
@@ -382,7 +373,7 @@ export default function AnnotationTools({
       setAnnotations([]);
       // TODO: Implement selectedAnnotations state if needed
       // setSelectedAnnotations(new Set());
-      addToHistory();
+      markDirty();
     }
   };
 
@@ -422,16 +413,16 @@ export default function AnnotationTools({
                     x={screenPos.x}
                     y={screenPos.y}
                     fill={annotation.style.color}
-                    fontSize={annotation.style.fontSize}
-                    fontWeight={annotation.style.fontWeight}
+                    fontSize={annotation.style.fontSize as number}
+                    fontWeight={annotation.style.fontWeight as string}
                   >
-                    {annotation.data.text}
+                    {String(annotation.data.text)}
                   </text>
                 );
 
               case "arrow":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint);
+                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
                   return (
                     <g key={annotation.id}>
                       <defs>
@@ -452,7 +443,7 @@ export default function AnnotationTools({
                         x2={endScreen.x}
                         y2={endScreen.y}
                         stroke={annotation.style.color}
-                        strokeWidth={annotation.style.strokeWidth}
+                        strokeWidth={annotation.style.strokeWidth as number}
                         markerEnd={`url(#arrowhead-${annotation.id})`}
                       />
                     </g>
@@ -462,7 +453,7 @@ export default function AnnotationTools({
 
               case "dimension":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint);
+                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
                   const midX = (screenPos.x + endScreen.x) / 2;
                   const midY = (screenPos.y + endScreen.y) / 2;
                   return (
@@ -473,7 +464,7 @@ export default function AnnotationTools({
                         x2={endScreen.x}
                         y2={endScreen.y}
                         stroke={annotation.style.color}
-                        strokeWidth={annotation.style.strokeWidth}
+                        strokeWidth={annotation.style.strokeWidth as number}
                       />
                       <text
                         x={midX}
@@ -482,7 +473,7 @@ export default function AnnotationTools({
                         fontSize="12"
                         textAnchor="middle"
                       >
-                        {annotation.data.value} {annotation.data.unit}
+                        {String(annotation.data.value)} {String(annotation.data.unit)}
                       </text>
                     </g>
                   );
@@ -491,7 +482,7 @@ export default function AnnotationTools({
 
               case "shape":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint);
+                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
                   const width = endScreen.x - screenPos.x;
                   const height = endScreen.y - screenPos.y;
                   return (
@@ -501,7 +492,7 @@ export default function AnnotationTools({
                       y={screenPos.y}
                       width={width}
                       height={height}
-                      fill={annotation.style.backgroundColor || "transparent"}
+                      fill={String(annotation.style.backgroundColor || "transparent")}
                       stroke={annotation.style.color}
                       strokeWidth={annotation.style.strokeWidth}
                     />
@@ -511,7 +502,7 @@ export default function AnnotationTools({
 
               case "callout":
                 if (annotation.data.targetPoint) {
-                  const targetScreen = flowToScreenPosition(annotation.data.targetPoint);
+                  const targetScreen = flowToScreenPosition(annotation.data.targetPoint as { x: number; y: number });
                   return (
                     <g key={annotation.id}>
                       <line
@@ -536,10 +527,10 @@ export default function AnnotationTools({
                         x={screenPos.x}
                         y={screenPos.y + 5}
                         fill={annotation.style.color}
-                        fontSize={annotation.style.fontSize}
+                        fontSize={annotation.style.fontSize as number}
                         textAnchor="middle"
                       >
-                        {annotation.data.text}
+                        {String(annotation.data.text)}
                       </text>
                     </g>
                   );
@@ -571,7 +562,7 @@ export default function AnnotationTools({
 
               case "highlight":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint);
+                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
                   return (
                     <line
                       key={annotation.id}
@@ -581,7 +572,7 @@ export default function AnnotationTools({
                       y2={endScreen.y}
                       stroke={annotation.style.color}
                       strokeWidth={annotation.style.strokeWidth}
-                      opacity={annotation.style.opacity}
+                      opacity={annotation.style.opacity as number}
                       strokeLinecap="round"
                     />
                   );
@@ -752,9 +743,9 @@ export default function AnnotationTools({
                       style={{ backgroundColor: annotation.style.color }}
                     />
                     <span className="font-medium capitalize">{annotation.type}</span>
-                    {annotation.data.text && (
+                    {Boolean(annotation.data.text) && (
                       <span className="max-w-20 truncate text-gray-500">
-                        &quot;{annotation.data.text}&quot;
+                        &quot;{String(annotation.data.text)}&quot;
                       </span>
                     )}
                   </div>

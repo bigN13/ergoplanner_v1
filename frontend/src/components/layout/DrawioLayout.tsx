@@ -5,6 +5,7 @@ import React, { useState, useRef } from "react";
 
 import DrawingCanvas from "@/components/drawing/DrawingCanvas";
 import DrawingToolbar from "@/components/drawing/DrawingToolbar";
+import EditOperationsToolbar from "@/components/drawing/EditOperationsToolbar";
 import LayersPanel from "@/components/drawing/LayersPanel";
 import MainToolbar from "@/components/drawing/MainToolbar";
 import PropertyPanel from "@/components/drawing/PropertyPanel";
@@ -99,6 +100,9 @@ export default function DrawioLayout({ children: _children }: DrawioLayoutProps)
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
       {/* Main Toolbar */}
       <MainToolbar />
+
+      {/* Edit Operations Toolbar */}
+      <EditOperationsToolbar className="border-b border-gray-200" orientation="horizontal" />
 
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">

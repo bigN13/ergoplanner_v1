@@ -62,11 +62,11 @@ export default function ContextMenu({
   const [submenuOpen, setSubmenuOpen] = useState<string | null>(null);
   const [clipboard, setClipboard] = useState<unknown>(null);
 
-  const { deleteNode, deleteEdge, duplicateNode, addToHistory } = useDrawingStore();
+  const { deleteNode, deleteEdge, markDirty, addNode } = useDrawingStore();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (menuRef.current && !menuRef.current.contains(event.target as HTMLElement)) {
         onClose();
       }
     };
@@ -125,19 +125,37 @@ export default function ContextMenu({
       selectedNodes.forEach((node) => deleteNode(node.id));
       onAction("delete", selectedNodes);
     }
-    addToHistory();
+    markDirty();
     onClose();
   };
 
   const handleDuplicate = (): void => {
     if (selectedNode) {
-      duplicateNode(selectedNode.id);
-      onAction("duplicate", selectedNode);
+      const newNode = {
+        ...selectedNode,
+        id: `${selectedNode.id}-copy-${Date.now()}`,
+        position: {
+          x: selectedNode.position.x + 20,
+          y: selectedNode.position.y + 20,
+        },
+      };
+      addNode(newNode);
+      onAction("duplicate", newNode);
     } else if (selectedNodes.length > 0) {
-      selectedNodes.forEach((node) => duplicateNode(node.id));
+      selectedNodes.forEach((node) => {
+        const newNode = {
+          ...node,
+          id: `${node.id}-copy-${Date.now()}`,
+          position: {
+            x: node.position.x + 20,
+            y: node.position.y + 20,
+          },
+        };
+        addNode(newNode);
+      });
       onAction("duplicate", selectedNodes);
     }
-    addToHistory();
+    markDirty();
     onClose();
   };
 

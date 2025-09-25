@@ -26,6 +26,22 @@ export interface ToolState {
   };
 }
 
+// Clipboard data interface
+export interface ClipboardData {
+  nodes: Node[];
+  edges: Edge[];
+  timestamp: Date;
+  sourceDrawingId: string;
+}
+
+// Format painter data
+export interface FormatData {
+  style?: React.CSSProperties;
+  nodeType?: string;
+  edgeType?: string;
+  data?: Record<string, unknown>;
+}
+
 export interface DrawingState {
   // Core state
   nodes: Node[];
@@ -35,6 +51,13 @@ export interface DrawingState {
 
   // Command-based history (replaces old history system)
   commandManager: CommandManager | null;
+
+  // Clipboard state
+  clipboardData: ClipboardData | null;
+
+  // Format painter state
+  formatPainterData: FormatData | null;
+  isFormatPainterActive: boolean;
 
   // Drawing metadata
   drawingId: string | null;
@@ -80,6 +103,20 @@ export interface DrawingState {
   getHistoryItems: () => HistoryItem[];
   clearHistory: () => void;
   initializeCommandManager: () => void;
+  getHistoryDescription: (index: number) => string;
+
+  // Clipboard actions
+  copyToClipboard: (nodes: Node[], edges: Edge[]) => void;
+  cutToClipboard: (nodes: Node[], edges: Edge[]) => void;
+  pasteFromClipboard: (position?: { x: number; y: number }) => void;
+  pasteSpecial: (mode: "formatting" | "values" | "duplicate") => void;
+  clearClipboard: () => void;
+  hasClipboardData: () => boolean;
+
+  // Format painter actions
+  setFormatPainter: (data: FormatData | null) => void;
+  applyFormat: (targetIds: string[]) => void;
+  toggleFormatPainter: () => void;
 
   // Drawing management
   newDrawing: () => void;
@@ -164,6 +201,9 @@ const initialState = {
   selectedNodeId: null,
   selectedEdgeId: null,
   commandManager: null,
+  clipboardData: null,
+  formatPainterData: null,
+  isFormatPainterActive: false,
   drawingId: null,
   drawingName: "Untitled Drawing",
   lastSaved: null,
@@ -241,7 +281,6 @@ export const useDrawingStore = create<DrawingState>()(
         } as Edge;
         const updatedEdges = addEdge(newEdge, edges);
         set({ edges: updatedEdges, isDirty: true });
-        get().pushHistory();
       },
 
       addNode: (node) => {
@@ -305,7 +344,6 @@ export const useDrawingStore = create<DrawingState>()(
           },
         };
         set({ edges: [...edges, edgeWithLayer], isDirty: true });
-        get().pushHistory();
       },
 
       updateEdge: (edgeId, updates) => {
@@ -320,7 +358,6 @@ export const useDrawingStore = create<DrawingState>()(
         const { edges } = get();
         const filteredEdges = edges.filter((e) => e.id !== edgeId);
         set({ edges: filteredEdges, selectedEdgeId: null, isDirty: true });
-        get().pushHistory();
       },
 
       deleteSelectedEdge: () => {
@@ -380,6 +417,143 @@ export const useDrawingStore = create<DrawingState>()(
         if (commandManager) {
           commandManager.clearHistory();
         }
+      },
+
+      getHistoryDescription: (index) => {
+        const { commandManager } = get();
+        if (commandManager) {
+          const history = commandManager.getHistory();
+          return history[index]?.action || "";
+        }
+        return "";
+      },
+
+      // Clipboard actions
+      copyToClipboard: (nodes, edges) => {
+        const { drawingId } = get();
+        const clipboardData: ClipboardData = {
+          nodes: JSON.parse(JSON.stringify(nodes)), // Deep clone
+          edges: JSON.parse(JSON.stringify(edges)),
+          timestamp: new Date(),
+          sourceDrawingId: drawingId || "",
+        };
+        set({ clipboardData });
+      },
+
+      cutToClipboard: (nodes, edges) => {
+        const state = get();
+        state.copyToClipboard(nodes, edges);
+
+        // Remove the nodes and edges from the drawing
+        const remainingNodes = state.nodes.filter(n => !nodes.find(cn => cn.id === n.id));
+        const remainingEdges = state.edges.filter(e => !edges.find(ce => ce.id === e.id));
+        set({
+          nodes: remainingNodes,
+          edges: remainingEdges,
+          isDirty: true
+        });
+      },
+
+      pasteFromClipboard: (position) => {
+        const { clipboardData, nodes, edges } = get();
+        if (!clipboardData) return;
+
+        // Calculate offset for pasting
+        const offsetX = position?.x || 50;
+        const offsetY = position?.y || 50;
+
+        // Create new nodes with offset and new IDs
+        const nodeIdMap = new Map<string, string>();
+        const pastedNodes = clipboardData.nodes.map(node => {
+          const newId = `${node.id}-copy-${Date.now()}`;
+          nodeIdMap.set(node.id, newId);
+          return {
+            ...node,
+            id: newId,
+            position: {
+              x: node.position.x + offsetX,
+              y: node.position.y + offsetY,
+            },
+          };
+        });
+
+        // Create new edges with updated source/target IDs
+        const pastedEdges = clipboardData.edges.map(edge => ({
+          ...edge,
+          id: `${edge.id}-copy-${Date.now()}`,
+          source: nodeIdMap.get(edge.source) || edge.source,
+          target: nodeIdMap.get(edge.target) || edge.target,
+        }));
+
+        set({
+          nodes: [...nodes, ...pastedNodes],
+          edges: [...edges, ...pastedEdges],
+          isDirty: true,
+        });
+      },
+
+      pasteSpecial: (mode) => {
+        const { clipboardData } = get();
+        if (!clipboardData) return;
+
+        switch (mode) {
+          case "formatting":
+            // Apply only formatting from clipboard data
+            // This would apply styles, colors, etc. without data
+            break;
+          case "values":
+            // Apply only values without formatting
+            get().pasteFromClipboard();
+            break;
+          case "duplicate":
+            // Create a duplicate with slight offset
+            get().pasteFromClipboard({ x: 20, y: 20 });
+            break;
+        }
+      },
+
+      clearClipboard: () => {
+        set({ clipboardData: null });
+      },
+
+      hasClipboardData: () => {
+        const { clipboardData } = get();
+        return clipboardData !== null;
+      },
+
+      // Format painter actions
+      setFormatPainter: (data) => {
+        set({
+          formatPainterData: data,
+          isFormatPainterActive: data !== null
+        });
+      },
+
+      applyFormat: (targetIds) => {
+        const { formatPainterData, nodes } = get();
+        if (!formatPainterData) return;
+
+        const updatedNodes = nodes.map(node => {
+          if (targetIds.includes(node.id)) {
+            return {
+              ...node,
+              type: formatPainterData.nodeType || node.type,
+              style: { ...node.style, ...formatPainterData.style },
+              data: { ...node.data, ...formatPainterData.data },
+            };
+          }
+          return node;
+        });
+
+        set({ nodes: updatedNodes, isDirty: true });
+      },
+
+      toggleFormatPainter: () => {
+        const { isFormatPainterActive } = get();
+        set({
+          isFormatPainterActive: !isFormatPainterActive,
+          formatPainterData: !isFormatPainterActive ? null : get().formatPainterData
+        });
       },
 
       newDrawing: () => {

@@ -138,7 +138,7 @@ function DrawingCanvasContent(): React.ReactElement {
     const hasInitialized = localStorage.getItem("ergoplanner-has-initialized");
     if (!hasInitialized) {
       useDrawingStore.getState().newDrawing();
-      useDrawingStore.getState().pushHistory();
+      useDrawingStore.getState().markDirty();
       localStorage.setItem("ergoplanner-has-initialized", "true");
     }
   }, []);
@@ -364,14 +364,14 @@ function DrawingCanvasContent(): React.ReactElement {
 
   // Mouse position tracking
   const handleMouseMove = useCallback(
-    (event: React.MouseEvent) => {
+    (_event: React.MouseEvent) => {
       if (reactFlowInstance) {
         const rect = reactFlowWrapper.current?.getBoundingClientRect();
         if (rect) {
-          const _flowPosition = reactFlowInstance.project({
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-          });
+          // const flowPosition = reactFlowInstance.project({
+          //   x: event.clientX - rect.left,
+          //   y: event.clientY - rect.top,
+          // });
           // setMousePosition(flowPosition);
         }
       }
@@ -403,7 +403,7 @@ function DrawingCanvasContent(): React.ReactElement {
             nodeTypes={nodeTypes}
             snapToGrid={snapToGrid}
             snapGrid={[gridSize, gridSize]}
-            connectionMode="loose"
+            // connectionMode="loose"
             fitView
             panOnDrag={tool === "pan"}
             panOnScroll={true}
