@@ -4,13 +4,13 @@ import {
   Search,
   ChevronDown,
   ChevronRight,
-  Star,
+  // Star,
   Clock,
   Grid,
   List,
   Filter,
   X,
-  Tag,
+  // Tag,
   Heart,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
@@ -21,7 +21,7 @@ export interface Symbol {
   label: string;
   category: string;
   icon: React.ReactNode;
-  defaultData: any;
+  defaultData: Record<string, unknown>;
   tags?: string[];
   description?: string;
   standard?: "ISA-5.1" | "ISO-14617" | "UK-Water";
@@ -250,10 +250,10 @@ const symbolCategories = [
 ];
 
 interface SymbolLibraryProps {
-  onDragStart: (event: React.DragEvent, nodeType: string, data: any) => void;
+  onDragStart: (event: React.DragEvent, nodeType: string, data: Record<string, unknown>) => void;
 }
 
-export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
+export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(symbolCategories.map((cat) => cat.name))
@@ -289,7 +289,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     localStorage.setItem("ergoplanner-recent-symbols", JSON.stringify(recentlyUsed));
   }, [recentlyUsed]);
 
-  const toggleCategory = (categoryName: string) => {
+  const toggleCategory = (categoryName: string): void => {
     const newExpanded = new Set(expandedCategories);
     if (newExpanded.has(categoryName)) {
       newExpanded.delete(categoryName);
@@ -352,7 +352,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     ];
   }, [filteredCategories, recentlyUsed]);
 
-  const toggleFavorite = (symbolId: string) => {
+  const toggleFavorite = (symbolId: string): void => {
     const newFavorites = new Set(favorites);
     if (newFavorites.has(symbolId)) {
       newFavorites.delete(symbolId);
@@ -362,18 +362,18 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     setFavorites(newFavorites);
   };
 
-  const addToRecentlyUsed = (symbol: Symbol) => {
+  const addToRecentlyUsed = (symbol: Symbol): void => {
     const filtered = recentlyUsed.filter((s) => s.id !== symbol.id);
     const newRecent = [symbol, ...filtered].slice(0, 10); // Keep max 10 recent items
     setRecentlyUsed(newRecent);
   };
 
-  const handleDragStart = (event: React.DragEvent, symbol: Symbol) => {
+  const handleDragStart = (event: React.DragEvent, symbol: Symbol): void => {
     addToRecentlyUsed(symbol);
     onDragStart(event, symbol.type, symbol.defaultData);
   };
 
-  const toggleTag = (tag: string) => {
+  const toggleTag = (tag: string): void => {
     const newTags = new Set(selectedTags);
     if (newTags.has(tag)) {
       newTags.delete(tag);
@@ -383,13 +383,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     setSelectedTags(newTags);
   };
 
-  const clearFilters = () => {
+  const clearFilters = (): void => {
     setSearchTerm("");
     setSelectedTags(new Set());
     setSelectedStandard("all");
   };
 
-  const renderSymbolIcon = (type: string) => {
+  const renderSymbolIcon = (type: string): React.ReactNode => {
     // Simplified icon representations for the library
     const iconMap: { [key: string]: React.ReactNode } = {
       pump: (

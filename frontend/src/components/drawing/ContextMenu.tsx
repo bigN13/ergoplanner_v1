@@ -9,11 +9,11 @@ import {
   Move,
   Lock,
   Unlock,
-  Eye,
-  EyeOff,
-  Layers,
+  // Eye,
+  // EyeOff,
+  // Layers,
   Settings,
-  Info,
+  // Info,
   ArrowUp,
   ArrowDown,
   Group,
@@ -35,7 +35,7 @@ interface ContextMenuProps {
   selectedEdge?: Edge | null;
   selectedNodes?: Node[];
   onClose: () => void;
-  onAction: (action: string, data?: any) => void;
+  onAction: (action: string, data?: unknown) => void;
 }
 
 interface MenuItem {
@@ -57,22 +57,21 @@ export default function ContextMenu({
   selectedNodes = [],
   onClose,
   onAction,
-}: ContextMenuProps) {
+}: ContextMenuProps): React.ReactElement {
   const menuRef = useRef<HTMLDivElement>(null);
   const [submenuOpen, setSubmenuOpen] = useState<string | null>(null);
-  const [clipboard, setClipboard] = useState<any>(null);
+  const [clipboard, setClipboard] = useState<unknown>(null);
 
-  const { deleteNode, deleteEdge, duplicateNode, copyNode, pasteNode, addToHistory } =
-    useDrawingStore();
+  const { deleteNode, deleteEdge, duplicateNode, addToHistory } = useDrawingStore();
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleEscape = (event: KeyboardEvent): void => {
       if (event.key === "Escape") {
         onClose();
       }
@@ -90,9 +89,9 @@ export default function ContextMenu({
   const hasSelection = selectedNode || selectedEdge || selectedNodes.length > 0;
   const isMultipleSelection = selectedNodes.length > 1;
   const isNodeSelected = selectedNode || selectedNodes.length > 0;
-  const isEdgeSelected = selectedEdge;
+  // const isEdgeSelected = selectedEdge; // Currently unused
 
-  const handleCopy = () => {
+  const handleCopy = (): void => {
     if (selectedNode) {
       setClipboard({ type: "node", data: selectedNode });
       onAction("copy", selectedNode);
@@ -103,19 +102,19 @@ export default function ContextMenu({
     onClose();
   };
 
-  const handleCut = () => {
+  const handleCut = (): void => {
     handleCopy();
     handleDelete();
   };
 
-  const handlePaste = () => {
+  const handlePaste = (): void => {
     if (clipboard) {
       onAction("paste", { clipboard, position: { x, y } });
     }
     onClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = (): void => {
     if (selectedNode) {
       deleteNode(selectedNode.id);
       onAction("delete", selectedNode);
@@ -130,7 +129,7 @@ export default function ContextMenu({
     onClose();
   };
 
-  const handleDuplicate = () => {
+  const handleDuplicate = (): void => {
     if (selectedNode) {
       duplicateNode(selectedNode.id);
       onAction("duplicate", selectedNode);
@@ -142,7 +141,7 @@ export default function ContextMenu({
     onClose();
   };
 
-  const handleRotate = (direction: "cw" | "ccw") => {
+  const handleRotate = (direction: "cw" | "ccw"): void => {
     const rotation = direction === "cw" ? 90 : -90;
     onAction("rotate", {
       rotation,
@@ -151,36 +150,36 @@ export default function ContextMenu({
     onClose();
   };
 
-  const handleLock = () => {
+  const handleLock = (): void => {
     onAction("lock", selectedNodes.length > 0 ? selectedNodes : [selectedNode]);
     onClose();
   };
 
-  const handleUnlock = () => {
+  const handleUnlock = (): void => {
     onAction("unlock", selectedNodes.length > 0 ? selectedNodes : [selectedNode]);
     onClose();
   };
 
-  const handleLayerAction = (action: string) => {
+  const handleLayerAction = (action: string): void => {
     onAction(`layer-${action}`, selectedNodes.length > 0 ? selectedNodes : [selectedNode]);
     onClose();
   };
 
-  const handleAlign = (alignment: string) => {
+  const handleAlign = (alignment: string): void => {
     if (selectedNodes.length > 1) {
       onAction("align", { alignment, nodes: selectedNodes });
     }
     onClose();
   };
 
-  const handleGroup = () => {
+  const handleGroup = (): void => {
     if (selectedNodes.length > 1) {
       onAction("group", selectedNodes);
     }
     onClose();
   };
 
-  const handleUngroup = () => {
+  const handleUngroup = (): void => {
     onAction("ungroup", selectedNodes.length > 0 ? selectedNodes : [selectedNode]);
     onClose();
   };
@@ -197,7 +196,7 @@ export default function ContextMenu({
     {
       id: "cut",
       label: "Cut",
-      icon: <Cut className="h-4 w-4" />,
+      icon: <Clipboard className="h-4 w-4" />,
       shortcut: "Ctrl+X",
       disabled: !hasSelection,
       action: handleCut,
@@ -428,7 +427,7 @@ export default function ContextMenu({
     },
   ];
 
-  const renderMenuItem = (item: MenuItem, level = 0) => {
+  const renderMenuItem = (item: MenuItem, level = 0): React.ReactElement => {
     if (item.divider) {
       return <div key={item.id} className="my-1 border-t border-gray-200" />;
     }
@@ -452,7 +451,7 @@ export default function ContextMenu({
     );
   };
 
-  const renderSubmenu = (items: MenuItem[], parentId: string) => {
+  const renderSubmenu = (items: MenuItem[], parentId: string): React.ReactElement | null => {
     if (submenuOpen !== parentId) return null;
 
     return (

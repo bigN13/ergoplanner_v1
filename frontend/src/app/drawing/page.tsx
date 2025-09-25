@@ -15,6 +15,6 @@ const DrawioLayout = dynamic(
   }
 );
 
-export default function DrawingPage() {
+export default function DrawingPage(): React.JSX.Element {
   return <DrawioLayout />;
 }

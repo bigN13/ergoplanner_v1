@@ -1,12 +1,16 @@
 // Dock Layout Types
-import type { LayoutData } from "rc-dock";
-import { TabData } from "rc-dock";
+import type { LayoutData, TabData as RcDockTabData } from "rc-dock";
 import type React from "react";
+
+// Extended TabData to allow string content (panel component keys)
+export interface TabData extends Omit<RcDockTabData, 'content'> {
+  content?: string | React.ReactElement | ((tab: TabData) => React.ReactElement);
+}
 
 export interface DockPanelConfig {
   id: string;
   title: string;
-  content: React.ComponentType<any>;
+  content: React.ComponentType<Record<string, unknown>>;
   closable?: boolean;
   minWidth?: number;
   minHeight?: number;
@@ -27,7 +31,7 @@ export interface PanelProps {
   panelId: string;
   isActive: boolean;
   onClose?: () => void;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export interface LayoutPreset {

@@ -40,7 +40,7 @@ export interface BoQItem {
   type: string;
   label: string;
   quantity: number;
-  specifications: Record<string, any>;
+  specifications: Record<string, unknown>;
 }
 
 export const calculateBoQ = (nodes: Node[]): BoQItem[] => {
@@ -50,7 +50,7 @@ export const calculateBoQ = (nodes: Node[]): BoQItem[] => {
     const key = `${node.type}-${JSON.stringify(node.data)}`;
 
     if (boqMap.has(key)) {
-      const item = boqMap.get(key)!;
+      const item = boqMap.get(key) as BoQItem;
       item.quantity += 1;
     } else {
       boqMap.set(key, {
@@ -99,14 +99,14 @@ export const importFromJSON = (jsonString: string): { nodes: Node[]; edges: Edge
     }
 
     // Validate and sanitize imported data
-    const nodes = data.nodes.map((node: any) => ({
+    const nodes = data.nodes.map((node: Record<string, unknown>) => ({
       ...node,
       id: node.id || generateId("imported-node"),
       position: node.position || { x: 0, y: 0 },
       data: node.data || {},
     }));
 
-    const edges = data.edges.map((edge: any) => ({
+    const edges = data.edges.map((edge: Record<string, unknown>) => ({
       ...edge,
       id: edge.id || generateId("imported-edge"),
     }));
@@ -256,7 +256,7 @@ export const validateDiagram = (nodes: Node[], edges: Edge[]): ValidationIssue[]
       if (!labels.has(node.data.label)) {
         labels.set(node.data.label, []);
       }
-      labels.get(node.data.label)!.push(node.id);
+      (labels.get(node.data.label) as string[]).push(node.id);
     }
   });
 

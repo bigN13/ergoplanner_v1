@@ -4,12 +4,12 @@ import {
   AlertTriangle,
   AlertCircle,
   CheckCircle,
-  X,
-  Eye,
-  EyeOff,
+  // X,
+  // Eye,
+  // EyeOff,
   RefreshCcw,
-  Settings,
-  Filter,
+  // Settings,
+  // Filter,
   Download,
 } from "lucide-react";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
@@ -50,16 +50,17 @@ export default function ValidationSystem({
   className = "",
   visible = true,
   onToggle,
-}: ValidationSystemProps) {
+}: ValidationSystemProps): React.JSX.Element | null {
   const [issues, setIssues] = useState<ValidationIssue[]>([]);
-  const [selectedIssue, setSelectedIssue] = useState<ValidationIssue | null>(null);
+  const [_selectedIssue, _setSelectedIssue] = useState<ValidationIssue | null>(null);
   const [autoValidate, setAutoValidate] = useState(true);
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [highlightIssues, setHighlightIssues] = useState(true);
   const [isValidating, setIsValidating] = useState(false);
 
-  const { nodes, edges, updateNode, updateEdge } = useDrawingStore();
+  const { nodes, edges, updateNode } = useDrawingStore();
+  // const updateEdge = useDrawingStore((state) => state.updateEdge); // TODO: Implement if needed
 
   // Define validation rules
   const validationRules: ValidationRule[] = useMemo(
@@ -115,7 +116,10 @@ export default function ValidationSystem({
               if (!tagMap.has(tag)) {
                 tagMap.set(tag, []);
               }
-              tagMap.get(tag)!.push(node);
+              const tagArray = tagMap.get(tag);
+              if (tagArray) {
+                tagArray.push(node);
+              }
             }
           });
 
@@ -491,9 +495,10 @@ export default function ValidationSystem({
   const navigateToIssue = useCallback((issue: ValidationIssue) => {
     if (issue.position) {
       // Scroll to element position (implementation depends on your scroll mechanism)
-      console.log("Navigate to:", issue.position);
+      // TODO: Implement navigation to issue position
+      // console.log("Navigate to:", issue.position);
     }
-    setSelectedIssue(issue);
+    // _setSelectedIssue(issue); // TODO: Implement if needed
   }, []);
 
   // Export validation report

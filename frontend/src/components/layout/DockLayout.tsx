@@ -1,6 +1,6 @@
 "use client";
 
-import type { LayoutData, TabData, PanelData } from "rc-dock";
+import type { LayoutData, PanelData } from "rc-dock";
 import DockLayout from "rc-dock";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 
@@ -15,18 +15,18 @@ import SymbolLibrary from "@/components/drawing/SymbolLibrary";
 import Toolbar from "@/components/drawing/Toolbar";
 import { useEnhancedDrawingStore } from "@/store/enhanced-drawing-store";
 import { DEFAULT_LAYOUT_PRESETS } from "@/types/dock-layout";
-import type { DockLayoutConfig, PanelProps } from "@/types/dock-layout";
+import type { DockLayoutConfig, PanelProps, TabData } from "@/types/dock-layout";
 
 // Panel component mapping
 const PANEL_COMPONENTS: Record<string, React.ComponentType<PanelProps>> = {
-  DrawingCanvas: DrawingCanvas as any,
-  SymbolLibrary: SymbolLibrary as any,
-  PropertyPanel: PropertyPanel as any,
-  Toolbar: Toolbar as any,
-  LayersPanel: LayersPanel as any,
-  BoQPanel: BoQPanel as any,
-  MinimapPanel: MinimapPanel as any,
-  HistoryPanel: HistoryPanel as any,
+  DrawingCanvas: DrawingCanvas as React.ComponentType<PanelProps>,
+  SymbolLibrary: SymbolLibrary as React.ComponentType<PanelProps>,
+  PropertyPanel: PropertyPanel as React.ComponentType<PanelProps>,
+  Toolbar: Toolbar as React.ComponentType<PanelProps>,
+  LayersPanel: LayersPanel as React.ComponentType<PanelProps>,
+  BoQPanel: BoQPanel as React.ComponentType<PanelProps>,
+  MinimapPanel: MinimapPanel as React.ComponentType<PanelProps>,
+  HistoryPanel: HistoryPanel as React.ComponentType<PanelProps>,
 };
 
 interface DockLayoutWrapperProps {
@@ -65,7 +65,7 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   }, [config]);
 
   // Save layout to localStorage on change
-  const handleLayoutChange = (newLayout: LayoutData | null) => {
+  const handleLayoutChange = (newLayout: LayoutData | null): void => {
     if (!newLayout) return;
 
     setLayout(newLayout);
@@ -115,14 +115,14 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   );
 
   // Reset layout to default
-  const resetLayout = () => {
+  const resetLayout = (): void => {
     const defaultLayout = DEFAULT_LAYOUT_PRESETS[0].layout;
     setLayout(defaultLayout);
     handleLayoutChange(defaultLayout);
   };
 
   // Load preset layout
-  const loadPreset = (presetIndex: number) => {
+  const loadPreset = (presetIndex: number): void => {
     const preset = DEFAULT_LAYOUT_PRESETS[presetIndex];
     if (preset) {
       setLayout(preset.layout);
@@ -131,7 +131,7 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   };
 
   // Export current layout
-  const exportLayout = () => {
+  const exportLayout = (): void => {
     const dataStr = JSON.stringify(layout, null, 2);
     const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
     const exportFileDefaultName = "layout.json";
@@ -143,7 +143,7 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   };
 
   // Import layout from file
-  const importLayout = (file: File) => {
+  const importLayout = (file: File): void => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {

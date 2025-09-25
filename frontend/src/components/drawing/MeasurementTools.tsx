@@ -3,16 +3,16 @@
 import {
   Ruler,
   Square,
-  Circle,
+  // Circle,
   Calculator,
   Crosshair,
   MousePointer,
-  Grid3x3,
-  ArrowRight,
-  RotateCcw,
+  // Grid3x3,
+  // ArrowRight,
+  // RotateCcw,
   Trash2,
 } from "lucide-react";
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useReactFlow } from "reactflow";
 
 interface Point {
@@ -40,7 +40,7 @@ export default function MeasurementTools({
   className = "",
   visible = true,
   onToggle,
-}: MeasurementToolsProps) {
+}: MeasurementToolsProps): React.JSX.Element | null {
   const [activeTool, setActiveTool] = useState<
     "select" | "distance" | "area" | "angle" | "coordinate"
   >("select");
@@ -48,14 +48,14 @@ export default function MeasurementTools({
   const [currentMeasurement, setCurrentMeasurement] = useState<Partial<Measurement> | null>(null);
   const [unit, setUnit] = useState<"mm" | "cm" | "m" | "in" | "ft">("m");
   const [scale, setScale] = useState(1); // pixels per unit
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [_isDrawing, setIsDrawing] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
 
   // Handle canvas click for measurements
   const handleCanvasClick = useCallback(
-    (event: React.MouseEvent) => {
+    (event: React.MouseEvent): void => {
       if (activeTool === "select") return;
 
       const rect = canvasRef.current?.getBoundingClientRect();
@@ -83,10 +83,17 @@ export default function MeasurementTools({
           break;
       }
     },
-    [activeTool, currentMeasurement, screenToFlowPosition]
+    [
+      activeTool,
+      screenToFlowPosition,
+      handleDistanceMeasurement,
+      handleAreaMeasurement,
+      handleAngleMeasurement,
+      handleCoordinateMeasurement,
+    ]
   );
 
-  const handleDistanceMeasurement = (point: Point) => {
+  const handleDistanceMeasurement = useCallback((point: Point): void => {
     if (!currentMeasurement) {
       setCurrentMeasurement({
         id: `distance-${Date.now()}`,
@@ -110,9 +117,9 @@ export default function MeasurementTools({
       setCurrentMeasurement(null);
       setIsDrawing(false);
     }
-  };
+  }, [currentMeasurement, unit, scale]);
 
-  const handleAreaMeasurement = (point: Point) => {
+  const handleAreaMeasurement = useCallback((point: Point): void => {
     if (!currentMeasurement) {
       setCurrentMeasurement({
         id: `area-${Date.now()}`,
@@ -156,9 +163,9 @@ export default function MeasurementTools({
         });
       }
     }
-  };
+  }, [currentMeasurement, unit, scale]);
 
-  const handleAngleMeasurement = (point: Point) => {
+  const handleAngleMeasurement = useCallback((point: Point): void => {
     if (!currentMeasurement) {
       setCurrentMeasurement({
         id: `angle-${Date.now()}`,
@@ -190,9 +197,9 @@ export default function MeasurementTools({
         });
       }
     }
-  };
+  }, [currentMeasurement]);
 
-  const handleCoordinateMeasurement = (point: Point) => {
+  const handleCoordinateMeasurement = useCallback((point: Point): void => {
     const measurement: Measurement = {
       id: `coord-${Date.now()}`,
       type: "coordinate",
@@ -203,7 +210,7 @@ export default function MeasurementTools({
     };
 
     setMeasurements((prev) => [...prev, measurement]);
-  };
+  }, [unit, scale]);
 
   // Calculation functions
   const calculateDistance = (p1: Point, p2: Point): number => {
@@ -229,17 +236,17 @@ export default function MeasurementTools({
     return angle > 180 ? 360 - angle : angle;
   };
 
-  const deleteMeasurement = (id: string) => {
+  const deleteMeasurement = (id: string): void => {
     setMeasurements((prev) => prev.filter((m) => m.id !== id));
   };
 
-  const clearAllMeasurements = () => {
+  const clearAllMeasurements = (): void => {
     setMeasurements([]);
     setCurrentMeasurement(null);
     setIsDrawing(false);
   };
 
-  const exportMeasurements = () => {
+  const exportMeasurements = (): void => {
     const data = {
       measurements: measurements.map((m) => ({
         type: m.type,
@@ -262,7 +269,7 @@ export default function MeasurementTools({
   };
 
   // Render measurement overlay
-  const renderMeasurementOverlay = () => {
+  const renderMeasurementOverlay = (): React.JSX.Element => {
     return (
       <svg className="pointer-events-none absolute inset-0" style={{ zIndex: 1000 }}>
         {/* Render existing measurements */}
@@ -510,7 +517,7 @@ export default function MeasurementTools({
             <label className="mb-1 block text-xs text-gray-500">Unit</label>
             <select
               value={unit}
-              onChange={(e) => setUnit(e.target.value as any)}
+              onChange={(e) => setUnit(e.target.value as typeof unit)}
               className="w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-blue-500 focus:outline-none"
             >
               <option value="mm">Millimeters (mm)</option>

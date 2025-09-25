@@ -1,19 +1,24 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState, useRef } from "react";
+
 import DrawingCanvas from "@/components/drawing/DrawingCanvas";
-import SymbolLibrary from "@/components/drawing/SymbolLibrary";
-import PropertyPanel from "@/components/drawing/PropertyPanel";
+import DrawingToolbar from "@/components/drawing/DrawingToolbar";
 import LayersPanel from "@/components/drawing/LayersPanel";
 import MainToolbar from "@/components/drawing/MainToolbar";
+import PropertyPanel from "@/components/drawing/PropertyPanel";
+import SymbolLibrary from "@/components/drawing/SymbolLibrary";
+import ToolOptionsBar from "@/components/drawing/ToolOptionsBar";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useDrawingStore } from "@/store/drawingStore";
 
 interface DrawioLayoutProps {
   children?: React.ReactNode;
 }
 
-export default function DrawioLayout({ children }: DrawioLayoutProps) {
-  const [showAutoSave, setShowAutoSave] = useState(false);
+export default function DrawioLayout({ children: _children }: DrawioLayoutProps): React.ReactElement {
+  const [_showAutoSave, _setShowAutoSave] = useState(false);
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(280);
   const [rightSidebarWidth, setRightSidebarWidth] = useState(280);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -21,32 +26,45 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
   const [isDraggingRight, setIsDraggingRight] = useState(false);
   const [rightActiveTab, setRightActiveTab] = useState<"properties" | "format" | "layers">("properties");
+  const [leftActiveTab, setLeftActiveTab] = useState<"tools" | "symbols">("tools");
 
   const leftDragRef = useRef<HTMLDivElement>(null);
   const rightDragRef = useRef<HTMLDivElement>(null);
 
+  // Initialize command manager and keyboard shortcuts
+  const { initializeCommandManager } = useDrawingStore();
+
+  // Enable keyboard shortcuts for undo/redo
+  useKeyboardShortcuts();
+
+  // Initialize command manager on component mount
+  React.useEffect(() => {
+    initializeCommandManager();
+  }, [initializeCommandManager]);
+
   // Handle drag and drop for symbols
-  const handleSymbolDragStart = (event: React.DragEvent, nodeType: string, nodeData: any) => {
-    event.dataTransfer.setData("nodeType", nodeType);
-    event.dataTransfer.setData("nodeData", JSON.stringify(nodeData));
-    event.dataTransfer.effectAllowed = "move";
+  const handleSymbolDragStart = (event: React.DragEvent, nodeType: string, nodeData: Record<string, unknown>): void => {
+    const { dataTransfer } = event;
+    dataTransfer.setData("nodeType", nodeType);
+    dataTransfer.setData("nodeData", JSON.stringify(nodeData));
+    dataTransfer.effectAllowed = "move";
   };
 
   // Drawing store is now used by MainToolbar directly
 
   // Handle sidebar dragging
-  const handleLeftMouseDown = (e: React.MouseEvent) => {
+  const handleLeftMouseDown = (e: React.MouseEvent): void => {
     e.preventDefault();
     setIsDraggingLeft(true);
   };
 
-  const handleRightMouseDown = (e: React.MouseEvent) => {
+  const handleRightMouseDown = (e: React.MouseEvent): void => {
     e.preventDefault();
     setIsDraggingRight(true);
   };
 
   React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent): void => {
       if (isDraggingLeft && !leftSidebarCollapsed) {
         const newWidth = Math.max(200, Math.min(400, e.clientX));
         setLeftSidebarWidth(newWidth);
@@ -57,7 +75,7 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (): void => {
       setIsDraggingLeft(false);
       setIsDraggingRight(false);
     };
@@ -92,23 +110,65 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
           style={{ width: leftSidebarCollapsed ? '48px' : `${leftSidebarWidth}px` }}
         >
           <div className="h-full flex flex-col">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between h-10 px-2 border-b border-gray-200 bg-gray-50">
-              {!leftSidebarCollapsed && (
-                <span className="text-sm font-medium">Symbols</span>
-              )}
-              <button
-                onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
-                className="p-1 hover:bg-gray-200 rounded"
-              >
-                {leftSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-              </button>
-            </div>
+            {/* Sidebar Header with Tabs */}
+            {!leftSidebarCollapsed && (
+              <div className="flex items-center justify-between h-10 px-2 border-b border-gray-200 bg-gray-50">
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => setLeftActiveTab("tools")}
+                    className={`px-3 py-1 text-xs rounded ${
+                      leftActiveTab === "tools"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    Tools
+                  </button>
+                  <button
+                    onClick={() => setLeftActiveTab("symbols")}
+                    className={`px-3 py-1 text-xs rounded ${
+                      leftActiveTab === "symbols"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    Symbols
+                  </button>
+                </div>
+                <button
+                  onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+                  className="p-1 hover:bg-gray-200 rounded"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Collapsed Header */}
+            {leftSidebarCollapsed && (
+              <div className="flex items-center justify-center h-10 px-2 border-b border-gray-200 bg-gray-50">
+                <button
+                  onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+                  className="p-1 hover:bg-gray-200 rounded"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
             {/* Sidebar Content */}
             {!leftSidebarCollapsed && (
-              <div className="flex-1 overflow-auto p-2">
-                <SymbolLibrary onDragStart={handleSymbolDragStart} />
+              <div className="flex-1 overflow-auto">
+                {leftActiveTab === "tools" && (
+                  <div className="p-2">
+                    <DrawingToolbar />
+                  </div>
+                )}
+                {leftActiveTab === "symbols" && (
+                  <div className="p-2">
+                    <SymbolLibrary onDragStart={handleSymbolDragStart} />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -125,8 +185,14 @@ export default function DrawioLayout({ children }: DrawioLayoutProps) {
         </div>
 
         {/* Canvas Area */}
-        <div className="flex-1 bg-gray-100 relative overflow-hidden">
-          <DrawingCanvas />
+        <div className="flex-1 bg-gray-100 relative overflow-hidden flex flex-col">
+          {/* Tool Options Bar */}
+          <ToolOptionsBar className="flex-shrink-0" />
+
+          {/* Drawing Canvas */}
+          <div className="flex-1 relative overflow-hidden">
+            <DrawingCanvas />
+          </div>
         </div>
 
         {/* Right Sidebar */}

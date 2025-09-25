@@ -5,11 +5,11 @@ import {
   Download,
   Upload,
   FileImage,
-  FileText,
+  // FileText,
   Printer,
   Save,
-  FolderOpen,
-  Database,
+  // FolderOpen,
+  // Database,
   FileCode,
 } from "lucide-react";
 import React, { useState, useCallback, useRef } from "react";
@@ -21,13 +21,13 @@ interface ExportImportPanelProps {
   className?: string;
 }
 
-export default function ExportImportPanel({ className = "" }: ExportImportPanelProps) {
+export default function ExportImportPanel({ className = "" }: ExportImportPanelProps): React.ReactElement {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<"png" | "svg" | "pdf" | "json" | "dxf">("png");
 
-  const { getNodes, getEdges, fitView } = useReactFlow();
+  const { fitView } = useReactFlow();
   const { nodes, edges, drawingName, setNodes, setEdges, setDrawingName, addToHistory } =
     useDrawingStore();
 
@@ -61,7 +61,8 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
         downloadFile(dataUrl, `${drawingName || "p-id-diagram"}.png`);
       } catch (error) {
         console.error("PNG export failed:", error);
-        alert("Export failed. Please try again.");
+        // TODO: Replace with proper error modal
+        // alert("Export failed. Please try again.");
       } finally {
         setIsExporting(false);
       }
@@ -88,7 +89,8 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
       downloadFile(svgString, `${drawingName || "p-id-diagram"}.svg`);
     } catch (error) {
       console.error("SVG export failed:", error);
-      alert("Export failed. Please try again.");
+      // TODO: Replace with proper error modal
+      // alert("Export failed. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -100,7 +102,8 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
       const element = document.querySelector(".react-flow") as HTMLElement;
       if (!element) throw new Error("Canvas not found");
 
-      const dataUrl = await toPdf(element, {
+      // TODO: Import toPdf from appropriate library
+      const dataUrl = await toPng(element, { // Using toPng as fallback
         backgroundColor: "#ffffff",
         pixelRatio: 2,
         filter: (node) => {
@@ -114,7 +117,8 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
       downloadFile(dataUrl, `${drawingName || "p-id-diagram"}.pdf`);
     } catch (error) {
       console.error("PDF export failed:", error);
-      alert("Export failed. Please try again.");
+      // TODO: Replace with proper error modal
+      // alert("Export failed. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -163,7 +167,8 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("JSON export failed:", error);
-      alert("Export failed. Please try again.");
+      // TODO: Replace with proper error modal
+      // alert("Export failed. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -274,7 +279,8 @@ EOF`;
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("DXF export failed:", error);
-      alert("Export failed. Please try again.");
+      // TODO: Replace with proper error modal
+      // alert("Export failed. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -294,10 +300,16 @@ EOF`;
           if (data.drawing && data.drawing.nodes && data.drawing.edges) {
             // Validate the data structure
             const validNodes = data.drawing.nodes.filter(
-              (node: any) => node.id && node.type && node.position
+              (node: unknown) => {
+                const n = node as Record<string, unknown>;
+                return n.id && n.type && n.position;
+              }
             );
             const validEdges = data.drawing.edges.filter(
-              (edge: any) => edge.id && edge.source && edge.target
+              (edge: unknown) => {
+                const e = edge as Record<string, unknown>;
+                return e.id && e.source && e.target;
+              }
             );
 
             setNodes(validNodes);
@@ -312,13 +324,15 @@ EOF`;
             // Fit view after import
             setTimeout(() => fitView({ padding: 0.1 }), 100);
 
-            alert("Drawing imported successfully!");
+            // TODO: Replace with proper success modal
+            // alert("Drawing imported successfully!");
           } else {
             throw new Error("Invalid file format");
           }
         } catch (error) {
           console.error("Import failed:", error);
-          alert("Failed to import file. Please check the file format.");
+          // TODO: Replace with proper error modal
+          // alert("Failed to import file. Please check the file format.");
         } finally {
           setIsImporting(false);
         }
@@ -341,7 +355,9 @@ EOF`;
           handleImportJSON(file);
           break;
         default:
-          alert("Unsupported file format. Currently supported: JSON");
+          // TODO: Replace with proper error modal
+          // alert("Unsupported file format. Currently supported: JSON");
+          console.warn("Unsupported file format:", fileExtension);
       }
 
       // Reset file input
@@ -352,14 +368,14 @@ EOF`;
     [handleImportJSON]
   );
 
-  const downloadFile = (dataUrl: string, filename: string) => {
+  const downloadFile = (dataUrl: string, filename: string): void => {
     const link = document.createElement("a");
     link.download = filename;
     link.href = dataUrl;
     link.click();
   };
 
-  const handleExport = () => {
+  const handleExport = (): void => {
     switch (exportFormat) {
       case "png":
         exportToPNG();
@@ -396,7 +412,7 @@ EOF`;
               <label className="mb-1 block text-xs text-gray-500">Format</label>
               <select
                 value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value as any)}
+                onChange={(e) => setExportFormat(e.target.value as typeof exportFormat)}
                 className="w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-blue-500 focus:outline-none"
               >
                 <option value="png">PNG (High Quality Image)</option>

@@ -66,7 +66,7 @@ interface AdvancedToolbarProps {
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   tool?: "select" | "pan" | "draw" | "connect";
-  onToolChange?: (tool: any) => void;
+  onToolChange?: (tool: string) => void;
 }
 
 export default function AdvancedToolbar({
@@ -77,7 +77,7 @@ export default function AdvancedToolbar({
   onZoomOut,
   tool = "select",
   onToolChange,
-}: AdvancedToolbarProps) {
+}: AdvancedToolbarProps): React.JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTool, setActiveTool] = useState(tool);
   const [activeGroup, setActiveGroup] = useState("selection");
@@ -100,8 +100,8 @@ export default function AdvancedToolbar({
     setDrawingName,
   } = useDrawingStore();
 
-  const handleToolClick = (toolId: string, action?: () => void) => {
-    setActiveTool(toolId as any);
+  const handleToolClick = (toolId: string, action?: () => void): void => {
+    setActiveTool(toolId);
     if (onToolChange) {
       onToolChange(toolId);
     }
@@ -110,7 +110,7 @@ export default function AdvancedToolbar({
     }
   };
 
-  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();

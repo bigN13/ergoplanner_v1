@@ -3,9 +3,27 @@ import { MarkerType, applyNodeChanges, applyEdgeChanges, addEdge } from "reactfl
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-export interface DrawingHistory {
-  nodes: Node[];
-  edges: Edge[];
+import { CommandManager, DrawingStoreContext, NodeCommandFactory } from "@/services/commands";
+import type { HistoryItem } from "@/types/commands";
+import type { Layer } from "@/types/drawing";
+
+// Tool types for the drawing toolbar
+export type ToolGroup = "selection" | "drawing" | "annotation";
+export type SelectionTool = "select" | "pan" | "multiSelect";
+export type DrawingTool = "addNode" | "drawEdge" | "freehand";
+export type AnnotationTool = "text" | "measurement" | "callout";
+export type DrawingTool_Type = SelectionTool | DrawingTool | AnnotationTool;
+
+export interface ToolState {
+  activeToolGroup: ToolGroup;
+  activeTool: DrawingTool_Type;
+  toolOptions: {
+    lineStyle?: "solid" | "dashed" | "dotted";
+    lineWeight?: number;
+    arrowStyle?: "none" | "arrow" | "diamond";
+    snapEnabled?: boolean;
+    multiSelectMode?: boolean;
+  };
 }
 
 export interface DrawingState {
@@ -15,9 +33,8 @@ export interface DrawingState {
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
 
-  // History for undo/redo
-  history: DrawingHistory[];
-  historyIndex: number;
+  // Command-based history (replaces old history system)
+  commandManager: CommandManager | null;
 
   // Drawing metadata
   drawingId: string | null;
@@ -30,6 +47,13 @@ export interface DrawingState {
   snapToGrid: boolean;
   gridSize: number;
   zoom: number;
+
+  // Layer management
+  layers: Layer[];
+  activeLayerId: string;
+
+  // Tool management
+  toolState: ToolState;
 
   // Actions
   setNodes: (nodes: Node[]) => void;
@@ -48,12 +72,14 @@ export interface DrawingState {
   setSelectedNode: (nodeId: string | null) => void;
   setSelectedEdge: (edgeId: string | null) => void;
 
-  // History actions
-  pushHistory: () => void;
+  // Command-based history actions
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  getHistoryItems: () => HistoryItem[];
+  clearHistory: () => void;
+  initializeCommandManager: () => void;
 
   // Drawing management
   newDrawing: () => void;
@@ -71,17 +97,73 @@ export interface DrawingState {
   setDrawingName: (name: string) => void;
   markDirty: () => void;
   markClean: () => void;
+
+  // Layer management actions
+  addLayer: (layer: Layer) => void;
+  updateLayer: (layerId: string, updates: Partial<Layer>) => void;
+  deleteLayer: (layerId: string) => void;
+  setActiveLayer: (layerId: string) => void;
+  moveLayer: (layerId: string, direction: 'up' | 'down') => void;
+  getVisibleNodes: () => Node[];
+  getVisibleEdges: () => Edge[];
+  assignElementToLayer: (elementId: string, layerId: string, elementType: 'node' | 'edge') => void;
+
+  // Tool management actions
+  setActiveTool: (tool: DrawingTool_Type) => void;
+  setActiveToolGroup: (group: ToolGroup) => void;
+  updateToolOptions: (options: Partial<ToolState['toolOptions']>) => void;
+  getActiveToolConfig: () => { group: ToolGroup; tool: DrawingTool_Type; options: ToolState['toolOptions'] };
 }
 
-const MAX_HISTORY = 50;
+const defaultLayers: Layer[] = [
+  {
+    id: "main",
+    name: "Main",
+    visible: true,
+    locked: false,
+    opacity: 1.0,
+    order: 0,
+  },
+  {
+    id: "equipment",
+    name: "Equipment",
+    visible: true,
+    locked: false,
+    opacity: 1.0,
+    order: 1,
+  },
+  {
+    id: "piping",
+    name: "Piping",
+    visible: true,
+    locked: false,
+    opacity: 1.0,
+    order: 2,
+  },
+  {
+    id: "instruments",
+    name: "Instruments",
+    visible: true,
+    locked: false,
+    opacity: 1.0,
+    order: 3,
+  },
+  {
+    id: "annotations",
+    name: "Annotations",
+    visible: true,
+    locked: false,
+    opacity: 1.0,
+    order: 4,
+  },
+];
 
 const initialState = {
   nodes: [],
   edges: [],
   selectedNodeId: null,
   selectedEdgeId: null,
-  history: [],
-  historyIndex: -1,
+  commandManager: null,
   drawingId: null,
   drawingName: "Untitled Drawing",
   lastSaved: null,
@@ -90,12 +172,39 @@ const initialState = {
   snapToGrid: true,
   gridSize: 20,
   zoom: 1,
+  layers: defaultLayers,
+  activeLayerId: "main",
+  toolState: {
+    activeToolGroup: "selection" as ToolGroup,
+    activeTool: "select" as DrawingTool_Type,
+    toolOptions: {
+      lineStyle: "solid",
+      lineWeight: 1,
+      arrowStyle: "none",
+      snapEnabled: true,
+      multiSelectMode: false,
+    },
+  },
 };
 
 export const useDrawingStore = create<DrawingState>()(
   devtools(
     (set, get) => ({
       ...initialState,
+
+      initializeCommandManager: () => {
+        const state = get();
+        if (!state.commandManager) {
+          const context = new DrawingStoreContext(state);
+          const commandManager = new CommandManager(context, {
+            maxHistorySize: 50,
+            enableAutoBatching: true,
+            batchTimeWindow: 1000,
+            userId: 'current-user',
+          });
+          set({ commandManager });
+        }
+      },
 
       setNodes: (nodes) => {
         set({ nodes, isDirty: true });
@@ -118,11 +227,12 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       onConnect: (connection) => {
-        const { edges } = get();
+        const { edges, activeLayerId } = get();
         const newEdge = {
           ...connection,
           id: `edge-${Date.now()}`,
           type: "smoothstep",
+          data: { layer: activeLayerId },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -135,9 +245,25 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       addNode: (node) => {
-        const { nodes } = get();
-        set({ nodes: [...nodes, node], isDirty: true });
-        get().pushHistory();
+        const state = get();
+        if (!state.commandManager) {
+          state.initializeCommandManager();
+        }
+
+        const { activeLayerId, commandManager } = get();
+        const nodeWithLayer = {
+          ...node,
+          data: {
+            ...node.data,
+            layer: node.data?.layer || activeLayerId,
+          },
+        };
+
+        const context = new DrawingStoreContext(get());
+        const command = NodeCommandFactory.addNode(nodeWithLayer, context);
+        if (commandManager) {
+          commandManager.execute(command);
+        }
       },
 
       updateNode: (nodeId, updates) => {
@@ -149,16 +275,17 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       deleteNode: (nodeId) => {
-        const { nodes, edges } = get();
-        const filteredNodes = nodes.filter((n) => n.id !== nodeId);
-        const filteredEdges = edges.filter((e) => e.source !== nodeId && e.target !== nodeId);
-        set({
-          nodes: filteredNodes,
-          edges: filteredEdges,
-          selectedNodeId: null,
-          isDirty: true,
-        });
-        get().pushHistory();
+        const state = get();
+        if (!state.commandManager) {
+          state.initializeCommandManager();
+        }
+
+        const { commandManager } = get();
+        const context = new DrawingStoreContext(get());
+        const command = NodeCommandFactory.deleteNode(nodeId, context);
+        if (commandManager) {
+          commandManager.execute(command);
+        }
       },
 
       deleteSelectedNode: () => {
@@ -169,8 +296,15 @@ export const useDrawingStore = create<DrawingState>()(
       },
 
       addEdge: (edge) => {
-        const { edges } = get();
-        set({ edges: [...edges, edge], isDirty: true });
+        const { edges, activeLayerId } = get();
+        const edgeWithLayer = {
+          ...edge,
+          data: {
+            ...edge.data,
+            layer: edge.data?.layer || activeLayerId,
+          },
+        };
+        set({ edges: [...edges, edgeWithLayer], isDirty: true });
         get().pushHistory();
       },
 
@@ -204,59 +338,48 @@ export const useDrawingStore = create<DrawingState>()(
         set({ selectedEdgeId: edgeId, selectedNodeId: null });
       },
 
-      pushHistory: () => {
-        const { nodes, edges, history, historyIndex } = get();
-        const newHistory = history.slice(0, historyIndex + 1);
-        newHistory.push({ nodes: [...nodes], edges: [...edges] });
-
-        if (newHistory.length > MAX_HISTORY) {
-          newHistory.shift();
-        }
-
-        set({
-          history: newHistory,
-          historyIndex: newHistory.length - 1,
-        });
-      },
-
       undo: () => {
-        const { history, historyIndex } = get();
-        if (historyIndex > 0) {
-          const prevState = history[historyIndex - 1];
-          if (prevState) {
-            set({
-              nodes: prevState.nodes,
-              edges: prevState.edges,
-              historyIndex: historyIndex - 1,
-              isDirty: true,
-            });
-          }
+        const state = get();
+        if (!state.commandManager) {
+          state.initializeCommandManager();
+        }
+        const { commandManager } = get();
+        if (commandManager) {
+          commandManager.undo();
         }
       },
 
       redo: () => {
-        const { history, historyIndex } = get();
-        if (historyIndex < history.length - 1) {
-          const nextState = history[historyIndex + 1];
-          if (nextState) {
-            set({
-              nodes: nextState.nodes,
-              edges: nextState.edges,
-              historyIndex: historyIndex + 1,
-              isDirty: true,
-            });
-          }
+        const state = get();
+        if (!state.commandManager) {
+          state.initializeCommandManager();
+        }
+        const { commandManager } = get();
+        if (commandManager) {
+          commandManager.redo();
         }
       },
 
       canUndo: () => {
-        const { historyIndex } = get();
-        return historyIndex > 0;
+        const { commandManager } = get();
+        return commandManager ? commandManager.canUndo() : false;
       },
 
       canRedo: () => {
-        const { history, historyIndex } = get();
-        return historyIndex < history.length - 1;
+        const { commandManager } = get();
+        return commandManager ? commandManager.canRedo() : false;
+      },
+
+      getHistoryItems: () => {
+        const { commandManager } = get();
+        return commandManager ? commandManager.getHistory() : [];
+      },
+
+      clearHistory: () => {
+        const { commandManager } = get();
+        if (commandManager) {
+          commandManager.clearHistory();
+        }
       },
 
       newDrawing: () => {
@@ -264,13 +387,13 @@ export const useDrawingStore = create<DrawingState>()(
           ...initialState,
           drawingId: `drawing-${Date.now()}`,
           drawingName: "Untitled Drawing",
-          history: [{ nodes: [], edges: [] }],
-          historyIndex: 0,
         });
+        // Initialize command manager for new drawing
+        get().initializeCommandManager();
       },
 
       saveDrawing: () => {
-        const { drawingId, drawingName, nodes, edges } = get();
+        const { drawingId, drawingName, nodes, edges, layers, activeLayerId } = get();
         const id = drawingId || `drawing-${Date.now()}`;
 
         const drawingData = {
@@ -278,6 +401,8 @@ export const useDrawingStore = create<DrawingState>()(
           name: drawingName,
           nodes,
           edges,
+          layers,
+          activeLayerId,
           savedAt: new Date().toISOString(),
         };
 
@@ -286,7 +411,7 @@ export const useDrawingStore = create<DrawingState>()(
 
         // Update saved drawings list
         const savedDrawings = JSON.parse(localStorage.getItem("ergoplanner-drawings") || "[]");
-        const existingIndex = savedDrawings.findIndex((d: any) => d.id === id);
+        const existingIndex = savedDrawings.findIndex((d: Record<string, unknown>) => d.id === id);
 
         if (existingIndex >= 0) {
           savedDrawings[existingIndex] = { id, name: drawingName, savedAt: drawingData.savedAt };
@@ -308,17 +433,21 @@ export const useDrawingStore = create<DrawingState>()(
           // Try to parse as JSON first (content from file)
           const data = JSON.parse(drawingIdOrContent);
           if (data.nodes && data.edges) {
+            // Load layers from saved data or use defaults
+            const layers = data.layers || defaultLayers;
+            const activeLayerId = data.activeLayerId || "main";
+
             set({
               drawingId: data.id || `drawing-${Date.now()}`,
               drawingName: data.name || "Imported Drawing",
               nodes: data.nodes,
               edges: data.edges,
+              layers,
+              activeLayerId,
               lastSaved: data.savedAt ? new Date(data.savedAt) : null,
               isDirty: false,
-              history: [{ nodes: data.nodes, edges: data.edges }],
-              historyIndex: 0,
             });
-            get().pushHistory();
+            get().initializeCommandManager();
             return;
           }
         } catch {
@@ -329,16 +458,20 @@ export const useDrawingStore = create<DrawingState>()(
         const savedData = localStorage.getItem(`ergoplanner-drawing-${drawingIdOrContent}`);
         if (savedData) {
           const data = JSON.parse(savedData);
+          const layers = data.layers || defaultLayers;
+          const activeLayerId = data.activeLayerId || "main";
+
           set({
             drawingId: data.id,
             drawingName: data.name,
             nodes: data.nodes,
             edges: data.edges,
+            layers,
+            activeLayerId,
             lastSaved: new Date(data.savedAt),
             isDirty: false,
-            history: [{ nodes: data.nodes, edges: data.edges }],
-            historyIndex: 0,
           });
+          get().initializeCommandManager();
         }
       },
 
@@ -356,7 +489,8 @@ export const useDrawingStore = create<DrawingState>()(
           URL.revokeObjectURL(url);
         } else if (format === "svg" || format === "png") {
           // This will be handled by the component using html-to-image
-          console.log(`Export as ${format} will be handled by the component`);
+          // TODO: Implement export functionality
+          // console.log(`Export as ${format} will be handled by the component`);
         }
       },
 
@@ -368,10 +502,8 @@ export const useDrawingStore = create<DrawingState>()(
               nodes: parsed.nodes,
               edges: parsed.edges,
               isDirty: true,
-              history: [{ nodes: parsed.nodes, edges: parsed.edges }],
-              historyIndex: 0,
             });
-            get().pushHistory();
+            get().initializeCommandManager();
           }
         } catch (error) {
           console.error("Failed to import drawing:", error);
@@ -411,6 +543,218 @@ export const useDrawingStore = create<DrawingState>()(
 
       markClean: () => {
         set({ isDirty: false });
+      },
+
+      // Layer management actions
+      addLayer: (layer) => {
+        const { layers } = get();
+        const newLayer = {
+          ...layer,
+          order: layer.order >= 0 ? layer.order : layers.length,
+        };
+        set({ layers: [...layers, newLayer], isDirty: true });
+      },
+
+      updateLayer: (layerId, updates) => {
+        const { layers } = get();
+        const updatedLayers = layers.map((layer) =>
+          layer.id === layerId ? { ...layer, ...updates } : layer
+        );
+        set({ layers: updatedLayers, isDirty: true });
+
+        // Save layer state to localStorage
+        localStorage.setItem('ergoplanner-layers', JSON.stringify(updatedLayers));
+      },
+
+      deleteLayer: (layerId) => {
+        const { layers, activeLayerId, nodes, edges } = get();
+
+        // Don't delete the main layer or if it's the only layer
+        if (layerId === "main" || layers.length <= 1) {
+          return;
+        }
+
+        // Move elements from deleted layer to main layer
+        const updatedNodes = nodes.map((node) => {
+          if (node.data && node.data.layer === layerId) {
+            return {
+              ...node,
+              data: { ...node.data, layer: "main" },
+            };
+          }
+          return node;
+        });
+
+        const updatedEdges = edges.map((edge) => {
+          if (edge.data && edge.data.layer === layerId) {
+            return {
+              ...edge,
+              data: { ...edge.data, layer: "main" },
+            };
+          }
+          return edge;
+        });
+
+        const filteredLayers = layers.filter((l) => l.id !== layerId);
+        const newActiveLayer = activeLayerId === layerId ? "main" : activeLayerId;
+
+        set({
+          layers: filteredLayers,
+          activeLayerId: newActiveLayer,
+          nodes: updatedNodes,
+          edges: updatedEdges,
+          isDirty: true,
+        });
+      },
+
+      setActiveLayer: (layerId) => {
+        const { layers } = get();
+        const layerExists = layers.some((l) => l.id === layerId);
+        if (layerExists) {
+          set({ activeLayerId: layerId });
+        }
+      },
+
+      moveLayer: (layerId, direction) => {
+        const { layers } = get();
+        const layerIndex = layers.findIndex((l) => l.id === layerId);
+        if (layerIndex === -1) return;
+
+        const newIndex = direction === "up" ? layerIndex - 1 : layerIndex + 1;
+        if (newIndex < 0 || newIndex >= layers.length) return;
+
+        const newLayers = [...layers];
+        [newLayers[layerIndex], newLayers[newIndex]] = [newLayers[newIndex], newLayers[layerIndex]];
+
+        // Update order property
+        newLayers.forEach((layer, index) => {
+          const updatedLayer = { ...layer, order: index };
+          return updatedLayer;
+        });
+
+        set({ layers: newLayers, isDirty: true });
+      },
+
+      getVisibleNodes: () => {
+        const { nodes, layers } = get();
+        const visibleLayers = new Set(layers.filter((l) => l.visible).map((l) => l.id));
+
+        return nodes.filter((node) => {
+          const nodeLayer = node.data?.layer || "main";
+          return visibleLayers.has(nodeLayer);
+        });
+      },
+
+      getVisibleEdges: () => {
+        const { edges, layers } = get();
+        const visibleLayers = new Set(layers.filter((l) => l.visible).map((l) => l.id));
+
+        return edges.filter((edge) => {
+          const edgeLayer = edge.data?.layer || "main";
+          return visibleLayers.has(edgeLayer);
+        });
+      },
+
+      assignElementToLayer: (elementId, layerId, elementType) => {
+        const { nodes, edges, layers } = get();
+        const layerExists = layers.some((l) => l.id === layerId);
+        if (!layerExists) return;
+
+        if (elementType === 'node') {
+          const updatedNodes = nodes.map((node) =>
+            node.id === elementId
+              ? { ...node, data: { ...node.data, layer: layerId } }
+              : node
+          );
+          set({ nodes: updatedNodes, isDirty: true });
+        } else if (elementType === 'edge') {
+          const updatedEdges = edges.map((edge) =>
+            edge.id === elementId
+              ? { ...edge, data: { ...edge.data, layer: layerId } }
+              : edge
+          );
+          set({ edges: updatedEdges, isDirty: true });
+        }
+      },
+
+      // Tool management actions
+      setActiveTool: (tool) => {
+        const { toolState } = get();
+        let newToolGroup: ToolGroup = toolState.activeToolGroup;
+
+        // Determine the correct tool group based on the tool
+        if (['select', 'pan', 'multiSelect'].includes(tool)) {
+          newToolGroup = 'selection';
+        } else if (['addNode', 'drawEdge', 'freehand'].includes(tool)) {
+          newToolGroup = 'drawing';
+        } else if (['text', 'measurement', 'callout'].includes(tool)) {
+          newToolGroup = 'annotation';
+        }
+
+        set({
+          toolState: {
+            ...toolState,
+            activeTool: tool,
+            activeToolGroup: newToolGroup,
+          },
+          isDirty: true,
+        });
+      },
+
+      setActiveToolGroup: (group) => {
+        const { toolState } = get();
+        let newActiveTool: DrawingTool_Type = toolState.activeTool;
+
+        // Set default tool for each group if current tool doesn't belong to new group
+        switch (group) {
+          case 'selection':
+            if (!['select', 'pan', 'multiSelect'].includes(toolState.activeTool)) {
+              newActiveTool = 'select';
+            }
+            break;
+          case 'drawing':
+            if (!['addNode', 'drawEdge', 'freehand'].includes(toolState.activeTool)) {
+              newActiveTool = 'addNode';
+            }
+            break;
+          case 'annotation':
+            if (!['text', 'measurement', 'callout'].includes(toolState.activeTool)) {
+              newActiveTool = 'text';
+            }
+            break;
+        }
+
+        set({
+          toolState: {
+            ...toolState,
+            activeToolGroup: group,
+            activeTool: newActiveTool,
+          },
+          isDirty: true,
+        });
+      },
+
+      updateToolOptions: (options) => {
+        const { toolState } = get();
+        set({
+          toolState: {
+            ...toolState,
+            toolOptions: {
+              ...toolState.toolOptions,
+              ...options,
+            },
+          },
+          isDirty: true,
+        });
+      },
+
+      getActiveToolConfig: () => {
+        const { toolState } = get();
+        return {
+          group: toolState.activeToolGroup,
+          tool: toolState.activeTool,
+          options: toolState.toolOptions,
+        };
       },
     }),
     {

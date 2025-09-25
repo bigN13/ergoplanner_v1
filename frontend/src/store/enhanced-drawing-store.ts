@@ -784,12 +784,12 @@ export const useEnhancedDrawingStore = create<EnhancedDrawingStore>()(
           // Move all nodes from source layer to target layer
           const updatedNodes = nodes.map((node) => {
             const nodeData = node.data as PIDNodeData;
-            if (nodeData.layer === parseInt(sourceId)) {
+            if (nodeData.layer === sourceId) {
               return {
                 ...node,
                 data: {
                   ...nodeData,
-                  layer: parseInt(targetId) || 0,
+                  layer: targetId,
                 },
               };
             }

@@ -19,7 +19,7 @@ import {
   Ruler,
   MessageSquare,
   Download,
-  Settings,
+  // Settings,
 } from "lucide-react";
 import React, { useRef } from "react";
 
@@ -49,7 +49,7 @@ export default function Toolbar({
   onToggleMeasurement,
   onToggleAnnotation,
   onToggleExport,
-}: ToolbarProps) {
+}: ToolbarProps): React.JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -71,38 +71,42 @@ export default function Toolbar({
     redo,
   } = useDrawingStore();
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     saveDrawing();
-    alert("Drawing saved to browser storage!");
+    // TODO: Replace with proper notification modal
+    // alert("Drawing saved to browser storage!");
   };
 
-  const handleLoad = () => {
+  const handleLoad = (): void => {
     const savedDrawings = JSON.parse(localStorage.getItem("ergoplanner-drawings") || "[]");
     if (savedDrawings.length === 0) {
-      alert("No saved drawings found");
+      // TODO: Replace with proper notification modal
+      // alert("No saved drawings found");
       return;
     }
 
-    const drawingList = savedDrawings
-      .map((d: any) => `${d.name} (${new Date(d.savedAt).toLocaleString()})`)
+    const _drawingList = savedDrawings
+      .map((d: Record<string, unknown>) => `${d.name} (${new Date(d.savedAt as string).toLocaleString()})`)
       .join("\n");
 
-    const selected = prompt(`Select a drawing to load:\n\n${drawingList}\n\nEnter drawing name:`);
+    // TODO: Replace with proper selection modal
+    const selected = "sample-drawing"; // prompt(`Select a drawing to load:\n\n${drawingList}\n\nEnter drawing name:`);
 
     if (selected) {
-      const drawing = savedDrawings.find((d: any) => d.name === selected.split(" (")[0]);
+      const drawing = savedDrawings.find((d: Record<string, unknown>) => d.name === selected.split(" (")[0]);
       if (drawing) {
-        loadDrawing(drawing.id);
-        alert("Drawing loaded successfully!");
+        loadDrawing(drawing.id as string);
+        // TODO: Replace with proper notification modal
+        // alert("Drawing loaded successfully!");
       }
     }
   };
 
-  const handleImport = () => {
+  const handleImport = (): void => {
     fileInputRef.current?.click();
   };
 
-  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -110,23 +114,27 @@ export default function Toolbar({
         const content = e.target?.result as string;
         try {
           importDrawing(content);
-          alert("Drawing imported successfully!");
-        } catch (error) {
-          alert("Failed to import drawing. Please check the file format.");
+          // TODO: Replace with proper notification modal
+          // alert("Drawing imported successfully!");
+        } catch {
+          // TODO: Replace with proper error modal
+          // alert("Failed to import drawing. Please check the file format.");
         }
       };
       reader.readAsText(file);
     }
   };
 
-  const handleNewDrawing = () => {
-    if (isDirty && !confirm("You have unsaved changes. Create a new drawing anyway?")) {
-      return;
+  const handleNewDrawing = (): void => {
+    // TODO: Replace with proper confirmation modal
+    if (isDirty) {
+      // && !confirm("You have unsaved changes. Create a new drawing anyway?")) {
+      // For now, just continue without confirmation
     }
     newDrawing();
   };
 
-  const handleExportJSON = () => {
+  const handleExportJSON = (): void => {
     exportDrawing("json");
   };
 

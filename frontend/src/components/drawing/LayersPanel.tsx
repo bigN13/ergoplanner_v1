@@ -3,152 +3,79 @@
 import { Eye, EyeOff, Lock, Unlock, Plus, Trash2, Edit2, Layers } from "lucide-react";
 import React, { useState } from "react";
 
-import { useDrawingStore } from "@/store/drawing-store";
-
-export interface Layer {
-  id: string;
-  name: string;
-  visible: boolean;
-  locked: boolean;
-  opacity: number;
-  color?: string;
-  elements: string[];
-  order: number;
-}
+import { useDrawingStore } from "@/store/drawingStore";
+import type { Layer } from "@/types/drawing";
 
 const LayersPanel: React.FC = () => {
   const {
-    layers = [],
+    layers,
     activeLayerId,
     setActiveLayer,
     updateLayer,
     addLayer,
     deleteLayer,
-  } = useDrawingStore() as any;
+    moveLayer,
+  } = useDrawingStore();
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
 
-  const defaultLayers: Layer[] = [
-    {
-      id: "main",
-      name: "Main",
-      visible: true,
-      locked: false,
-      opacity: 100,
-      elements: [],
-      order: 0,
-    },
-    {
-      id: "equipment",
-      name: "Equipment",
-      visible: true,
-      locked: false,
-      opacity: 100,
-      elements: [],
-      order: 1,
-    },
-    {
-      id: "piping",
-      name: "Piping",
-      visible: true,
-      locked: false,
-      opacity: 100,
-      elements: [],
-      order: 2,
-    },
-    {
-      id: "instruments",
-      name: "Instruments",
-      visible: true,
-      locked: false,
-      opacity: 100,
-      elements: [],
-      order: 3,
-    },
-    {
-      id: "annotations",
-      name: "Annotations",
-      visible: true,
-      locked: false,
-      opacity: 100,
-      elements: [],
-      order: 4,
-    },
-  ];
+  const currentLayers = layers;
 
-  const currentLayers = layers && layers.length > 0 ? layers : defaultLayers;
-
-  const handleAddLayer = () => {
+  const handleAddLayer = (): void => {
     const newLayer: Layer = {
       id: `layer-${Date.now()}`,
       name: `Layer ${currentLayers.length + 1}`,
       visible: true,
       locked: false,
-      opacity: 100,
-      elements: [],
+      opacity: 1.0,
       order: currentLayers.length,
     };
-    addLayer?.(newLayer);
+    addLayer(newLayer);
   };
 
-  const handleToggleVisibility = (layerId: string) => {
+  const handleToggleVisibility = (layerId: string): void => {
     const layer = currentLayers.find((l) => l.id === layerId);
     if (layer) {
-      updateLayer?.(layerId, { ...layer, visible: !layer.visible });
+      updateLayer(layerId, { visible: !layer.visible });
     }
   };
 
-  const handleToggleLock = (layerId: string) => {
+  const handleToggleLock = (layerId: string): void => {
     const layer = currentLayers.find((l) => l.id === layerId);
     if (layer) {
-      updateLayer?.(layerId, { ...layer, locked: !layer.locked });
+      updateLayer(layerId, { locked: !layer.locked });
     }
   };
 
-  const handleOpacityChange = (layerId: string, opacity: number) => {
+  const handleOpacityChange = (layerId: string, opacity: number): void => {
     const layer = currentLayers.find((l) => l.id === layerId);
     if (layer) {
-      updateLayer?.(layerId, { ...layer, opacity });
+      updateLayer(layerId, { opacity: opacity / 100 }); // Convert percentage to decimal
     }
   };
 
-  const handleRename = (layerId: string) => {
+  const handleRename = (layerId: string): void => {
     setEditingLayerId(layerId);
     const layer = currentLayers.find((l) => l.id === layerId);
     setEditingName(layer?.name || "");
   };
 
-  const handleSaveRename = () => {
+  const handleSaveRename = (): void => {
     if (editingLayerId && editingName.trim()) {
-      const layer = currentLayers.find((l) => l.id === editingLayerId);
-      if (layer) {
-        updateLayer?.(editingLayerId, { ...layer, name: editingName.trim() });
-      }
+      updateLayer(editingLayerId, { name: editingName.trim() });
     }
     setEditingLayerId(null);
     setEditingName("");
   };
 
-  const handleDeleteLayer = (layerId: string) => {
+  const handleDeleteLayer = (layerId: string): void => {
     if (currentLayers.length > 1 && layerId !== "main") {
-      deleteLayer?.(layerId);
+      deleteLayer(layerId);
     }
   };
 
-  const moveLayer = (layerId: string, direction: "up" | "down") => {
-    const layerIndex = currentLayers.findIndex((l) => l.id === layerId);
-    if (layerIndex === -1) return;
-
-    const newIndex = direction === "up" ? layerIndex - 1 : layerIndex + 1;
-    if (newIndex < 0 || newIndex >= currentLayers.length) return;
-
-    const newLayers = [...currentLayers];
-    [newLayers[layerIndex], newLayers[newIndex]] = [newLayers[newIndex], newLayers[layerIndex]];
-
-    // Update order property
-    newLayers.forEach((layer, index) => {
-      updateLayer?.(layer.id, { ...layer, order: index });
-    });
+  const handleMoveLayer = (layerId: string, direction: "up" | "down"): void => {
+    moveLayer(layerId, direction);
   };
 
   return (
@@ -178,7 +105,7 @@ const LayersPanel: React.FC = () => {
               className={`mb-2 rounded-lg border ${
                 activeLayerId === layer.id ? "border-blue-500 bg-blue-50" : "border-gray-200"
               } p-2 hover:bg-gray-50`}
-              onClick={() => setActiveLayer?.(layer.id)}
+              onClick={() => setActiveLayer(layer.id)}
             >
               {/* Layer Header */}
               <div className="flex items-center justify-between">
@@ -197,7 +124,8 @@ const LayersPanel: React.FC = () => {
                   ) : (
                     <span className="flex-1 text-sm font-medium">{layer.name}</span>
                   )}
-                  <span className="text-xs text-gray-500">({layer.elements?.length || 0})</span>
+                  {/* Element count will be computed from nodes/edges */}
+                  <span className="text-xs text-gray-500"></span>
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -266,12 +194,12 @@ const LayersPanel: React.FC = () => {
                   type="range"
                   min="0"
                   max="100"
-                  value={layer.opacity}
+                  value={Math.round(layer.opacity * 100)}
                   onChange={(e) => handleOpacityChange(layer.id, Number(e.target.value))}
                   className="flex-1"
                   onClick={(e) => e.stopPropagation()}
                 />
-                <span className="w-8 text-xs text-gray-600">{layer.opacity}%</span>
+                <span className="w-8 text-xs text-gray-600">{Math.round(layer.opacity * 100)}%</span>
               </div>
 
               {/* Layer Controls */}
@@ -280,7 +208,7 @@ const LayersPanel: React.FC = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      moveLayer(layer.id, "up");
+                      handleMoveLayer(layer.id, "up");
                     }}
                     disabled={layer.order === 0}
                     className="flex-1 rounded bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200 disabled:opacity-50"
@@ -290,7 +218,7 @@ const LayersPanel: React.FC = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      moveLayer(layer.id, "down");
+                      handleMoveLayer(layer.id, "down");
                     }}
                     disabled={layer.order === currentLayers.length - 1}
                     className="flex-1 rounded bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200 disabled:opacity-50"

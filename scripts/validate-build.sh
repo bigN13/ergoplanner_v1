@@ -43,7 +43,7 @@ validate_backend() {
 
     # Build with warnings as errors
     echo "  Building with strict validation..."
-    if ! dotnet build --no-incremental /warnaserror /p:TreatWarningsAsErrors=true; then
+    if ! dotnet build --no-incremental --warnaserror -p:TreatWarningsAsErrors=true; then
         echo -e "${RED}❌ Backend build FAILED - Contains errors or warnings${NC}"
         VALIDATION_FAILED=1
         cd ..
@@ -153,7 +153,7 @@ validate_ml_services() {
     # Look for .NET solution or project files
     if ls *.sln 1> /dev/null 2>&1; then
         echo "  Building ML services..."
-        if ! dotnet build --no-incremental /warnaserror; then
+        if ! dotnet build --no-incremental --warnaserror; then
             echo -e "${RED}❌ ML Services build FAILED${NC}"
             VALIDATION_FAILED=1
             cd ..

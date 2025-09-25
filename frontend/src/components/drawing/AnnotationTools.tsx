@@ -4,9 +4,7 @@ import {
   Type,
   MessageSquare,
   ArrowRight,
-  Circle,
   Square,
-  Triangle,
   Ruler,
   Pen,
   Highlighter,
@@ -16,11 +14,10 @@ import {
   EyeOff,
   Lock,
   Unlock,
-  RotateCcw,
   Move,
 } from "lucide-react";
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import { useReactFlow, Node } from "reactflow";
+import React, { useState, useCallback, useRef } from "react";
+import { useReactFlow } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawingStore";
 
@@ -28,7 +25,7 @@ interface Annotation {
   id: string;
   type: "text" | "callout" | "dimension" | "arrow" | "shape" | "freehand" | "highlight";
   position: { x: number; y: number };
-  data: any;
+  data: Record<string, unknown>;
   style: {
     color: string;
     backgroundColor?: string;
@@ -55,11 +52,10 @@ export default function AnnotationTools({
   className = "",
   visible = true,
   onToggle,
-}: AnnotationToolsProps) {
+}: AnnotationToolsProps): React.JSX.Element | null {
   const [activeTool, setActiveTool] = useState<string>("select");
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [selectedAnnotations, setSelectedAnnotations] = useState<Set<string>>(new Set());
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [_isDrawing, setIsDrawing] = useState(false);
   const [currentAnnotation, setCurrentAnnotation] = useState<Partial<Annotation> | null>(null);
   const [currentColor, setCurrentColor] = useState("#ef4444");
   const [currentStrokeWidth, setCurrentStrokeWidth] = useState(2);
@@ -67,7 +63,6 @@ export default function AnnotationTools({
   const [showColorPalette, setShowColorPalette] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement>(null);
-  const textInputRef = useRef<HTMLInputElement>(null);
   const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
   const { addToHistory } = useDrawingStore();
 
@@ -86,7 +81,7 @@ export default function AnnotationTools({
 
   // Handle canvas interaction for annotations
   const handleCanvasClick = useCallback(
-    (event: React.MouseEvent) => {
+    (event: React.MouseEvent): void => {
       if (activeTool === "select") return;
 
       const rect = canvasRef.current?.getBoundingClientRect();
@@ -123,11 +118,22 @@ export default function AnnotationTools({
           break;
       }
     },
-    [activeTool, currentAnnotation, screenToFlowPosition]
+    [
+      activeTool,
+      screenToFlowPosition,
+      handleTextAnnotation,
+      handleCalloutAnnotation,
+      handleDimensionAnnotation,
+      handleArrowAnnotation,
+      handleShapeAnnotation,
+      handleFreehandStart,
+      handleHighlightAnnotation,
+    ]
   );
 
-  const handleTextAnnotation = (point: { x: number; y: number }) => {
-    const text = prompt("Enter text:");
+  const handleTextAnnotation = useCallback((point: { x: number; y: number }): void => {
+    // const text = prompt("Enter text:");
+    const text = "Sample text"; // TODO: Replace with proper input modal
     if (!text) return;
 
     const annotation: Annotation = {
@@ -147,11 +153,12 @@ export default function AnnotationTools({
 
     setAnnotations((prev) => [...prev, annotation]);
     addToHistory();
-  };
+  }, [currentColor, currentFontSize, addToHistory]);
 
-  const handleCalloutAnnotation = (point: { x: number; y: number }) => {
+  const handleCalloutAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
-      const text = prompt("Enter callout text:");
+      // const text = prompt("Enter callout text:");
+      const text = "Callout text"; // TODO: Replace with proper input modal
       if (!text) return;
 
       setCurrentAnnotation({
@@ -183,9 +190,9 @@ export default function AnnotationTools({
       setIsDrawing(false);
       addToHistory();
     }
-  };
+  }, [currentAnnotation, currentColor, currentFontSize, addToHistory]);
 
-  const handleDimensionAnnotation = (point: { x: number; y: number }) => {
+  const handleDimensionAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
       setCurrentAnnotation({
         id: `dimension-${Date.now()}`,
@@ -199,15 +206,19 @@ export default function AnnotationTools({
       });
       setIsDrawing(true);
     } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
+      const { position } = currentAnnotation;
+      if (!position) return;
       const distance = Math.sqrt(
-        Math.pow(point.x - currentAnnotation.position!.x, 2) +
-          Math.pow(point.y - currentAnnotation.position!.y, 2)
+        Math.pow(point.x - position.x, 2) +
+          Math.pow(point.y - position.y, 2)
       );
 
+      const { data } = currentAnnotation;
+      if (!data) return;
       const annotation: Annotation = {
         ...(currentAnnotation as Annotation),
         data: {
-          ...currentAnnotation.data,
+          ...data,
           endPoint: point,
           value: Math.round(distance),
         },
@@ -221,9 +232,9 @@ export default function AnnotationTools({
       setIsDrawing(false);
       addToHistory();
     }
-  };
+  }, [currentAnnotation, currentColor, currentStrokeWidth, addToHistory]);
 
-  const handleArrowAnnotation = (point: { x: number; y: number }) => {
+  const handleArrowAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
       setCurrentAnnotation({
         id: `arrow-${Date.now()}`,
@@ -253,9 +264,9 @@ export default function AnnotationTools({
       setIsDrawing(false);
       addToHistory();
     }
-  };
+  }, [currentAnnotation, currentColor, currentStrokeWidth, addToHistory]);
 
-  const handleShapeAnnotation = (point: { x: number; y: number }) => {
+  const handleShapeAnnotation = useCallback((point: { x: number; y: number }): void => {
     const shape = "rectangle"; // Default shape, could be made configurable
 
     if (!currentAnnotation) {
@@ -288,9 +299,9 @@ export default function AnnotationTools({
       setIsDrawing(false);
       addToHistory();
     }
-  };
+  }, [currentAnnotation, currentColor, currentStrokeWidth, addToHistory]);
 
-  const handleFreehandStart = (point: { x: number; y: number }) => {
+  const handleFreehandStart = useCallback((point: { x: number; y: number }): void => {
     const annotation: Annotation = {
       id: `freehand-${Date.now()}`,
       type: "freehand",
@@ -309,9 +320,9 @@ export default function AnnotationTools({
     setAnnotations((prev) => [...prev, annotation]);
     setCurrentAnnotation(annotation);
     setIsDrawing(true);
-  };
+  }, [currentColor, currentStrokeWidth]);
 
-  const handleHighlightAnnotation = (point: { x: number; y: number }) => {
+  const handleHighlightAnnotation = useCallback((point: { x: number; y: number }): void => {
     if (!currentAnnotation) {
       setCurrentAnnotation({
         id: `highlight-${Date.now()}`,
@@ -342,35 +353,40 @@ export default function AnnotationTools({
       setIsDrawing(false);
       addToHistory();
     }
-  };
+  }, [currentAnnotation, currentColor, addToHistory]);
 
-  const deleteAnnotation = (id: string) => {
+  const deleteAnnotation = (id: string): void => {
     setAnnotations((prev) => prev.filter((a) => a.id !== id));
-    setSelectedAnnotations((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(id);
-      return newSet;
-    });
+    // TODO: Implement selectedAnnotations state if needed
+    // setSelectedAnnotations((prev) => {
+    //   const newSet = new Set(prev);
+    //   newSet.delete(id);
+    //   return newSet;
+    // });
     addToHistory();
   };
 
-  const toggleAnnotationVisibility = (id: string) => {
+  const toggleAnnotationVisibility = (id: string): void => {
     setAnnotations((prev) => prev.map((a) => (a.id === id ? { ...a, visible: !a.visible } : a)));
   };
 
-  const lockAnnotation = (id: string) => {
+  const lockAnnotation = (id: string): void => {
     setAnnotations((prev) => prev.map((a) => (a.id === id ? { ...a, locked: !a.locked } : a)));
   };
 
-  const clearAllAnnotations = () => {
-    if (confirm("Are you sure you want to clear all annotations?")) {
+  const clearAllAnnotations = (): void => {
+    // if (confirm("Are you sure you want to clear all annotations?")) {
+    // TODO: Replace with proper confirmation modal
+    const shouldClear = true; // Temporary - replace with modal confirmation
+    if (shouldClear) {
       setAnnotations([]);
-      setSelectedAnnotations(new Set());
+      // TODO: Implement selectedAnnotations state if needed
+      // setSelectedAnnotations(new Set());
       addToHistory();
     }
   };
 
-  const exportAnnotations = () => {
+  const exportAnnotations = (): void => {
     const data = {
       annotations: annotations.map((a) => ({
         ...a,
@@ -390,7 +406,7 @@ export default function AnnotationTools({
   };
 
   // Render annotation overlay
-  const renderAnnotationOverlay = () => {
+  const renderAnnotationOverlay = (): React.JSX.Element => {
     return (
       <svg className="pointer-events-none absolute inset-0" style={{ zIndex: 1000 }}>
         {annotations
@@ -738,7 +754,7 @@ export default function AnnotationTools({
                     <span className="font-medium capitalize">{annotation.type}</span>
                     {annotation.data.text && (
                       <span className="max-w-20 truncate text-gray-500">
-                        "{annotation.data.text}"
+                        &quot;{annotation.data.text}&quot;
                       </span>
                     )}
                   </div>

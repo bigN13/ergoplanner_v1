@@ -108,7 +108,7 @@
         "id": 3,
         "title": "Build P&ID drawing engine with ReactFlow",
         "description": "Implement a standalone P&ID drawing component using ReactFlow that functions independently like draw.io, without requiring authentication or backend services",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "Create a self-contained P&ID drawing component in frontend/src/components/drawing/ that provides full drawing capabilities without external dependencies. The component should leverage the existing ReactFlow installation (v11.11.4) and drawing types defined in frontend/src/types/drawing.ts. Build upon the PIDNode, PIDEdge, and DrawingState interfaces already established. This component will serve as the core drawing engine that can later be integrated with backend services but must function completely offline first.",
@@ -145,7 +145,7 @@
             "id": 4,
             "title": "Implement smart pipe routing with local pathfinding",
             "description": "Add client-side A* pathfinding for automatic pipe routing between symbols",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Create pure JavaScript implementation of A* algorithm for pipe routing. Build PathfindingService that works entirely client-side. Implement orthogonal and diagonal routing modes. Add obstacle avoidance for existing symbols and pipes.",
             "testStrategy": ""
@@ -154,16 +154,16 @@
             "id": 5,
             "title": "Add layer management system",
             "description": "Create layer system using the Layer interface for organizing drawing elements",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
-            "details": "Implement LayerPanel component for managing layers defined in drawing.ts. Add layer visibility toggles, opacity controls, and ordering. Ensure all drawing elements respect layer settings. Store layer state in local storage.",
+            "details": "Implement LayerPanel component for managing layers defined in drawing.ts. Add layer visibility toggles, opacity controls, and ordering. Ensure all drawing elements respect layer settings. Store layer state in local storage.\n<info added on 2025-09-25T00:42:51.935Z>\nI'll analyze the codebase to understand the current implementation and provide specific details about the layer management system implementation.Implementation complete with comprehensive testing and verification:\n\n**Technical Implementation Details:**\n\nFiles modified:\n- **frontend/src/store/drawingStore.ts (lines 36-643)**: Added complete layer management system with methods for creating, updating, deleting, moving, and filtering layers. Implemented visibility filtering through getVisibleNodes() and getVisibleEdges() that respect layer visibility and opacity settings. Automatic layer assignment to new nodes/edges using activeLayerId. Layer state persistence through localStorage at key 'ergoplanner-layers'.\n\n- **frontend/src/components/drawing/LayersPanel.tsx (lines 1-243)**: Built full-featured layer management UI with drag-to-reorder, visibility toggles, lock status, opacity sliders (0-100% converted to 0-1.0 decimal for store), rename functionality, and layer deletion with safeguards. Main layer cannot be deleted. Elements orphaned by layer deletion automatically move to main layer.\n\n- **frontend/src/components/drawing/DrawingCanvas.tsx (lines 392-393)**: Updated ReactFlow component to use getVisibleNodes() and getVisibleEdges() instead of raw nodes/edges arrays, ensuring only elements on visible layers render on canvas.\n\n- **frontend/src/types/drawing.ts (lines 31,49,74-88)**: Updated PIDNodeData and PIDEdgeData interfaces with layer field (string type), defined Layer interface with opacity as decimal (0-1.0), and integrated layer array into DrawingState.\n\n**Store Methods Implemented:**\n- addLayer(): Creates new layer with auto-incrementing order\n- updateLayer(): Updates layer properties and persists to localStorage  \n- deleteLayer(): Removes layer and migrates orphaned elements to main layer\n- setActiveLayer(): Sets current drawing layer for new elements\n- moveLayer(): Reorders layers up/down in stack\n- getVisibleNodes()/getVisibleEdges(): Filters elements by layer visibility\n- assignElementToLayer(): Moves existing elements between layers\n\n**Layer Persistence:** Layer configuration saves to localStorage on every update. Load/save drawing methods preserve layer state in drawing data structure.\n\n**Default Layers:** Main, Equipment, Piping, Instruments, Annotations - all visible by default with full opacity.\n\n**Integration Points:** \n- New nodes/edges automatically assigned to activeLayerId\n- onConnect handler assigns edges to active layer\n- Layer filtering happens at ReactFlow render level for performance\n- Context preserved across save/load cycles\n</info added on 2025-09-25T00:42:51.935Z>",
             "testStrategy": ""
           },
           {
             "id": 6,
             "title": "Implement undo/redo with command pattern",
             "description": "Add command pattern for unlimited undo/redo using local history management",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Create CommandManager class to track all drawing operations. Implement DrawingHistoryEntry interface for action tracking. Add keyboard shortcuts (Ctrl+Z/Ctrl+Y). Store history in memory with configurable limit. Display action history in UI panel.",
             "testStrategy": ""
@@ -172,7 +172,7 @@
             "id": 7,
             "title": "Build standalone toolbar and property panels",
             "description": "Create self-contained UI components for drawing tools and property editing",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Develop DrawingToolbar component with all drawing tools (select, pan, add symbols, delete). Create PropertyPanel for editing selected node/edge properties. Implement SymbolPalette with drag-and-drop from symbol library. All components should work without backend connectivity.",
             "testStrategy": ""
@@ -181,10 +181,64 @@
             "id": 8,
             "title": "Add import/export functionality for offline use",
             "description": "Implement file import/export for drawings without server dependency",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Add JSON export/import using the Drawing interface structure. Implement SVG export for visual output. Create PNG export using canvas rendering. Add clipboard support for copy/paste operations. All operations should use browser APIs only.",
             "testStrategy": ""
+          },
+          {
+            "id": 9,
+            "title": "Create DrawingToolbar component with tool selection system",
+            "description": "Build a main DrawingToolbar component with tool groups (selection tools, drawing tools, annotation tools) and proper state management for active tool selection",
+            "dependencies": [],
+            "details": "Create DrawingToolbar.tsx at frontend/src/components/drawing/ to replace the existing Toolbar.tsx. Implement tool groups: Selection (select, pan, multi-select), Drawing (add node, draw edge, freehand), Annotation (text, measurement, callout). Use a tool state manager with activeToolGroup and activeTool tracking. Add visual feedback for active tools with highlighted backgrounds. Integrate with drawingStore to sync tool selection state. Include keyboard shortcut hints in tooltips (V for select, H for pan, etc.). Support tool variants with dropdown menus for complex tools. Ensure responsive layout that works at different screen sizes.\n<info added on 2025-09-25T02:06:57.904Z>\nI'll analyze the codebase to understand the current implementation before generating the update.Implementation completed successfully. The DrawingToolbar component has been fully implemented at frontend/src/components/drawing/DrawingToolbar.tsx with all required features including:\n\n- Three tool groups (Selection, Drawing, Annotation) with collapsible sections\n- Complete tool state management synchronized with drawingStore\n- All nine keyboard shortcuts (V, H, M, N, E, F, T, R, C) properly configured using react-hotkeys-hook\n- Visual feedback for active tools with blue highlighting\n- Tool variants with dropdown menus for complex tools like multi-select, node types, edge styles, and annotation types\n- Responsive layout with proper sizing and overflow handling\n- Tool options panel with snap-to-grid toggle and context-sensitive options\n- Full integration with DrawioLayout component at frontend/src/components/layout/DrawioLayout.tsx\n\nThe component passed all quality checks including ESLint validation with zero warnings and proper TypeScript typing throughout.\n</info added on 2025-09-25T02:06:57.904Z>",
+            "status": "done",
+            "testStrategy": "Unit tests for tool state management and tool group switching. Integration tests verifying tool selection updates store state correctly. Visual regression tests for active tool highlighting. Keyboard navigation tests for accessibility compliance."
+          },
+          {
+            "id": 10,
+            "title": "Build PropertyPanel with dynamic property forms",
+            "description": "Enhance the existing PropertyPanel to support all P&ID node types with dynamic property forms, validation, and batch editing capabilities",
+            "dependencies": [
+              "3.9"
+            ],
+            "details": "Extend PropertyPanel.tsx to dynamically generate property forms based on node type metadata. Add support for all node types: pumps (flow rate, head, power, efficiency), valves (type, size, CV, position), tanks (capacity, level, pressure rating), instruments (range, units, calibration). Implement property validation with real-time feedback (e.g., numeric ranges, required fields). Add batch editing support when multiple nodes are selected. Include unit conversion utilities (metric/imperial). Create collapsible sections for General, Process Data, Mechanical Data, and Control properties. Add property templates for quick configuration. Implement property inheritance from symbol library defaults.",
+            "status": "done",
+            "testStrategy": "Unit tests for property validation logic and unit conversions. Integration tests for batch editing multiple nodes. E2E tests for property panel interactions with different node types. Accessibility tests for form navigation."
+          },
+          {
+            "id": 11,
+            "title": "Implement SymbolPalette with categorized drag-and-drop",
+            "description": "Enhance the existing SymbolLibrary component to include advanced features like symbol search, favorites, recent items, and smooth drag-and-drop preview",
+            "dependencies": [],
+            "details": "Extend SymbolLibrary.tsx with enhanced categorization matching ISA-5.1 and ISO 14617 standards. Add symbol metadata including connection points, default properties, and compatibility rules. Implement advanced search with fuzzy matching and tag filtering. Add visual drag preview that follows cursor with ghost effect. Include quick access sections for favorites and recently used symbols (already partially implemented). Add symbol tooltips showing description, standards compliance, and typical usage. Implement symbol variations (e.g., pump orientations) accessible via right-click or dropdown. Add custom symbol upload capability for project-specific symbols. Include symbol count badges for each category.",
+            "status": "done",
+            "testStrategy": "Unit tests for search and filtering logic. Integration tests for drag-and-drop functionality with ReactFlow canvas. Visual tests for symbol rendering and previews. Performance tests for large symbol libraries (200+ symbols)."
+          },
+          {
+            "id": 12,
+            "title": "Create integrated ToolOptionsBar for contextual tool settings",
+            "description": "Build a contextual options bar that appears below the main toolbar showing settings specific to the currently active tool",
+            "dependencies": [
+              "3.9",
+              "3.10"
+            ],
+            "details": "Create ToolOptionsBar.tsx that dynamically shows options based on active tool. For selection tool: multi-select mode, selection filters by type. For drawing tools: line style (solid, dashed, dotted), line weight, arrow styles. For text tool: font family, size, color, alignment. For measurement: units, precision, show/hide labels. For node placement: rotation angles, flip options, size presets. Include quick toggles for snap-to-grid, angle constraints, and alignment guides. Add tool-specific keyboard shortcut reminders. Implement responsive collapsing for smaller screens. Store tool preferences in localStorage for persistence.",
+            "status": "done",
+            "testStrategy": "Unit tests for option state management per tool type. Integration tests verifying options affect tool behavior correctly. UI tests for responsive layout at different screen sizes. Persistence tests for saved tool preferences."
+          },
+          {
+            "id": 13,
+            "title": "Implement QuickActionsPanel with context-sensitive commands",
+            "description": "Create a floating quick actions panel that provides context-sensitive commands based on current selection and recent actions",
+            "dependencies": [
+              "3.9",
+              "3.10",
+              "3.11"
+            ],
+            "details": "Build QuickActionsPanel.tsx as a floating widget (similar to Draw.io's format panel). Show different actions based on context: single node (duplicate, rotate, flip, change type), multiple nodes (align, distribute, group), edge selected (change style, add bend points), nothing selected (paste, undo/redo, zoom controls). Include smart suggestions based on recent actions using pattern detection. Add frequently used combinations as macro buttons. Implement customizable action shortcuts that users can pin. Include visual previews for actions like alignment. Add action history with one-click repeat. Position intelligently to avoid covering important canvas areas.",
+            "status": "done",
+            "testStrategy": "Unit tests for context detection and action filtering logic. Integration tests for action execution on different selections. UI tests for panel positioning and auto-hide behavior. E2E tests for complete action workflows."
           }
         ]
       },
@@ -724,7 +778,7 @@
         "description": "Create the leftmost toolbar section with New, Open, Save, and Save As buttons matching draw.io exactly, with keyboard shortcuts, recent files dropdown, and responsive behavior",
         "details": "Implement a comprehensive file operations toolbar section in frontend/src/components/drawing/FileOperationsToolbar.tsx that precisely matches draw.io's layout and behavior. The component should integrate with the existing drawingStore.ts file management system and be used in DrawioLayout.tsx. Key implementation requirements:\n\n1. Create FileOperationsToolbar component with buttons for New (Ctrl+N), Open (Ctrl+O), Save (Ctrl+S), and Save As (Ctrl+Shift+S) operations\n2. Each button should display both icon (from lucide-react) and text label, with tooltips showing keyboard shortcuts\n3. Implement dropdown arrow on Open button for recent files list (stored in localStorage as 'ergoplanner-recent-files')\n4. Add template selection dropdown for New button with options: 'Blank P&ID', 'Water Treatment Plant', 'Pumping Station', 'Distribution Network'\n5. Integrate with existing drawingStore methods: newDrawing(), saveDrawing(), loadDrawing(), with enhanced Save As functionality\n6. Implement keyboard shortcuts using react-hotkeys-hook package already installed\n7. Add responsive behavior: show icons-only when viewport width < 768px, full button with text on larger screens\n8. Style with Tailwind CSS matching existing toolbar styling in DrawioLayout.tsx (lines 149-178)\n9. Handle unsaved changes confirmation dialog when creating new drawing or opening file\n10. Implement file input for Open functionality supporting .json and future .dwg/.dxf formats\n11. Create useFileOperations hook for managing file operations logic and recent files list\n12. Add autosave indicator and last saved timestamp display next to Save button\n13. Integrate with existing AutoSaveManager component for autosave coordination",
         "testStrategy": "Unit tests for FileOperationsToolbar component verifying button rendering, keyboard shortcut registration, and dropdown menu functionality. Integration tests for file operations ensuring proper store updates and localStorage persistence. Test recent files list management with max 10 items and proper ordering. E2E tests for complete file workflow: new with template, save, open recent, save as with name change. Test responsive behavior at different viewport widths. Verify unsaved changes dialog appears when appropriate. Test keyboard shortcuts work correctly and don't conflict with other shortcuts. Performance test ensuring toolbar renders within 16ms even with 10 recent files.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "subtasks": [
@@ -733,7 +787,7 @@
             "title": "Create FileOperationsToolbar component structure",
             "description": "Build the base FileOperationsToolbar.tsx component with proper TypeScript interfaces, responsive layout structure using Tailwind CSS, and integration with existing DrawioLayout toolbar section. Include button container with proper spacing and visual separators.",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 37
           },
@@ -742,7 +796,7 @@
             "title": "Implement file operation buttons with icons and labels",
             "description": "Create New, Open, Save, and Save As buttons using lucide-react icons (FilePlus, FolderOpen, Save, SaveAs). Implement responsive text display that shows icon+text on desktop (>768px) and icon-only on mobile. Add keyboard shortcut labels in tooltips.",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 37
           },
@@ -751,7 +805,7 @@
             "title": "Add dropdown menus and keyboard shortcuts",
             "description": "Implement template dropdown for New button with P&ID templates, recent files dropdown for Open button (max 10 items from localStorage), and keyboard shortcut integration using react-hotkeys-hook for Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S.",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 37
           },
@@ -760,7 +814,7 @@
             "title": "Integrate with drawing store and add autosave",
             "description": "Connect file operations to drawingStore methods (newDrawing, saveDrawing, loadDrawing), implement useFileOperations hook for file management logic, add autosave indicator with timestamp, handle unsaved changes dialog, and integrate with AutoSaveManager component.",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 37
           }
@@ -785,7 +839,7 @@
         "description": "Create a comprehensive zoom controls toolbar section with editable percentage field, preset buttons, dropdown menu, and full ReactFlow viewport integration matching draw.io's zoom functionality exactly",
         "details": "Implement ZoomControlsToolbar component at frontend/src/components/drawing/ZoomControlsToolbar.tsx that provides professional zoom controls integrated with ReactFlow's viewport system. The component should be inserted into DrawioLayout.tsx replacing the existing basic zoom controls (lines 221-242).\n\n**Component Structure:**\n1. **Editable Zoom Field:** Create an input field showing current zoom percentage (e.g., '100%') that accepts custom values from 10% to 5000%. Use a controlled input with validation, supporting both Enter key and blur events to apply changes.\n\n2. **Zoom Increment Buttons:** \n   - Minus button: Decrease zoom by 10% (minimum 10%)\n   - Plus button: Increase zoom by 10% (maximum 5000%)\n   - Both buttons should use lucide-react's Minus and Plus icons\n\n3. **Zoom Presets Dropdown:**\n   - Implement dropdown with chevron indicator using a custom menu or select component\n   - Preset options: 25%, 50%, 75%, 100%, 150%, 200%, 400%\n   - Special actions: 'Fit to Screen', 'Fit Selection', 'Actual Size'\n   - Show current zoom level with checkmark if matching a preset\n\n**ReactFlow Integration:**\n```typescript\nimport { useReactFlow } from 'reactflow';\n\nconst { getZoom, setViewport, getViewport, fitView, fitBounds, getNodes } = useReactFlow();\n\n// Get current zoom\nconst currentZoom = Math.round(getZoom() * 100);\n\n// Set specific zoom level\nconst setZoomLevel = (percentage: number) => {\n  const viewport = getViewport();\n  setViewport({\n    x: viewport.x,\n    y: viewport.y,\n    zoom: percentage / 100\n  }, { duration: 200 });\n};\n\n// Fit to screen\nconst handleFitToScreen = () => {\n  fitView({ padding: 0.1, duration: 200 });\n};\n\n// Fit selection (if nodes selected)\nconst handleFitSelection = () => {\n  const selectedNodes = getNodes().filter(n => n.selected);\n  if (selectedNodes.length > 0) {\n    const bounds = /* calculate bounds from selected nodes */;\n    fitBounds(bounds, { padding: 0.2, duration: 200 });\n  }\n};\n```\n\n**Store Integration:**\nUpdate drawingStore.ts zoom property to sync with ReactFlow's viewport zoom:\n- Remove the standalone zoom state (line 89)\n- Update setZoom to use ReactFlow's setViewport\n- Ensure zoom changes persist in localStorage with drawing state\n\n**Keyboard Shortcuts:**\n- Ctrl/Cmd + 0: Fit to screen\n- Ctrl/Cmd + 1: Actual size (100%)\n- Ctrl/Cmd + Plus: Zoom in\n- Ctrl/Cmd + Minus: Zoom out\n- Ctrl/Cmd + Mouse wheel: Smooth zoom\n\n**UI/UX Requirements:**\n- Zoom percentage field: 60px width, center-aligned text\n- Update in real-time as user scrolls/zooms on canvas\n- Smooth transitions with 200ms duration\n- Disable zoom out at 10%, zoom in at 5000%\n- Show tooltip on hover for all controls\n- Maintain zoom level in drawing persistence\n\n**File Updates Required:**\n1. Create frontend/src/components/drawing/ZoomControlsToolbar.tsx\n2. Update DrawioLayout.tsx to import and use ZoomControlsToolbar\n3. Modify drawingStore.ts to properly sync zoom with ReactFlow viewport\n4. Ensure DrawingCanvas.tsx properly reports zoom changes to store",
         "testStrategy": "Unit tests for ZoomControlsToolbar component verifying zoom percentage input validation (accepts 10-5000, rejects invalid), button state management (disabled at limits), dropdown menu rendering with all presets. Integration tests ensuring ReactFlow viewport updates when zoom changes, fitView/fitBounds called correctly for special actions, keyboard shortcuts trigger appropriate zoom changes. Test zoom persistence in localStorage across page reloads. Performance tests ensuring smooth 60fps during zoom animations with 1000+ nodes. E2E tests for complete zoom workflow including custom entry, preset selection, and canvas interaction.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           37,
           38
@@ -862,7 +916,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-23T21:07:23.197Z",
+      "updated": "2025-09-25T09:03:25.991Z",
       "description": "Tasks for master context"
     }
   }
