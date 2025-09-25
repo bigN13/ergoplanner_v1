@@ -465,7 +465,7 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
       .replace(/{{strokeWidth}}/g, '1.5');
 
     return svg;
-  }, [data, parameters]);
+  }, [data]);
 
   return (
     <div className={`custom-symbol-node ${selected ? 'selected' : ''}`}>

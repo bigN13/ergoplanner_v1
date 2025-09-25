@@ -54,11 +54,11 @@ export default function MeasurementTools({
   const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
 
   // Calculation functions
-  const calculateDistance = (p1: Point, p2: Point): number => {
+  const calculateDistance = useCallback((p1: Point, p2: Point): number => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-  };
+  }, []);
 
-  const calculatePolygonArea = (points: Point[]): number => {
+  const calculatePolygonArea = useCallback((points: Point[]): number => {
     if (points.length < 3) return 0;
 
     let area = 0;
@@ -72,14 +72,14 @@ export default function MeasurementTools({
       }
     }
     return Math.abs(area) / 2;
-  };
+  }, []);
 
-  const calculateAngle = (p1: Point, p2: Point, p3: Point): number => {
+  const calculateAngle = useCallback((p1: Point, p2: Point, p3: Point): number => {
     const angle1 = Math.atan2(p1.y - p2.y, p1.x - p2.x);
     const angle2 = Math.atan2(p3.y - p2.y, p3.x - p2.x);
     const angle = Math.abs(angle1 - angle2) * (180 / Math.PI);
     return angle > 180 ? 360 - angle : angle;
-  };
+  }, []);
 
   const handleDistanceMeasurement = useCallback((point: Point): void => {
     if (!currentMeasurement) {
