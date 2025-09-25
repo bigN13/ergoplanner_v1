@@ -574,11 +574,341 @@ export const ISA51Catalog: SymbolMetadata[] = [
   }
 ];
 
+export const ISO14617Catalog: SymbolMetadata[] = [
+  // ISO 14617 symbols - implemented in separate file
+];
+
+export const UKWaterCatalog: SymbolMetadata[] = [
+  // ===== PUMPS =====
+  {
+    id: 'uk-centrifugal-pump',
+    type: 'pump',
+    label: 'Centrifugal Pump',
+    category: 'Pumps',
+    standard: 'UK-Water',
+    tags: ['pump', 'centrifugal', 'water', 'uk'],
+    description: 'UK Water standard centrifugal pump',
+    searchKeywords: ['pump', 'centrifugal', 'water', 'uk', 'thames', 'united utilities'],
+    defaultData: {
+      label: 'P-001',
+      flowRate: '100 l/s',
+      head: '50 m',
+      power: '15 kW'
+    },
+    component: 'UKCentrifugalPump',
+    parametric: true,
+    convertible: true,
+    equivalents: {
+      'ISA-5.1': 'isa-centrifugal-pump',
+      'ISO-14617': 'iso-centrifugal-pump'
+    }
+  },
+  {
+    id: 'uk-positive-pump',
+    type: 'pump',
+    label: 'Positive Displacement Pump',
+    category: 'Pumps',
+    standard: 'UK-Water',
+    tags: ['pump', 'positive', 'displacement', 'uk'],
+    description: 'UK Water standard positive displacement pump',
+    searchKeywords: ['pump', 'positive', 'displacement', 'volumetric', 'uk'],
+    defaultData: {
+      label: 'P-002',
+      flowRate: '50 l/s',
+      pressure: '10 bar'
+    },
+    component: 'UKPositivePump',
+    parametric: true,
+    convertible: true
+  },
+  {
+    id: 'uk-submersible-pump',
+    type: 'pump',
+    label: 'Submersible Pump',
+    category: 'Pumps',
+    standard: 'UK-Water',
+    tags: ['pump', 'submersible', 'borehole', 'well'],
+    description: 'Submersible pump for boreholes and wells',
+    searchKeywords: ['pump', 'submersible', 'borehole', 'well', 'underwater'],
+    defaultData: {
+      label: 'P-003',
+      flowRate: '80 l/s',
+      depth: '100 m'
+    },
+    component: 'UKSubmersiblePump',
+    parametric: true,
+    convertible: false
+  },
+
+  // ===== VALVES =====
+  {
+    id: 'uk-gate-valve',
+    type: 'valve',
+    label: 'Gate Valve',
+    category: 'Valves',
+    standard: 'UK-Water',
+    tags: ['valve', 'gate', 'isolation', 'uk'],
+    description: 'UK Water standard gate valve for isolation',
+    searchKeywords: ['valve', 'gate', 'isolation', 'shutoff', 'uk'],
+    defaultData: {
+      label: 'V-001',
+      size: 'DN200',
+      type: 'gate'
+    },
+    component: 'UKGateValve',
+    parametric: true,
+    convertible: true
+  },
+  {
+    id: 'uk-butterfly-valve',
+    type: 'valve',
+    label: 'Butterfly Valve',
+    category: 'Valves',
+    standard: 'UK-Water',
+    tags: ['valve', 'butterfly', 'control', 'uk'],
+    description: 'UK Water standard butterfly valve',
+    searchKeywords: ['valve', 'butterfly', 'control', 'throttle', 'uk'],
+    defaultData: {
+      label: 'V-002',
+      size: 'DN300',
+      type: 'butterfly'
+    },
+    component: 'UKButterflyValve',
+    parametric: true,
+    convertible: true
+  },
+  {
+    id: 'uk-ball-valve',
+    type: 'valve',
+    label: 'Ball Valve',
+    category: 'Valves',
+    standard: 'UK-Water',
+    tags: ['valve', 'ball', 'quarter-turn', 'uk'],
+    description: 'UK Water standard ball valve',
+    searchKeywords: ['valve', 'ball', 'quarter', 'turn', 'uk'],
+    defaultData: {
+      label: 'V-003',
+      size: 'DN150',
+      type: 'ball'
+    },
+    component: 'UKBallValve',
+    parametric: true,
+    convertible: true
+  },
+
+  // ===== TANKS & RESERVOIRS =====
+  {
+    id: 'uk-storage-tank',
+    type: 'tank',
+    label: 'Storage Tank',
+    category: 'Tanks & Reservoirs',
+    standard: 'UK-Water',
+    tags: ['tank', 'storage', 'water', 'uk'],
+    description: 'UK Water standard storage tank',
+    searchKeywords: ['tank', 'storage', 'water', 'reservoir', 'uk'],
+    defaultData: {
+      label: 'T-001',
+      capacity: '1000 m³',
+      type: 'storage'
+    },
+    component: 'UKStorageTank',
+    parametric: true,
+    convertible: true
+  },
+  {
+    id: 'uk-service-reservoir',
+    type: 'tank',
+    label: 'Service Reservoir',
+    category: 'Tanks & Reservoirs',
+    standard: 'UK-Water',
+    tags: ['reservoir', 'service', 'covered', 'uk'],
+    description: 'Covered service reservoir',
+    searchKeywords: ['reservoir', 'service', 'covered', 'storage', 'uk'],
+    defaultData: {
+      label: 'SR-001',
+      capacity: '5000 m³',
+      type: 'service-reservoir'
+    },
+    component: 'UKServiceReservoir',
+    parametric: true,
+    convertible: false
+  },
+
+  // ===== TREATMENT EQUIPMENT =====
+  {
+    id: 'uk-chlorine-dosing',
+    type: 'treatment',
+    label: 'Chlorine Dosing',
+    category: 'Treatment Equipment',
+    standard: 'UK-Water',
+    tags: ['chlorine', 'dosing', 'disinfection', 'treatment'],
+    description: 'Chlorine dosing system for disinfection',
+    searchKeywords: ['chlorine', 'dosing', 'disinfection', 'chemical', 'treatment'],
+    defaultData: {
+      label: 'CL-001',
+      doseRate: '2 mg/l',
+      type: 'chlorine-dosing'
+    },
+    component: 'UKChlorineDosing',
+    parametric: true,
+    convertible: false
+  },
+  {
+    id: 'uk-sand-filter',
+    type: 'treatment',
+    label: 'Sand Filter',
+    category: 'Treatment Equipment',
+    standard: 'UK-Water',
+    tags: ['filter', 'sand', 'treatment', 'uk'],
+    description: 'Rapid gravity sand filter',
+    searchKeywords: ['filter', 'sand', 'rapid', 'gravity', 'treatment'],
+    defaultData: {
+      label: 'F-001',
+      flowRate: '100 l/s',
+      area: '25 m²'
+    },
+    component: 'UKSandFilter',
+    parametric: true,
+    convertible: false
+  },
+  {
+    id: 'uk-uv-disinfection',
+    type: 'treatment',
+    label: 'UV Disinfection',
+    category: 'Treatment Equipment',
+    standard: 'UK-Water',
+    tags: ['uv', 'disinfection', 'ultraviolet', 'treatment'],
+    description: 'Ultraviolet disinfection system',
+    searchKeywords: ['uv', 'ultraviolet', 'disinfection', 'treatment', 'lamp'],
+    defaultData: {
+      label: 'UV-001',
+      dose: '40 mJ/cm²',
+      flowRate: '200 l/s'
+    },
+    component: 'UKUVDisinfection',
+    parametric: true,
+    convertible: false
+  },
+
+  // ===== METERS & INSTRUMENTS =====
+  {
+    id: 'uk-flow-meter',
+    type: 'instrument',
+    label: 'Flow Meter',
+    category: 'Meters & Instruments',
+    standard: 'UK-Water',
+    tags: ['meter', 'flow', 'measurement', 'uk'],
+    description: 'UK Water standard flow meter',
+    searchKeywords: ['meter', 'flow', 'measurement', 'instrument', 'uk'],
+    defaultData: {
+      label: 'FM-001',
+      range: '0-500 l/s',
+      accuracy: '±1%'
+    },
+    component: 'UKFlowMeter',
+    parametric: true,
+    convertible: true
+  },
+  {
+    id: 'uk-pressure-gauge',
+    type: 'instrument',
+    label: 'Pressure Gauge',
+    category: 'Meters & Instruments',
+    standard: 'UK-Water',
+    tags: ['gauge', 'pressure', 'measurement', 'uk'],
+    description: 'UK Water standard pressure gauge',
+    searchKeywords: ['gauge', 'pressure', 'measurement', 'instrument', 'uk'],
+    defaultData: {
+      label: 'PG-001',
+      range: '0-16 bar',
+      accuracy: '±0.5%'
+    },
+    component: 'UKPressureGauge',
+    parametric: true,
+    convertible: true
+  },
+  {
+    id: 'uk-level-sensor',
+    type: 'instrument',
+    label: 'Level Sensor',
+    category: 'Meters & Instruments',
+    standard: 'UK-Water',
+    tags: ['sensor', 'level', 'measurement', 'uk'],
+    description: 'UK Water standard level sensor',
+    searchKeywords: ['sensor', 'level', 'measurement', 'probe', 'uk'],
+    defaultData: {
+      label: 'LS-001',
+      range: '0-10 m',
+      type: 'ultrasonic'
+    },
+    component: 'UKLevelSensor',
+    parametric: true,
+    convertible: true
+  },
+
+  // ===== SPECIAL EQUIPMENT =====
+  {
+    id: 'uk-booster-set',
+    type: 'equipment',
+    label: 'Booster Set',
+    category: 'Special Equipment',
+    standard: 'UK-Water',
+    tags: ['booster', 'pump', 'set', 'vsd'],
+    description: 'Variable speed booster pump set',
+    searchKeywords: ['booster', 'pump', 'set', 'variable', 'speed', 'vsd'],
+    defaultData: {
+      label: 'BS-001',
+      pumps: 3,
+      flowRate: '300 l/s',
+      pressure: '6 bar'
+    },
+    component: 'UKBoosterSet',
+    parametric: true,
+    convertible: false
+  },
+  {
+    id: 'uk-air-valve',
+    type: 'valve',
+    label: 'Air Valve',
+    category: 'Special Equipment',
+    standard: 'UK-Water',
+    tags: ['valve', 'air', 'release', 'vacuum'],
+    description: 'Air release and vacuum valve',
+    searchKeywords: ['valve', 'air', 'release', 'vacuum', 'vent'],
+    defaultData: {
+      label: 'AV-001',
+      size: 'DN100',
+      type: 'double-air'
+    },
+    component: 'UKAirValve',
+    parametric: true,
+    convertible: false
+  },
+  {
+    id: 'uk-washout-valve',
+    type: 'valve',
+    label: 'Washout Valve',
+    category: 'Special Equipment',
+    standard: 'UK-Water',
+    tags: ['valve', 'washout', 'drain', 'flush'],
+    description: 'Washout valve for pipeline flushing',
+    searchKeywords: ['valve', 'washout', 'drain', 'flush', 'clean'],
+    defaultData: {
+      label: 'WO-001',
+      size: 'DN150',
+      type: 'washout'
+    },
+    component: 'UKWashoutValve',
+    parametric: true,
+    convertible: false
+  }
+];
+
 // Export catalog by standard for easy filtering
 export const SymbolCatalog = {
   'ISA-5.1': ISA51Catalog,
-  'ISO-14617': [], // To be populated
-  'UK-Water': []  // To be populated
+  'ISO-14617': ISO14617Catalog,
+  'UK-Water': UKWaterCatalog
 };
 
 // Helper function to search symbols
