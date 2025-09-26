@@ -2,14 +2,16 @@
 
 import { Save, Cloud, CloudOff, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import type { ReactElement } from "react";
+import type { Node, Edge } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawingStore";
 
 interface AutoSaveData {
   id: string;
   timestamp: string;
-  nodes: any[];
-  edges: any[];
+  nodes: unknown[];
+  edges: unknown[];
   metadata: {
     drawingName: string;
     version: string;
@@ -32,7 +34,7 @@ export default function AutoSaveManager({
   maxAutoSaves = 10,
   onSave,
   onRestore,
-}: AutoSaveManagerProps) {
+}: AutoSaveManagerProps): ReactElement {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
   const [autoSaves, setAutoSaves] = useState<AutoSaveData[]>([]);
@@ -45,13 +47,12 @@ export default function AutoSaveManager({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastSaveDataRef = useRef<string>("");
 
-  const { nodes, edges, drawingName, addToHistory, history, currentHistoryIndex } =
-    useDrawingStore();
+  const { nodes, edges, drawingName, markDirty } = useDrawingStore();
 
   // Monitor online status
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = (): void => setIsOnline(true);
+    const handleOffline = (): void => setIsOnline(false);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -64,7 +65,7 @@ export default function AutoSaveManager({
 
   // Load existing auto-saves from localStorage
   useEffect(() => {
-    const loadAutoSaves = () => {
+    const loadAutoSaves = (): void => {
       try {
         const saved = localStorage.getItem("ergoplanner-autosaves");
         if (saved) {
@@ -113,7 +114,7 @@ export default function AutoSaveManager({
         setSaveStatus("saved");
         setHasUnsavedChanges(false);
 
-        console.log("Auto-save completed:", data.id);
+        // Auto-save completed successfully
       } catch (error) {
         console.error("Auto-save failed:", error);
         setSaveStatus("error");
@@ -138,7 +139,7 @@ export default function AutoSaveManager({
       const autoSaveData = createAutoSaveData();
       await saveAutoSave(autoSaveData);
       lastSaveDataRef.current = currentData;
-    } catch (error) {
+    } catch {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus("idle"), 3000);
     }
@@ -156,14 +157,14 @@ export default function AutoSaveManager({
         onRestore(autoSave);
       } else {
         // Default restore behavior
-        useDrawingStore.getState().setNodes(autoSave.nodes);
-        useDrawingStore.getState().setEdges(autoSave.edges);
+        useDrawingStore.getState().setNodes(autoSave.nodes as Node[]);
+        useDrawingStore.getState().setEdges(autoSave.edges as Edge[]);
         useDrawingStore.getState().setDrawingName(autoSave.metadata.drawingName);
-        addToHistory();
+        markDirty();
       }
       setHasUnsavedChanges(false);
     },
-    [onRestore, addToHistory]
+    [onRestore, markDirty]
   );
 
   // Delete auto-save
@@ -191,6 +192,7 @@ export default function AutoSaveManager({
       const timer = setTimeout(() => setSaveStatus("idle"), 2000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [nodes, edges, drawingName, saveStatus]);
 
   // Set up auto-save interval
@@ -212,9 +214,10 @@ export default function AutoSaveManager({
 
   // Handle page unload
   useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
       if (hasUnsavedChanges) {
         event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
         event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
       }
     };
@@ -224,8 +227,8 @@ export default function AutoSaveManager({
   }, [hasUnsavedChanges]);
 
   // Render status indicator
-  const renderStatusIndicator = () => {
-    const getStatusIcon = () => {
+  const renderStatusIndicator = (): ReactElement => {
+    const getStatusIcon = (): ReactElement => {
       if (!isOnline) return <CloudOff className="h-4 w-4 text-gray-400" />;
 
       switch (saveStatus) {
@@ -244,7 +247,7 @@ export default function AutoSaveManager({
       }
     };
 
-    const getStatusText = () => {
+    const getStatusText = (): string => {
       if (!isOnline) return "Offline";
 
       switch (saveStatus) {
@@ -272,7 +275,7 @@ export default function AutoSaveManager({
   };
 
   // Format relative time
-  const formatRelativeTime = (timestamp: string) => {
+  const formatRelativeTime = (timestamp: string): string => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -361,7 +364,7 @@ export default function AutoSaveManager({
           <div className="mt-3 rounded border border-yellow-200 bg-yellow-50 p-2 text-xs text-yellow-700">
             <div className="flex items-center gap-2">
               <CloudOff className="h-3 w-3" />
-              <span>You're offline. Auto-saves are stored locally.</span>
+              <span>You&apos;re offline. Auto-saves are stored locally.</span>
             </div>
           </div>
         )}

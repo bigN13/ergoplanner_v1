@@ -4,6 +4,7 @@ import { Download, Plus, Trash2, Edit2, Package, Search } from "lucide-react";
 import React, { useState, useMemo } from "react";
 
 import { useEnhancedDrawingStore } from "@/store/enhanced-drawing-store";
+import type { PIDNodeData } from "@/types/drawing";
 
 export interface BoQItem {
   id: string;
@@ -34,27 +35,30 @@ const BoQPanel: React.FC = () => {
     const itemMap = new Map<string, BoQItem>();
 
     nodes.forEach((node) => {
+      const nodeData = node.data as PIDNodeData;
       const key = `${node.type}-default`;
 
       if (itemMap.has(key)) {
-        const item = itemMap.get(key)!;
+        const item = itemMap.get(key);
+        if (!item) return;
         item.quantity += 1;
         item.totalPrice = item.quantity * item.unitPrice;
         item.linkedElements.push(node.id);
       } else {
+        const specs = (nodeData?.specifications as Record<string, unknown>) || {};
         const newItem: BoQItem = {
           id: `boq-${Date.now()}-${Math.random()}`,
-          category: node.data?.category || "Equipment",
-          description: node.data?.label || node.type || "Unknown Item",
+          category: (specs.category as string) || "Equipment",
+          description: nodeData?.label || node.type || "Unknown Item",
           specification:
-            node.data?.specification ||
-            `Size: ${node.data?.size || "N/A"}, Material: ${node.data?.material || "N/A"}`,
+            (specs.specification as string) ||
+            `Size: ${(specs.size as string) || "N/A"}, Material: ${(specs.material as string) || "N/A"}`,
           quantity: 1,
           unit: "EA",
-          unitPrice: node.data?.unitPrice || 0,
-          totalPrice: node.data?.unitPrice || 0,
-          supplier: node.data?.supplier,
-          leadTime: node.data?.leadTime,
+          unitPrice: (specs.unitPrice as number) || 0,
+          totalPrice: (specs.unitPrice as number) || 0,
+          supplier: specs.supplier as string | undefined,
+          leadTime: specs.leadTime as number | undefined,
           linkedElements: [node.id],
         };
         itemMap.set(key, newItem);
@@ -89,7 +93,7 @@ const BoQPanel: React.FC = () => {
     { quantity: 0, totalPrice: 0 }
   );
 
-  const handleAddItem = (newItem: Partial<BoQItem>) => {
+  const handleAddItem = (newItem: Partial<BoQItem>): void => {
     const item: BoQItem = {
       id: `boq-manual-${Date.now()}`,
       category: newItem.category || "Manual",
@@ -108,7 +112,7 @@ const BoQPanel: React.FC = () => {
     setShowAddForm(false);
   };
 
-  const handleUpdateItem = (itemId: string, updates: Partial<BoQItem>) => {
+  const handleUpdateItem = (itemId: string, updates: Partial<BoQItem>): void => {
     setBoqItems(
       boqItems.map((item) =>
         item.id === itemId
@@ -124,11 +128,11 @@ const BoQPanel: React.FC = () => {
     setEditingItem(null);
   };
 
-  const handleDeleteItem = (itemId: string) => {
+  const handleDeleteItem = (itemId: string): void => {
     setBoqItems(boqItems.filter((item) => item.id !== itemId));
   };
 
-  const exportToCSV = () => {
+  const exportToCSV = (): void => {
     const headers = [
       "Category",
       "Description",
@@ -344,7 +348,7 @@ const BoQPanel: React.FC = () => {
                 type="text"
                 placeholder="Description"
                 className="w-full rounded border px-2 py-1 text-sm"
-                onChange={(e) => {}}
+                onChange={(_e) => {}}
               />
               <input
                 type="text"

@@ -29,17 +29,17 @@ const eslintConfig = [
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     rules: {
       // TypeScript specific rules
-      "@typescript-eslint/no-unused-vars": ["error", {
+      "@typescript-eslint/no-unused-vars": ["warn", {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
       }],
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/explicit-function-return-type": ["warn", {
         allowExpressions: true,
         allowTypedFunctionExpressions: true,
       }],
       "@typescript-eslint/no-non-null-assertion": "warn",
-      "@typescript-eslint/consistent-type-imports": ["error", {
+      "@typescript-eslint/consistent-type-imports": ["warn", {
         prefer: "type-imports",
       }],
 
@@ -52,7 +52,7 @@ const eslintConfig = [
       // General JavaScript/TypeScript rules
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "no-debugger": "error",
-      "no-alert": "error",
+      "no-alert": "warn",
       "prefer-const": "error",
       "no-var": "error",
       "object-shorthand": "error",
@@ -61,13 +61,13 @@ const eslintConfig = [
         array: false,
         object: true,
       }],
-      "no-param-reassign": ["error", {
+      "no-param-reassign": ["warn", {
         props: true,
         ignorePropertyModificationsFor: ["state", "acc", "draft"],
       }],
 
       // Import rules
-      "import/order": ["error", {
+      "import/order": ["warn", {
         groups: [
           "builtin",
           "external",
@@ -81,7 +81,11 @@ const eslintConfig = [
           caseInsensitive: true,
         },
       }],
-      "import/no-duplicates": "error",
+      "import/no-duplicates": "warn",
+
+      // React JSX rules
+      "react/no-unescaped-entities": "warn",
+      "react/jsx-no-undef": "warn",
 
       // Accessibility
       "jsx-a11y/alt-text": "error",

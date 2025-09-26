@@ -5,7 +5,7 @@ import {
   Move,
   Crosshair,
   Zap,
-  Layers,
+  // Layers,
   Grid3x3,
   Ruler,
   Clock,
@@ -14,7 +14,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Users,
-  Eye,
+  // Eye,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useReactFlow } from "reactflow";
@@ -39,23 +39,23 @@ export default function StatusBar({
   isOnline = true,
   collaborators = 0,
   showPerformanceMetrics = false,
-}: StatusBarProps) {
+}: StatusBarProps): React.JSX.Element {
   const [fps, setFps] = useState(60);
-  const [renderTime, setRenderTime] = useState(0);
+  const [_renderTime, _setRenderTime] = useState(0);
   const [memoryUsage, setMemoryUsage] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
 
-  const { getZoom, getViewport } = useReactFlow();
+  const { getZoom } = useReactFlow();
   const {
     nodes,
     edges,
     isGridVisible,
     snapToGrid,
     gridSize,
-    canUndo,
-    canRedo,
-    currentHistoryIndex,
-    history,
+    // canUndo,
+    // canRedo,
+    // currentHistoryIndex,
+    // history,
   } = useDrawingStore();
 
   // Performance monitoring
@@ -66,7 +66,7 @@ export default function StatusBar({
     let lastTime = performance.now();
     let animationId: number;
 
-    const updateFPS = () => {
+    const updateFPS = (): void => {
       const currentTime = performance.now();
       frameCount++;
 
@@ -90,11 +90,22 @@ export default function StatusBar({
 
   // Memory usage monitoring
   useEffect(() => {
-    if (!showPerformanceMetrics || !(performance as any).memory) return;
+    if (!showPerformanceMetrics) return;
 
-    const updateMemoryUsage = () => {
-      const { memory } = performance as any;
-      setMemoryUsage(Math.round(memory.usedJSHeapSize / 1024 / 1024));
+    // Check if memory API is available
+    const perfWithMemory = performance as unknown as {
+      memory?: {
+        usedJSHeapSize: number;
+      };
+    };
+
+    if (!perfWithMemory.memory) return;
+
+    const updateMemoryUsage = (): void => {
+      const { memory } = perfWithMemory;
+      if (memory) {
+        setMemoryUsage(Math.round(memory.usedJSHeapSize / 1024 / 1024));
+      }
     };
 
     updateMemoryUsage();
@@ -109,9 +120,8 @@ export default function StatusBar({
   }, [nodes, edges]);
 
   const zoom = getZoom();
-  const viewport = getViewport();
 
-  const getToolIcon = (toolName: string) => {
+  const getToolIcon = (toolName: string): React.JSX.Element => {
     switch (toolName) {
       case "select":
         return <MousePointer className="h-3 w-3" />;
@@ -134,7 +144,7 @@ export default function StatusBar({
     return `${Math.round(value * 100)}%`;
   };
 
-  const getConnectionStatus = () => {
+  const getConnectionStatus = (): React.JSX.Element => {
     if (isOnline) {
       return (
         <div className="flex items-center gap-1 text-green-600">
@@ -152,9 +162,9 @@ export default function StatusBar({
     }
   };
 
-  const getHistoryStatus = () => {
-    const totalSteps = history.length;
-    const currentStep = currentHistoryIndex + 1;
+  const getHistoryStatus = (): React.JSX.Element => {
+    const totalSteps = 0; // TODO: Get from history when available
+    const currentStep = 0; // TODO: Get from history when available
 
     return (
       <div className="flex items-center gap-1 text-gray-600">
@@ -166,7 +176,7 @@ export default function StatusBar({
     );
   };
 
-  const getSelectionInfo = () => {
+  const getSelectionInfo = (): string => {
     if (selectedCount === 0) {
       return "No selection";
     } else if (selectedCount === 1) {
@@ -176,7 +186,7 @@ export default function StatusBar({
     }
   };
 
-  const getPerformanceIndicator = () => {
+  const getPerformanceIndicator = (): React.JSX.Element => {
     if (fps >= 50) {
       return <CheckCircle className="h-3 w-3 text-green-500" />;
     } else if (fps >= 30) {
@@ -291,7 +301,7 @@ export default function StatusBar({
         <div className="mt-1 rounded border border-red-300 bg-red-100 px-2 py-1 text-xs text-red-800">
           <div className="flex items-center gap-2">
             <WifiOff className="h-3 w-3" />
-            <span>You're offline. Changes will be saved locally.</span>
+            <span>You&apos;re offline. Changes will be saved locally.</span>
           </div>
         </div>
       )}

@@ -28,7 +28,7 @@ export interface PIDNodeData {
   specifications?: Record<string, unknown>;
   rotation?: number;
   isLocked?: boolean;
-  layer?: number;
+  layer?: string;
 }
 
 /**
@@ -46,6 +46,7 @@ export interface PIDEdgeData {
   material?: string;
   flowDirection?: "forward" | "backward" | "both";
   isSignal?: boolean;
+  layer?: string;
 }
 
 /**

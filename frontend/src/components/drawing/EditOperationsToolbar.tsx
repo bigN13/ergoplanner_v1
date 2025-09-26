@@ -6,455 +6,430 @@ import {
   Scissors,
   Copy,
   Clipboard,
-  PaintBucket,
+  ClipboardCopy,
+  ClipboardPaste,
+  Paintbrush,
   ChevronDown,
-  Clock,
+  FileText,
+  Info,
 } from "lucide-react";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useReactFlow } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawingStore";
+import type { HistoryItem } from "@/types/commands";
 
-import HistoryDropdown from "./HistoryDropdown";
-
-/**
- * Props interface for EditOperationsToolbar component
- */
-export interface EditOperationsToolbarProps {
+interface EditOperationsToolbarProps {
   className?: string;
-  showLabels?: boolean;
-  responsive?: boolean;
+  orientation?: "horizontal" | "vertical";
 }
 
-/**
- * Paste special options enum
- */
-export enum PasteSpecialMode {
-  FORMATTING = "formatting",
-  VALUES = "values",
-  DUPLICATE = "duplicate",
+interface ToolbarButton {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  onClick?: () => void;
+  shortcut?: string;
+  disabled?: boolean;
+  active?: boolean;
+  dropdown?: DropdownItem[];
 }
 
-/**
- * Edit operations toolbar component providing undo/redo, clipboard operations, and format painter
- * Matches draw.io styling and behavior with three distinct sections separated by dividers
- */
+interface DropdownItem {
+  id: string;
+  label: string;
+  icon?: React.ElementType;
+  onClick: () => void;
+  shortcut?: string;
+  divider?: boolean;
+}
+
 export default function EditOperationsToolbar({
   className = "",
-  showLabels = true,
-  responsive = true,
-}: EditOperationsToolbarProps): JSX.Element {
-  // Dropdown state management
-  const [pasteDropdownOpen, setPasteDropdownOpen] = useState(false);
-  const [isResponsiveMode, setIsResponsiveMode] = useState(false);
-
-  // Refs for dropdown click-outside handling
-  const pasteDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Drawing store integration
+  orientation = "horizontal",
+}: EditOperationsToolbarProps): React.ReactElement {
+  const { getNodes, getEdges } = useReactFlow();
   const {
-    canUndo,
-    canRedo,
     undo,
     redo,
-    clipboard,
-    formatPainter,
-    copySelected,
-    cut,
-    paste,
-    canPaste,
-    duplicateSelected,
-    copyFormat,
-    applyFormat,
+    canUndo,
+    canRedo,
+    getHistoryItems,
+    copyToClipboard,
+    cutToClipboard,
+    pasteFromClipboard,
+    pasteSpecial,
+    hasClipboardData,
+    isFormatPainterActive,
+    setFormatPainter,
     toggleFormatPainter,
-    clearFormatPainter,
-    getHistoryEntries,
-    jumpToHistoryIndex,
-    getCurrentIndex,
     selectedNodeId,
-    selectedNodeIds,
     selectedEdgeId,
-    selectedEdgeIds,
   } = useDrawingStore();
 
-  // Get history data for dropdowns
-  const historyEntries = getHistoryEntries();
-  const currentHistoryIndex = getCurrentIndex();
+  const [showUndoDropdown, setShowUndoDropdown] = useState(false);
+  const [showRedoDropdown, setShowRedoDropdown] = useState(false);
+  const [showPasteDropdown, setShowPasteDropdown] = useState(false);
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
-  // Check if anything is selected
-  const hasSelection = selectedNodeId || selectedEdgeId ||
-                      selectedNodeIds.length > 0 || selectedEdgeIds.length > 0;
-
-  // Check if format painter is active
-  const isFormatPainterActive = formatPainter.active;
-
-  // Responsive behavior
+  // Update history items when dropdown opens
   useEffect(() => {
-    if (!responsive) return;
+    if (showUndoDropdown || showRedoDropdown) {
+      setHistoryItems(getHistoryItems());
+    }
+  }, [showUndoDropdown, showRedoDropdown, getHistoryItems]);
 
-    const handleResize = (): void => {
-      setIsResponsiveMode(window.innerWidth < 768);
-    };
+  // Get selected elements
+  const getSelectedElements = useCallback(() => {
+    const nodes = getNodes().filter((n) => n.selected);
+    const edges = getEdges().filter((e) => e.selected);
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [responsive]);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (
-        pasteDropdownRef.current &&
-        !pasteDropdownRef.current.contains(event.target as Node)
-      ) {
-        setPasteDropdownOpen(false);
+    // If no multi-selection, check for single selection
+    if (nodes.length === 0 && edges.length === 0) {
+      if (selectedNodeId) {
+        const selectedNode = getNodes().find((n) => n.id === selectedNodeId);
+        if (selectedNode) nodes.push(selectedNode);
       }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Keyboard shortcuts
-  useHotkeys("ctrl+z, cmd+z", handleUndo, { enabled: canUndo() });
-  useHotkeys("ctrl+y, cmd+y, ctrl+shift+z, cmd+shift+z", handleRedo, { enabled: canRedo() });
-  useHotkeys("ctrl+x, cmd+x", handleCut, { enabled: hasSelection });
-  useHotkeys("ctrl+c, cmd+c", handleCopy, { enabled: hasSelection });
-  useHotkeys("ctrl+v, cmd+v", handlePaste, { enabled: canPaste() });
-  useHotkeys("ctrl+d, cmd+d", handleDuplicate, { enabled: hasSelection });
-  useHotkeys("escape", handleEscapeKey);
-
-  /**
-   * Handle undo operation
-   */
-  function handleUndo(): void {
-    if (canUndo()) {
-      undo();
+      if (selectedEdgeId) {
+        const selectedEdge = getEdges().find((e) => e.id === selectedEdgeId);
+        if (selectedEdge) edges.push(selectedEdge);
+      }
     }
-  }
 
-  /**
-   * Handle redo operation
-   */
-  function handleRedo(): void {
-    if (canRedo()) {
-      redo();
+    return { nodes, edges };
+  }, [getNodes, getEdges, selectedNodeId, selectedEdgeId]);
+
+  // Handle cut operation
+  const handleCut = useCallback(() => {
+    const { nodes, edges } = getSelectedElements();
+    if (nodes.length > 0 || edges.length > 0) {
+      cutToClipboard(nodes, edges);
     }
-  }
+  }, [cutToClipboard, getSelectedElements]);
 
-  /**
-   * Handle cut operation
-   */
-  function handleCut(): void {
-    if (hasSelection) {
-      cut();
+  // Handle copy operation
+  const handleCopy = useCallback(() => {
+    const { nodes, edges } = getSelectedElements();
+    if (nodes.length > 0 || edges.length > 0) {
+      copyToClipboard(nodes, edges);
     }
-  }
+  }, [copyToClipboard, getSelectedElements]);
 
-  /**
-   * Handle copy operation
-   */
-  function handleCopy(): void {
-    if (hasSelection) {
-      copySelected();
-    }
-  }
+  // Handle paste operation
+  const handlePaste = useCallback(() => {
+    pasteFromClipboard();
+  }, [pasteFromClipboard]);
 
-  /**
-   * Handle paste operation
-   */
-  function handlePaste(): void {
-    if (canPaste()) {
-      paste();
-    }
-    setPasteDropdownOpen(false);
-  }
-
-  /**
-   * Handle duplicate operation
-   */
-  function handleDuplicate(): void {
-    if (hasSelection) {
-      duplicateSelected();
-    }
-  }
-
-  /**
-   * Handle paste special operation
-   */
-  function handlePasteSpecial(mode: PasteSpecialMode): void {
-    switch (mode) {
-      case PasteSpecialMode.FORMATTING:
-        // Apply only formatting from clipboard
-        if (clipboard.nodes.length > 0 && selectedNodeId) {
-          const sourceNode = clipboard.nodes[0];
-          if (sourceNode.style || sourceNode.data) {
-            // Use format painter logic
-            copyFormat(sourceNode.id);
-            applyFormat([selectedNodeId]);
-          }
-        }
-        break;
-      case PasteSpecialMode.VALUES:
-        // Paste without formatting
-        paste(); // Default paste for now
-        break;
-      case PasteSpecialMode.DUPLICATE:
-        // Duplicate in place
-        handleDuplicate();
-        break;
-    }
-    setPasteDropdownOpen(false);
-  }
-
-  /**
-   * Handle format painter toggle
-   */
-  function handleFormatPainter(): void {
-    if (isFormatPainterActive) {
-      clearFormatPainter();
-    } else if (selectedNodeId) {
-      // Copy format from selected node
-      copyFormat(selectedNodeId);
+  // Handle format painter
+  const handleFormatPainter = useCallback(() => {
+    const { nodes } = getSelectedElements();
+    if (nodes.length > 0 && !isFormatPainterActive) {
+      // Pick format from first selected node
+      const sourceNode = nodes[0];
+      if (sourceNode) {
+        setFormatPainter({
+          style: sourceNode.style,
+          nodeType: sourceNode.type,
+          data: sourceNode.data,
+        });
+      }
     } else {
-      // Just toggle the mode
       toggleFormatPainter();
     }
-  }
+  }, [getSelectedElements, isFormatPainterActive, setFormatPainter, toggleFormatPainter]);
 
-  /**
-   * Handle escape key to exit format painter mode
-   */
-  function handleEscapeKey(): void {
-    if (isFormatPainterActive) {
-      clearFormatPainter();
-    }
-  }
+  // Setup keyboard shortcuts
+  useHotkeys("ctrl+z, cmd+z", () => canUndo() && undo(), [canUndo, undo]);
+  useHotkeys("ctrl+y, cmd+y, ctrl+shift+z, cmd+shift+z", () => canRedo() && redo(), [
+    canRedo,
+    redo,
+  ]);
+  useHotkeys("ctrl+x, cmd+x", handleCut, [handleCut]);
+  useHotkeys("ctrl+c, cmd+c", handleCopy, [handleCopy]);
+  useHotkeys("ctrl+v, cmd+v", handlePaste, [handlePaste]);
 
-  /**
-   * Handle history jump from dropdown
-   */
-  function handleJumpToHistory(index: number): void {
-    jumpToHistoryIndex(index);
-  }
+  // Undo/Redo dropdown items
+  const undoDropdownItems: DropdownItem[] = historyItems.slice(0, 10).map((item, index) => ({
+    id: `undo-${index}`,
+    label: item.action || `Action ${index + 1}`,
+    onClick: () => {
+      // Undo multiple times to reach this point
+      for (let i = 0; i <= index; i++) {
+        undo();
+      }
+      setShowUndoDropdown(false);
+    },
+  }));
 
-  const shouldShowLabels = showLabels && !isResponsiveMode;
-  const hasClipboardContent = clipboard.nodes.length > 0 || clipboard.edges.length > 0;
+  const redoDropdownItems: DropdownItem[] = historyItems.slice(0, 10).map((item, index) => ({
+    id: `redo-${index}`,
+    label: item.action || `Action ${index + 1}`,
+    onClick: () => {
+      // Redo multiple times to reach this point
+      for (let i = 0; i <= index; i++) {
+        redo();
+      }
+      setShowRedoDropdown(false);
+    },
+  }));
+
+  // Paste special dropdown items
+  const pasteDropdownItems: DropdownItem[] = [
+    {
+      id: "paste-normal",
+      label: "Paste",
+      icon: Clipboard,
+      onClick: () => {
+        handlePaste();
+        setShowPasteDropdown(false);
+      },
+      shortcut: "Ctrl+V",
+    },
+    {
+      id: "paste-formatting",
+      label: "Paste Format Only",
+      icon: Paintbrush,
+      onClick: () => {
+        pasteSpecial("formatting");
+        setShowPasteDropdown(false);
+      },
+    },
+    {
+      id: "paste-values",
+      label: "Paste Values Only",
+      icon: FileText,
+      onClick: () => {
+        pasteSpecial("values");
+        setShowPasteDropdown(false);
+      },
+    },
+    { id: "divider", label: "", divider: true, onClick: () => {} },
+    {
+      id: "paste-duplicate",
+      label: "Duplicate",
+      icon: ClipboardCopy,
+      onClick: () => {
+        pasteSpecial("duplicate");
+        setShowPasteDropdown(false);
+      },
+      shortcut: "Ctrl+D",
+    },
+  ];
+
+  // Toolbar buttons configuration
+  const buttons: ToolbarButton[] = [
+    {
+      id: "undo",
+      label: "Undo",
+      icon: Undo2,
+      onClick: undo,
+      shortcut: "Ctrl+Z",
+      disabled: !canUndo(),
+      dropdown: undoDropdownItems,
+    },
+    {
+      id: "redo",
+      label: "Redo",
+      icon: Redo2,
+      onClick: redo,
+      shortcut: "Ctrl+Y",
+      disabled: !canRedo(),
+      dropdown: redoDropdownItems,
+    },
+    {
+      id: "cut",
+      label: "Cut",
+      icon: Scissors,
+      onClick: handleCut,
+      shortcut: "Ctrl+X",
+      disabled: !selectedNodeId && !selectedEdgeId,
+    },
+    {
+      id: "copy",
+      label: "Copy",
+      icon: Copy,
+      onClick: handleCopy,
+      shortcut: "Ctrl+C",
+      disabled: !selectedNodeId && !selectedEdgeId,
+    },
+    {
+      id: "paste",
+      label: "Paste",
+      icon: ClipboardPaste,
+      onClick: handlePaste,
+      shortcut: "Ctrl+V",
+      disabled: !hasClipboardData(),
+      dropdown: pasteDropdownItems,
+    },
+    {
+      id: "format-painter",
+      label: "Format Painter",
+      icon: Paintbrush,
+      onClick: handleFormatPainter,
+      active: isFormatPainterActive,
+      disabled: !selectedNodeId && !isFormatPainterActive,
+    },
+  ];
+
+  // Render dropdown menu
+  const renderDropdown = (
+    items: DropdownItem[],
+    show: boolean,
+    onClose: () => void
+  ): React.ReactElement | null => {
+    if (!show) return null;
+
+    return (
+      <div className="absolute top-full left-0 z-50 mt-1 min-w-[200px] rounded-md border border-gray-200 bg-white shadow-lg">
+        {items.map((item) => {
+          if (item.divider) {
+            return <div key={item.id} className="my-1 border-t border-gray-200" />;
+          }
+
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+              onClick={() => {
+                item.onClick();
+                onClose();
+              }}
+            >
+              {Icon && <Icon className="h-4 w-4" />}
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.shortcut && <span className="ml-2 text-xs text-gray-400">{item.shortcut}</span>}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Render button with optional dropdown
+  const renderButton = (button: ToolbarButton): React.ReactElement => {
+    const Icon = button.icon;
+    const isUndoButton = button.id === "undo";
+    const isRedoButton = button.id === "redo";
+    const isPasteButton = button.id === "paste";
+
+    return (
+      <div key={button.id} className="group relative">
+        <div className="flex items-center">
+          <button
+            className={`flex items-center justify-center rounded-l p-2 transition-all ${
+              button.disabled
+                ? "cursor-not-allowed bg-gray-50 opacity-50"
+                : "hover:bg-gray-100 active:bg-gray-200"
+            } ${button.active ? "bg-blue-100 text-blue-600" : ""} ${orientation === "vertical" ? "w-full" : ""} `}
+            onClick={button.onClick}
+            disabled={button.disabled}
+            title={`${button.label}${button.shortcut ? ` (${button.shortcut})` : ""}`}
+          >
+            <Icon className="h-4 w-4" />
+            {orientation === "vertical" && <span className="ml-2 text-sm">{button.label}</span>}
+          </button>
+
+          {button.dropdown && (
+            <button
+              className={`rounded-r border-l border-gray-200 px-1 py-2 transition-all ${
+                button.disabled
+                  ? "cursor-not-allowed bg-gray-50 opacity-50"
+                  : "hover:bg-gray-100 active:bg-gray-200"
+              } `}
+              onClick={() => {
+                if (isUndoButton) setShowUndoDropdown(!showUndoDropdown);
+                if (isRedoButton) setShowRedoDropdown(!showRedoDropdown);
+                if (isPasteButton) setShowPasteDropdown(!showPasteDropdown);
+              }}
+              disabled={button.disabled}
+            >
+              <ChevronDown className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Tooltip */}
+        {!button.disabled && button.shortcut && orientation === "horizontal" && (
+          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
+            {button.label}
+            {button.shortcut && <span className="ml-1 text-gray-300">({button.shortcut})</span>}
+          </div>
+        )}
+
+        {/* Dropdown menu */}
+        {isUndoButton &&
+          renderDropdown(undoDropdownItems, showUndoDropdown, () => setShowUndoDropdown(false))}
+        {isRedoButton &&
+          renderDropdown(redoDropdownItems, showRedoDropdown, () => setShowRedoDropdown(false))}
+        {isPasteButton &&
+          renderDropdown(pasteDropdownItems, showPasteDropdown, () => setShowPasteDropdown(false))}
+      </div>
+    );
+  };
+
+  const containerClass =
+    orientation === "horizontal"
+      ? "flex items-center gap-1 px-2 py-1 bg-white border-b border-gray-200"
+      : "flex flex-col gap-1 p-2 bg-white border-r border-gray-200";
 
   return (
-    <div className={`flex items-center space-x-1 ${className}`}>
-      {/* Section 1: Undo/Redo with History Dropdown */}
-      <div className="flex items-center space-x-0.5">
-        {/* Undo Button with Dropdown */}
-        <div className="flex items-center">
-          <button
-            onClick={handleUndo}
-            disabled={!canUndo()}
-            className={`flex items-center gap-2 px-3 py-2 text-sm font-medium border rounded-l-md transition-colors ${
-              canUndo()
-                ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-                : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-            title="Undo (Ctrl+Z)"
-          >
-            <Undo2 className="w-4 h-4" />
-            {shouldShowLabels && <span>Undo</span>}
-          </button>
-          <HistoryDropdown
-            historyEntries={historyEntries}
-            currentIndex={currentHistoryIndex}
-            onJumpToIndex={handleJumpToHistory}
-            disabled={!canUndo()}
-            isUndo={true}
-          />
-        </div>
-
-        {/* Redo Button with Dropdown */}
-        <div className="flex items-center">
-          <button
-            onClick={handleRedo}
-            disabled={!canRedo()}
-            className={`flex items-center gap-2 px-3 py-2 text-sm font-medium border rounded-l-md transition-colors ${
-              canRedo()
-                ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-                : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-            title="Redo (Ctrl+Y)"
-          >
-            <Redo2 className="w-4 h-4" />
-            {shouldShowLabels && <span>Redo</span>}
-          </button>
-          <HistoryDropdown
-            historyEntries={historyEntries}
-            currentIndex={currentHistoryIndex}
-            onJumpToIndex={handleJumpToHistory}
-            disabled={!canRedo()}
-            isUndo={false}
-          />
-        </div>
+    <div className={`${containerClass} ${className}`}>
+      {/* Undo/Redo Section */}
+      <div
+        className={`flex ${orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"}`}
+      >
+        {buttons.slice(0, 2).map(renderButton)}
       </div>
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-gray-300" />
+      {/* Separator */}
+      <div
+        className={`${
+          orientation === "horizontal"
+            ? "mx-1 h-6 w-px bg-gray-300"
+            : "my-1 h-px w-full bg-gray-300"
+        }`}
+      />
 
-      {/* Section 2: Clipboard Operations */}
-      <div className="flex items-center space-x-0.5">
-        {/* Cut Button */}
-        <button
-          onClick={handleCut}
-          disabled={!hasSelection}
-          className={`flex items-center gap-2 px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
-            hasSelection
-              ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-              : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-          title="Cut (Ctrl+X)"
-        >
-          <Scissors className="w-4 h-4" />
-          {shouldShowLabels && <span>Cut</span>}
-        </button>
+      {/* Cut/Copy/Paste Section */}
+      <div
+        className={`flex ${orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"}`}
+      >
+        {buttons.slice(2, 5).map(renderButton)}
+      </div>
 
-        {/* Copy Button */}
-        <button
-          onClick={handleCopy}
-          disabled={!hasSelection}
-          className={`flex items-center gap-2 px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
-            hasSelection
-              ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-              : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-          title="Copy (Ctrl+C)"
-        >
-          <Copy className="w-4 h-4" />
-          {shouldShowLabels && <span>Copy</span>}
-        </button>
+      {/* Separator */}
+      <div
+        className={`${
+          orientation === "horizontal"
+            ? "mx-1 h-6 w-px bg-gray-300"
+            : "my-1 h-px w-full bg-gray-300"
+        }`}
+      />
 
-        {/* Paste Button with Dropdown */}
-        <div className="relative" ref={pasteDropdownRef}>
-          <div className="flex items-center">
-            <button
-              onClick={handlePaste}
-              disabled={!hasClipboardContent}
-              className={`flex items-center gap-2 px-3 py-2 text-sm font-medium border rounded-l-md transition-colors ${
-                hasClipboardContent
-                  ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-                  : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-              title="Paste (Ctrl+V)"
-            >
-              <Clipboard className="w-4 h-4" />
-              {shouldShowLabels && <span>Paste</span>}
-              {hasClipboardContent && (
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-1" />
-              )}
-            </button>
-            <button
-              onClick={() => setPasteDropdownOpen(!pasteDropdownOpen)}
-              disabled={!hasClipboardContent}
-              className={`px-2 py-2 border border-l-0 rounded-r-md transition-colors ${
-                hasClipboardContent
-                  ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-                  : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-              title="Paste special"
-            >
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </div>
+      {/* Format Painter Section */}
+      <div
+        className={`flex ${orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"}`}
+      >
+        {buttons.slice(5).map(renderButton)}
+      </div>
 
-          {/* Paste Special Dropdown */}
-          {pasteDropdownOpen && hasClipboardContent && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                <button
-                  onClick={handlePaste}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  <Clipboard className="w-4 h-4 mr-3" />
-                  <div>
-                    <div className="font-medium">Paste</div>
-                    <div className="text-xs text-gray-500">Ctrl+V</div>
-                  </div>
-                </button>
-                <div className="border-t border-gray-200 my-1" />
-                <button
-                  onClick={() => handlePasteSpecial(PasteSpecialMode.FORMATTING)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  disabled={!selectedNodeId}
-                >
-                  <PaintBucket className="w-4 h-4 mr-3" />
-                  <div>
-                    <div className="font-medium">Paste Formatting Only</div>
-                    <div className="text-xs text-gray-500">Apply style only</div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handlePasteSpecial(PasteSpecialMode.VALUES)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  <Copy className="w-4 h-4 mr-3" />
-                  <div>
-                    <div className="font-medium">Paste Values Only</div>
-                    <div className="text-xs text-gray-500">No formatting</div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handlePasteSpecial(PasteSpecialMode.DUPLICATE)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  disabled={!hasSelection}
-                >
-                  <Copy className="w-4 h-4 mr-3" />
-                  <div>
-                    <div className="font-medium">Duplicate</div>
-                    <div className="text-xs text-gray-500">Ctrl+D</div>
-                  </div>
-                </button>
-              </div>
-              {clipboard.nodes.length > 0 && (
-                <div className="border-t border-gray-200 px-4 py-2">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Clock className="w-3 h-3 mr-1" />
-                    <span>
-                      Clipboard: {clipboard.nodes.length} nodes, {clipboard.edges.length} edges
-                    </span>
-                  </div>
-                </div>
-              )}
+      {/* Additional Info */}
+      {orientation === "vertical" && (
+        <>
+          <div className="my-1 h-px w-full bg-gray-300" />
+          <div className="p-2 text-xs text-gray-500">
+            <div className="mb-1 flex items-center gap-1">
+              <Info className="h-3 w-3" />
+              <span>Edit Operations</span>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div className="w-px h-6 bg-gray-300" />
-
-      {/* Section 3: Format Painter */}
-      <div className="flex items-center">
-        <button
-          onClick={handleFormatPainter}
-          className={`flex items-center gap-2 px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
-            isFormatPainterActive
-              ? "text-white bg-blue-500 border-blue-600 hover:bg-blue-600"
-              : selectedNodeId
-              ? "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-              : "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
-          title={`Format Painter ${isFormatPainterActive ? "(Active - Click to exit)" : "(Select a node first)"}`}
-          disabled={!selectedNodeId && !isFormatPainterActive}
-        >
-          <PaintBucket className="w-4 h-4" />
-          {shouldShowLabels && <span>Format Painter</span>}
-          {isFormatPainterActive && (
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse ml-1" />
-          )}
-        </button>
-        {isFormatPainterActive && formatPainter.format && (
-          <span className="ml-2 text-xs text-gray-500">
-            Click nodes to apply format (ESC to exit)
-          </span>
-        )}
-      </div>
+            <div className="text-[10px] leading-relaxed">
+              Use keyboard shortcuts for faster editing
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

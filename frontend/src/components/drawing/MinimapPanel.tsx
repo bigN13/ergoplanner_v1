@@ -1,7 +1,7 @@
 "use client";
 
 import { Maximize2, Minimize2, Move, ZoomIn, ZoomOut } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { useReactFlow, MiniMap } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawing-store";
@@ -12,7 +12,7 @@ const MinimapPanel: React.FC = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [showGrid, setShowGrid] = React.useState(true);
 
-  const nodeColor = (node: any) => {
+  const nodeColor = (node: Record<string, unknown>): string => {
     switch (node.type) {
       case "pump":
         return "#3b82f6"; // blue
@@ -29,19 +29,19 @@ const MinimapPanel: React.FC = () => {
     }
   };
 
-  const handleZoomIn = () => {
+  const handleZoomIn = (): void => {
     reactFlowInstance.zoomIn();
   };
 
-  const handleZoomOut = () => {
+  const handleZoomOut = (): void => {
     reactFlowInstance.zoomOut();
   };
 
-  const handleFitView = () => {
+  const handleFitView = (): void => {
     reactFlowInstance.fitView({ padding: 0.2 });
   };
 
-  const handleCenter = () => {
+  const handleCenter = (): void => {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     reactFlowInstance.setCenter(centerX, centerY, { zoom: 1 });

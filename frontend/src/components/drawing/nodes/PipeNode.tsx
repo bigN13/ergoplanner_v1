@@ -10,7 +10,7 @@ export interface PipeNodeData {
 }
 
 const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
-  const renderPipeShape = () => {
+  const renderPipeShape = (): React.JSX.Element => {
     switch (data.orientation) {
       case "horizontal":
         return (
@@ -171,7 +171,7 @@ const PipeNode = memo(({ data, selected }: NodeProps<PipeNodeData>) => {
         );
 
       default:
-        return null;
+        return <></>;
     }
   };
 

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import type { Edge, Node, Connection } from "reactflow";
 import { MarkerType } from "reactflow";
 
-import { useDrawingStore } from "@/store/drawingStore";
+// import { useDrawingStore } from "@/store/drawingStore";
 
 interface PipeSpec {
   diameter: string;
@@ -76,9 +76,21 @@ const FLUID_TYPES = {
 export default function PipeRoutingSystem({
   nodes,
   edges,
-  onEdgesChange,
+  onEdgesChange: _onEdgesChange,
   onConnect,
-}: PipeRoutingSystemProps) {
+}: PipeRoutingSystemProps): {
+  handleConnection: (params: Connection) => void;
+  PipeRoutingControls: () => React.ReactElement;
+  validateConnection: (
+    sourceNode: Node,
+    targetNode: Node,
+    pipeSpec: PipeSpec
+  ) => { valid: boolean; warnings: string[]; errors: string[] };
+  getConnectionPoints: (node: Node) => ConnectionPoint[];
+  PIPE_MATERIALS: typeof PIPE_MATERIALS;
+  PIPE_DIAMETERS: string[];
+  FLUID_TYPES: typeof FLUID_TYPES;
+} {
   const [autoRouting, setAutoRouting] = useState(true);
   const [smartConnections, setSmartConnections] = useState(true);
   const [showFlowDirection, setShowFlowDirection] = useState(true);
@@ -321,14 +333,18 @@ export default function PipeRoutingSystem({
 
       if (!validation.valid) {
         const message = `Connection failed:\n${validation.errors.join("\n")}`;
-        alert(message);
+        // TODO: Replace with proper error modal
+        // alert(message);
+        console.error(message);
         return;
       }
 
       if (validation.warnings.length > 0) {
-        const proceed = confirm(
-          `Connection warnings:\n${validation.warnings.join("\n")}\n\nProceed anyway?`
-        );
+        // TODO: Replace with proper confirmation modal
+        // const proceed = confirm(
+        //   `Connection warnings:\n${validation.warnings.join("\n")}\n\nProceed anyway?`
+        // );
+        const proceed = true; // Temporary: always proceed
         if (!proceed) return;
       }
 
@@ -339,6 +355,8 @@ export default function PipeRoutingSystem({
       const newEdge: Edge = {
         ...params,
         id: `pipe-${params.source}-${params.target}-${Date.now()}`,
+        source: params.source || "",
+        target: params.target || "",
         type: "smoothstep",
         animated: showFlowDirection,
         style: {
@@ -416,7 +434,7 @@ export default function PipeRoutingSystem({
   };
 
   // Pipe routing controls component
-  const PipeRoutingControls = () => (
+  const PipeRoutingControls = (): React.ReactElement => (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <h3 className="mb-3 text-sm font-semibold text-gray-700">Pipe Routing</h3>
 

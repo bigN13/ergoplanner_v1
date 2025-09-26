@@ -1,70 +1,71 @@
 "use client";
 
-import React, { useState, useRef } from "react";
 import {
-  Save,
-  FolderOpen,
-  Download,
-  Upload,
-  Printer,
+  // Save,
+  // FolderOpen,
+  // Download,
+  // Upload,
+  // Printer,
   Undo,
   Redo,
   Copy,
   Clipboard,
   Trash2,
-  Search,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
+  // Search,
   Grid,
-  Eye,
-  EyeOff,
+  // Eye,
+  // EyeOff,
   AlignLeft,
   AlignCenter,
   AlignRight,
-  AlignJustify,
+  // AlignJustify,
   RotateCw,
-  FlipHorizontal,
-  FlipVertical,
+  // FlipHorizontal,
+  // FlipVertical,
   Layers,
-  Lock,
-  Unlock,
+  // Lock,
+  // Unlock,
   MousePointer,
   Type,
   Square,
   Circle,
-  Triangle,
+  // Triangle,
   Minus,
   PenTool,
   ChevronDown,
   Settings,
-  HelpCircle,
-  Info,
-  FileText,
-  Database,
-  Users,
-  Share2,
-  Cloud,
-  GitBranch,
+  // HelpCircle,
+  // Info,
+  // FileText,
+  // Database,
+  // Users,
+  // Share2,
+  // Cloud,
+  // GitBranch,
   Package,
-  Cpu,
-  Activity,
-  Zap,
-  Box,
-  Hexagon,
-  Pentagon,
+  // Cpu,
+  // Activity,
+  // Zap,
+  // Box,
+  // Hexagon,
+  // Pentagon,
 } from "lucide-react";
-import { useDrawingStore } from "@/store/drawingStore";
+import React, { useState, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+
+import { useFileOperations } from "@/hooks/useFileOperations";
+import { useDrawingStore } from "@/store/drawingStore";
+
+import FileOperationsToolbar from "./FileOperationsToolbar";
+import ZoomControlsToolbar from "./ZoomControlsToolbar";
 
 interface MainToolbarProps {
   className?: string;
 }
 
-export default function MainToolbar({ className }: MainToolbarProps) {
+export default function MainToolbar({ className }: MainToolbarProps): React.ReactElement {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState("select");
-  const [zoomLevel, setZoomLevel] = useState(100);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -72,167 +73,85 @@ export default function MainToolbar({ className }: MainToolbarProps) {
     redo,
     canUndo,
     canRedo,
-    saveDrawing,
-    loadDrawing,
-    exportDrawing,
-    importDrawing,
     deleteSelectedNode,
     deleteSelectedEdge,
     toggleGrid,
     toggleSnap,
     isGridVisible,
     snapToGrid,
-    zoom,
-    setZoom,
   } = useDrawingStore();
 
-  // Keyboard shortcuts
-  useHotkeys("ctrl+s, cmd+s", (e) => {
-    e.preventDefault();
-    handleSave();
-  }, []);
+  const { handleNew, handleOpen, handleSave, handleSaveAs, handleExport } = useFileOperations();
 
-  useHotkeys("ctrl+o, cmd+o", (e) => {
-    e.preventDefault();
-    handleOpen();
-  }, []);
+  // Keyboard shortcuts for edit operations only
+  // File shortcuts are now handled by FileOperationsToolbar
 
   useHotkeys("ctrl+z, cmd+z", () => canUndo() && undo(), [canUndo]);
   useHotkeys("ctrl+y, cmd+y", () => canRedo() && redo(), [canRedo]);
 
-  useHotkeys("ctrl+c, cmd+c", (e) => {
-    e.preventDefault();
-    handleCopy();
-  }, []);
+  useHotkeys(
+    "ctrl+c, cmd+c",
+    (e) => {
+      e.preventDefault();
+      handleCopy();
+    },
+    []
+  );
 
-  useHotkeys("ctrl+v, cmd+v", (e) => {
-    e.preventDefault();
-    handlePaste();
-  }, []);
+  useHotkeys(
+    "ctrl+v, cmd+v",
+    (e) => {
+      e.preventDefault();
+      handlePaste();
+    },
+    []
+  );
 
-  useHotkeys("ctrl+x, cmd+x", (e) => {
-    e.preventDefault();
-    handleCut();
-  }, []);
+  useHotkeys(
+    "ctrl+x, cmd+x",
+    (e) => {
+      e.preventDefault();
+      handleCut();
+    },
+    []
+  );
 
-  useHotkeys("delete", () => {
-    handleDelete();
-  }, []);
+  useHotkeys(
+    "delete",
+    () => {
+      handleDelete();
+    },
+    []
+  );
 
-  useHotkeys("ctrl+plus, cmd+plus, ctrl+=, cmd+=", (e) => {
-    e.preventDefault();
-    handleZoomIn();
-  }, [zoom]);
-
-  useHotkeys("ctrl+minus, cmd+minus", (e) => {
-    e.preventDefault();
-    handleZoomOut();
-  }, [zoom]);
-
-  useHotkeys("ctrl+0, cmd+0", (e) => {
-    e.preventDefault();
-    handleZoomReset();
-  }, []);
-
-  // Menu actions
-  const handleSave = async () => {
-    await saveDrawing();
-    console.log("Drawing saved");
+  // Edit actions
+  const handleCopy = (): void => {
+    // Copy functionality
   };
 
-  const handleOpen = async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const content = event.target?.result as string;
-          await loadDrawing(content);
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
+  const handlePaste = (): void => {
+    // Paste functionality
   };
 
-  const handleExport = async (format: string) => {
-    await exportDrawing(format);
-    console.log(`Exported as ${format}`);
+  const handleCut = (): void => {
+    // Cut functionality
   };
 
-  const handleImport = async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json,.xml,.vsdx";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const content = event.target?.result as string;
-          await importDrawing(content);
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
-  };
-
-  const handleCopy = () => {
-    console.log("Copy");
-  };
-
-  const handlePaste = () => {
-    console.log("Paste");
-  };
-
-  const handleCut = () => {
-    console.log("Cut");
-  };
-
-  const handleDelete = () => {
+  const handleDelete = (): void => {
     deleteSelectedNode();
     deleteSelectedEdge();
   };
 
-  const handleZoomIn = () => {
-    const newZoom = Math.min(5000, zoom * 1.2);
-    setZoom(newZoom);
-    setZoomLevel(newZoom);
-  };
-
-  const handleZoomOut = () => {
-    const newZoom = Math.max(10, zoom / 1.2);
-    setZoom(newZoom);
-    setZoomLevel(newZoom);
-  };
-
-  const handleZoomReset = () => {
-    setZoom(100);
-    setZoomLevel(100);
-  };
-
-  const handleZoomChange = (value: string) => {
-    const newZoom = parseInt(value, 10);
-    if (!isNaN(newZoom) && newZoom >= 10 && newZoom <= 5000) {
-      setZoom(newZoom);
-      setZoomLevel(newZoom);
-    }
-  };
-
-  const toggleDropdown = (menu: string) => {
+  const toggleDropdown = (menu: string): void => {
     setActiveDropdown(activeDropdown === menu ? null : menu);
   };
 
-  const closeDropdowns = () => {
+  const closeDropdowns = (): void => {
     setActiveDropdown(null);
   };
 
   React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         closeDropdowns();
       }
@@ -243,41 +162,66 @@ export default function MainToolbar({ className }: MainToolbarProps) {
   }, []);
 
   return (
-    <div className={`bg-white border-b border-gray-200 ${className}`} ref={dropdownRef}>
+    <div className={`border-b border-gray-200 bg-white ${className}`} ref={dropdownRef}>
       {/* Menu Bar */}
-      <div className="flex items-center h-9 px-2 border-b border-gray-200">
+      <div className="flex h-9 items-center border-b border-gray-200 px-2">
         <div className="flex items-center space-x-1">
           {/* File Menu */}
           <div className="relative">
             <button
               onClick={() => toggleDropdown("file")}
-              className="px-3 py-1 text-sm hover:bg-gray-100 rounded"
+              className="rounded px-3 py-1 text-sm hover:bg-gray-100"
             >
               File
             </button>
             {activeDropdown === "file" && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded z-50">
-                <button onClick={handleSave} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
-                  <span>Save</span>
-                  <span className="text-xs text-gray-500">Ctrl+S</span>
+              <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg">
+                <button
+                  onClick={() => handleNew()}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
+                  <span>New</span>
+                  <span className="text-xs text-gray-500">Ctrl+N</span>
                 </button>
-                <button onClick={handleOpen} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+                <button
+                  onClick={() => handleOpen()}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Open</span>
                   <span className="text-xs text-gray-500">Ctrl+O</span>
                 </button>
-                <div className="border-t border-gray-200 my-1" />
-                <button onClick={() => handleExport("json")} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">
+                <button
+                  onClick={handleSave}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
+                  <span>Save</span>
+                  <span className="text-xs text-gray-500">Ctrl+S</span>
+                </button>
+                <button
+                  onClick={handleSaveAs}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
+                  <span>Save As</span>
+                  <span className="text-xs text-gray-500">Ctrl+Shift+S</span>
+                </button>
+                <div className="my-1 border-t border-gray-200" />
+                <button
+                  onClick={() => handleExport("json")}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   Export as JSON
                 </button>
-                <button onClick={() => handleExport("svg")} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">
+                <button
+                  onClick={() => handleExport("svg")}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   Export as SVG
                 </button>
-                <button onClick={() => handleExport("png")} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">
+                <button
+                  onClick={() => handleExport("png")}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   Export as PNG
-                </button>
-                <div className="border-t border-gray-200 my-1" />
-                <button onClick={handleImport} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">
-                  Import
                 </button>
               </div>
             )}
@@ -287,34 +231,54 @@ export default function MainToolbar({ className }: MainToolbarProps) {
           <div className="relative">
             <button
               onClick={() => toggleDropdown("edit")}
-              className="px-3 py-1 text-sm hover:bg-gray-100 rounded"
+              className="rounded px-3 py-1 text-sm hover:bg-gray-100"
             >
               Edit
             </button>
             {activeDropdown === "edit" && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded z-50">
-                <button onClick={() => undo()} disabled={!canUndo()} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between disabled:opacity-50">
+              <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg">
+                <button
+                  onClick={() => undo()}
+                  disabled={!canUndo()}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100 disabled:opacity-50"
+                >
                   <span>Undo</span>
                   <span className="text-xs text-gray-500">Ctrl+Z</span>
                 </button>
-                <button onClick={() => redo()} disabled={!canRedo()} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between disabled:opacity-50">
+                <button
+                  onClick={() => redo()}
+                  disabled={!canRedo()}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100 disabled:opacity-50"
+                >
                   <span>Redo</span>
                   <span className="text-xs text-gray-500">Ctrl+Y</span>
                 </button>
-                <div className="border-t border-gray-200 my-1" />
-                <button onClick={handleCut} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+                <div className="my-1 border-t border-gray-200" />
+                <button
+                  onClick={handleCut}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Cut</span>
                   <span className="text-xs text-gray-500">Ctrl+X</span>
                 </button>
-                <button onClick={handleCopy} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+                <button
+                  onClick={handleCopy}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Copy</span>
                   <span className="text-xs text-gray-500">Ctrl+C</span>
                 </button>
-                <button onClick={handlePaste} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+                <button
+                  onClick={handlePaste}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Paste</span>
                   <span className="text-xs text-gray-500">Ctrl+V</span>
                 </button>
-                <button onClick={handleDelete} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+                <button
+                  onClick={handleDelete}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Delete</span>
                   <span className="text-xs text-gray-500">Del</span>
                 </button>
@@ -326,30 +290,23 @@ export default function MainToolbar({ className }: MainToolbarProps) {
           <div className="relative">
             <button
               onClick={() => toggleDropdown("view")}
-              className="px-3 py-1 text-sm hover:bg-gray-100 rounded"
+              className="rounded px-3 py-1 text-sm hover:bg-gray-100"
             >
               View
             </button>
             {activeDropdown === "view" && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded z-50">
-                <button onClick={handleZoomIn} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
-                  <span>Zoom In</span>
-                  <span className="text-xs text-gray-500">Ctrl++</span>
-                </button>
-                <button onClick={handleZoomOut} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
-                  <span>Zoom Out</span>
-                  <span className="text-xs text-gray-500">Ctrl+-</span>
-                </button>
-                <button onClick={handleZoomReset} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
-                  <span>Reset Zoom</span>
-                  <span className="text-xs text-gray-500">Ctrl+0</span>
-                </button>
-                <div className="border-t border-gray-200 my-1" />
-                <button onClick={toggleGrid} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+              <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg">
+                <button
+                  onClick={toggleGrid}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Grid</span>
                   {isGridVisible && <span className="text-xs">✓</span>}
                 </button>
-                <button onClick={toggleSnap} className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between">
+                <button
+                  onClick={toggleSnap}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
+                >
                   <span>Snap to Grid</span>
                   {snapToGrid && <span className="text-xs">✓</span>}
                 </button>
@@ -361,23 +318,41 @@ export default function MainToolbar({ className }: MainToolbarProps) {
           <div className="relative">
             <button
               onClick={() => toggleDropdown("arrange")}
-              className="px-3 py-1 text-sm hover:bg-gray-100 rounded"
+              className="rounded px-3 py-1 text-sm hover:bg-gray-100"
             >
               Arrange
             </button>
             {activeDropdown === "arrange" && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded z-50">
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Bring to Front</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Send to Back</button>
-                <div className="border-t border-gray-200 my-1" />
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Align Left</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Align Center</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Align Right</button>
-                <div className="border-t border-gray-200 my-1" />
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Rotate Right</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Rotate Left</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Flip Horizontal</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Flip Vertical</button>
+              <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg">
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Bring to Front
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Send to Back
+                </button>
+                <div className="my-1 border-t border-gray-200" />
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Align Left
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Align Center
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Align Right
+                </button>
+                <div className="my-1 border-t border-gray-200" />
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Rotate Right
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Rotate Left
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Flip Horizontal
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Flip Vertical
+                </button>
               </div>
             )}
           </div>
@@ -386,17 +361,25 @@ export default function MainToolbar({ className }: MainToolbarProps) {
           <div className="relative">
             <button
               onClick={() => toggleDropdown("extras")}
-              className="px-3 py-1 text-sm hover:bg-gray-100 rounded"
+              className="rounded px-3 py-1 text-sm hover:bg-gray-100"
             >
               Extras
             </button>
             {activeDropdown === "extras" && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded z-50">
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Plugins</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Templates</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Themes</button>
-                <div className="border-t border-gray-200 my-1" />
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Settings</button>
+              <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg">
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Plugins
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Templates
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Themes
+                </button>
+                <div className="my-1 border-t border-gray-200" />
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Settings
+                </button>
               </div>
             )}
           </div>
@@ -405,17 +388,25 @@ export default function MainToolbar({ className }: MainToolbarProps) {
           <div className="relative">
             <button
               onClick={() => toggleDropdown("help")}
-              className="px-3 py-1 text-sm hover:bg-gray-100 rounded"
+              className="rounded px-3 py-1 text-sm hover:bg-gray-100"
             >
               Help
             </button>
             {activeDropdown === "help" && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded z-50">
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Documentation</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Keyboard Shortcuts</button>
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">Video Tutorials</button>
-                <div className="border-t border-gray-200 my-1" />
-                <button className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100">About</button>
+              <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg">
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Documentation
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Keyboard Shortcuts
+                </button>
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  Video Tutorials
+                </button>
+                <div className="my-1 border-t border-gray-200" />
+                <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100">
+                  About
+                </button>
               </div>
             )}
           </div>
@@ -423,197 +414,141 @@ export default function MainToolbar({ className }: MainToolbarProps) {
       </div>
 
       {/* Main Toolbar */}
-      <div className="flex items-center h-12 px-2 space-x-2">
-        {/* File Operations */}
-        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
-          <button
-            onClick={handleSave}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Save (Ctrl+S)"
-          >
-            <Save className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleOpen}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Open (Ctrl+O)"
-          >
-            <FolderOpen className="w-4 h-4" />
-          </button>
-          <button
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Print"
-          >
-            <Printer className="w-4 h-4" />
-          </button>
-        </div>
+      <div className="flex h-12 items-center space-x-2 px-2">
+        {/* File Operations Toolbar */}
+        <FileOperationsToolbar />
 
         {/* Edit Operations */}
-        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
+        <div className="flex items-center space-x-1 border-r border-gray-300 pr-2">
           <button
             onClick={() => undo()}
             disabled={!canUndo()}
-            className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-50"
+            className="rounded p-1.5 hover:bg-gray-100 disabled:opacity-50"
             title="Undo (Ctrl+Z)"
           >
-            <Undo className="w-4 h-4" />
+            <Undo className="h-4 w-4" />
           </button>
           <button
             onClick={() => redo()}
             disabled={!canRedo()}
-            className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-50"
+            className="rounded p-1.5 hover:bg-gray-100 disabled:opacity-50"
             title="Redo (Ctrl+Y)"
           >
-            <Redo className="w-4 h-4" />
+            <Redo className="h-4 w-4" />
           </button>
           <button
             onClick={handleCopy}
-            className="p-1.5 hover:bg-gray-100 rounded"
+            className="rounded p-1.5 hover:bg-gray-100"
             title="Copy (Ctrl+C)"
           >
-            <Copy className="w-4 h-4" />
+            <Copy className="h-4 w-4" />
           </button>
           <button
             onClick={handlePaste}
-            className="p-1.5 hover:bg-gray-100 rounded"
+            className="rounded p-1.5 hover:bg-gray-100"
             title="Paste (Ctrl+V)"
           >
-            <Clipboard className="w-4 h-4" />
+            <Clipboard className="h-4 w-4" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-1.5 hover:bg-gray-100 rounded"
+            className="rounded p-1.5 hover:bg-gray-100"
             title="Delete (Del)"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
 
         {/* Zoom Controls */}
-        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
-          <button
-            onClick={handleZoomOut}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Zoom Out (Ctrl+-)"
-          >
-            <ZoomOut className="w-4 h-4" />
-          </button>
-          <input
-            type="number"
-            value={zoomLevel}
-            onChange={(e) => handleZoomChange(e.target.value)}
-            className="w-16 px-1 py-0.5 text-sm text-center border border-gray-300 rounded"
-            min="10"
-            max="5000"
-            step="10"
-          />
-          <span className="text-sm">%</span>
-          <button
-            onClick={handleZoomIn}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Zoom In (Ctrl++)"
-          >
-            <ZoomIn className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleZoomReset}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Reset Zoom (Ctrl+0)"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
-        </div>
+        <ZoomControlsToolbar />
 
         {/* Drawing Tools */}
-        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
+        <div className="flex items-center space-x-1 border-r border-gray-300 pr-2">
           <button
             onClick={() => setSelectedTool("select")}
-            className={`p-1.5 rounded ${selectedTool === "select" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${selectedTool === "select" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Selection Tool"
           >
-            <MousePointer className="w-4 h-4" />
+            <MousePointer className="h-4 w-4" />
           </button>
           <button
             onClick={() => setSelectedTool("text")}
-            className={`p-1.5 rounded ${selectedTool === "text" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${selectedTool === "text" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Text Tool"
           >
-            <Type className="w-4 h-4" />
+            <Type className="h-4 w-4" />
           </button>
           <button
             onClick={() => setSelectedTool("rectangle")}
-            className={`p-1.5 rounded ${selectedTool === "rectangle" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${selectedTool === "rectangle" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Rectangle"
           >
-            <Square className="w-4 h-4" />
+            <Square className="h-4 w-4" />
           </button>
           <button
             onClick={() => setSelectedTool("circle")}
-            className={`p-1.5 rounded ${selectedTool === "circle" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${selectedTool === "circle" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Circle"
           >
-            <Circle className="w-4 h-4" />
+            <Circle className="h-4 w-4" />
           </button>
           <button
             onClick={() => setSelectedTool("line")}
-            className={`p-1.5 rounded ${selectedTool === "line" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${selectedTool === "line" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Connector"
           >
-            <Minus className="w-4 h-4" />
+            <Minus className="h-4 w-4" />
           </button>
           <button
             onClick={() => setSelectedTool("freehand")}
-            className={`p-1.5 rounded ${selectedTool === "freehand" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${selectedTool === "freehand" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Freehand"
           >
-            <PenTool className="w-4 h-4" />
+            <PenTool className="h-4 w-4" />
           </button>
         </div>
 
         {/* View Options */}
-        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
+        <div className="flex items-center space-x-1 border-r border-gray-300 pr-2">
           <button
             onClick={toggleGrid}
-            className={`p-1.5 rounded ${isGridVisible ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`rounded p-1.5 ${isGridVisible ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Toggle Grid"
           >
-            <Grid className="w-4 h-4" />
+            <Grid className="h-4 w-4" />
           </button>
-          <button
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Layers"
-          >
-            <Layers className="w-4 h-4" />
+          <button className="rounded p-1.5 hover:bg-gray-100" title="Layers">
+            <Layers className="h-4 w-4" />
           </button>
         </div>
 
         {/* Alignment Tools */}
-        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
-          <button className="p-1.5 hover:bg-gray-100 rounded" title="Align Left">
-            <AlignLeft className="w-4 h-4" />
+        <div className="flex items-center space-x-1 border-r border-gray-300 pr-2">
+          <button className="rounded p-1.5 hover:bg-gray-100" title="Align Left">
+            <AlignLeft className="h-4 w-4" />
           </button>
-          <button className="p-1.5 hover:bg-gray-100 rounded" title="Align Center">
-            <AlignCenter className="w-4 h-4" />
+          <button className="rounded p-1.5 hover:bg-gray-100" title="Align Center">
+            <AlignCenter className="h-4 w-4" />
           </button>
-          <button className="p-1.5 hover:bg-gray-100 rounded" title="Align Right">
-            <AlignRight className="w-4 h-4" />
+          <button className="rounded p-1.5 hover:bg-gray-100" title="Align Right">
+            <AlignRight className="h-4 w-4" />
           </button>
-          <button className="p-1.5 hover:bg-gray-100 rounded" title="Rotate">
-            <RotateCw className="w-4 h-4" />
+          <button className="rounded p-1.5 hover:bg-gray-100" title="Rotate">
+            <RotateCw className="h-4 w-4" />
           </button>
         </div>
 
         {/* Secondary Tools */}
         <div className="flex items-center space-x-2">
-          <button className="flex items-center space-x-1 px-2 py-1 hover:bg-gray-100 rounded">
-            <Package className="w-4 h-4" />
+          <button className="flex items-center space-x-1 rounded px-2 py-1 hover:bg-gray-100">
+            <Package className="h-4 w-4" />
             <span className="text-sm">Insert</span>
-            <ChevronDown className="w-3 h-3" />
+            <ChevronDown className="h-3 w-3" />
           </button>
-          <button className="flex items-center space-x-1 px-2 py-1 hover:bg-gray-100 rounded">
-            <Settings className="w-4 h-4" />
+          <button className="flex items-center space-x-1 rounded px-2 py-1 hover:bg-gray-100">
+            <Settings className="h-4 w-4" />
             <span className="text-sm">Format</span>
-            <ChevronDown className="w-3 h-3" />
+            <ChevronDown className="h-3 w-3" />
           </button>
         </div>
       </div>

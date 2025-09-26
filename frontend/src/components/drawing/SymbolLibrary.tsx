@@ -4,24 +4,27 @@ import {
   Search,
   ChevronDown,
   ChevronRight,
-  Star,
+  // Star,
   Clock,
   Grid,
   List,
   Filter,
   X,
-  Tag,
+  // Tag,
   Heart,
 } from "lucide-react";
-import React, { useState, useEffect, useMemo } from "react";
+import * as React from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+
+import { useDragPreview } from "@/hooks/useDragPreview";
 
 export interface Symbol {
   id: string;
   type: string;
   label: string;
   category: string;
-  icon: React.ReactNode;
-  defaultData: any;
+  icon?: React.ReactNode;
+  defaultData: Record<string, unknown>;
   tags?: string[];
   description?: string;
   standard?: "ISA-5.1" | "ISO-14617" | "UK-Water";
@@ -45,7 +48,7 @@ const symbolCategories = [
         },
         tags: ["pump", "centrifugal", "rotating", "equipment"],
         description: "Centrifugal pump for fluid transfer",
-        standard: "ISA-5.1",
+        standard: "ISA-5.1" as const,
         searchKeywords: ["pump", "centrifugal", "fluid", "transfer", "rotating"],
       },
       {
@@ -60,7 +63,7 @@ const symbolCategories = [
         },
         tags: ["compressor", "centrifugal", "rotating", "equipment"],
         description: "Centrifugal compressor for gas compression",
-        standard: "ISA-5.1",
+        standard: "ISA-5.1" as const,
         searchKeywords: ["compressor", "centrifugal", "gas", "pressure", "rotating"],
       },
     ],
@@ -81,7 +84,7 @@ const symbolCategories = [
         },
         tags: ["valve", "gate", "isolation", "manual"],
         description: "Gate valve for flow isolation",
-        standard: "ISA-5.1",
+        standard: "ISA-5.1" as const,
         searchKeywords: ["valve", "gate", "isolation", "shutoff", "manual"],
       },
       {
@@ -94,6 +97,10 @@ const symbolCategories = [
           controlType: "pneumatic",
           position: 50,
         },
+        tags: ["valve", "control", "automated", "pneumatic"],
+        description: "Control valve for flow regulation",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["valve", "control", "pneumatic", "automated", "regulation"],
       },
       {
         id: "valve-check",
@@ -105,6 +112,10 @@ const symbolCategories = [
           type: "swing",
           flowDirection: "left-to-right",
         },
+        tags: ["valve", "check", "non-return", "swing"],
+        description: "Check valve to prevent backflow",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["valve", "check", "non-return", "backflow", "swing"],
       },
     ],
   },
@@ -122,6 +133,10 @@ const symbolCategories = [
           capacity: "1000 m³",
           level: 50,
         },
+        tags: ["tank", "storage", "vessel", "atmospheric"],
+        description: "Storage tank for liquid storage",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["tank", "storage", "vessel", "liquid", "atmospheric"],
       },
       {
         id: "tank-pressure",
@@ -134,6 +149,10 @@ const symbolCategories = [
           capacity: "500 m³",
           level: 30,
         },
+        tags: ["tank", "pressure", "vessel"],
+        description: "Pressure vessel for high pressure storage",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["tank", "pressure", "vessel", "high", "storage"],
       },
     ],
   },
@@ -151,6 +170,10 @@ const symbolCategories = [
           material: "Steel",
           orientation: "horizontal",
         },
+        tags: ["pipe", "horizontal", "piping"],
+        description: "Horizontal pipe section",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["pipe", "horizontal", "piping", "section"],
       },
       {
         id: "pipe-vertical",
@@ -163,6 +186,10 @@ const symbolCategories = [
           material: "Steel",
           orientation: "vertical",
         },
+        tags: ["pipe", "vertical", "piping"],
+        description: "Vertical pipe section",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["pipe", "vertical", "piping", "section"],
       },
       {
         id: "pipe-elbow",
@@ -175,6 +202,10 @@ const symbolCategories = [
           material: "Steel",
           orientation: "elbow",
         },
+        tags: ["pipe", "elbow", "fitting", "bend"],
+        description: "90-degree pipe elbow",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["pipe", "elbow", "fitting", "bend", "90", "degree"],
       },
       {
         id: "pipe-tee",
@@ -187,6 +218,10 @@ const symbolCategories = [
           material: "Steel",
           orientation: "tee",
         },
+        tags: ["pipe", "tee", "fitting", "branch"],
+        description: "Pipe tee junction",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["pipe", "tee", "fitting", "branch", "junction"],
       },
       {
         id: "pipe-cross",
@@ -199,6 +234,10 @@ const symbolCategories = [
           material: "Steel",
           orientation: "cross",
         },
+        tags: ["pipe", "cross", "fitting", "intersection"],
+        description: "Pipe cross junction",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["pipe", "cross", "fitting", "intersection", "junction"],
       },
     ],
   },
@@ -216,6 +255,10 @@ const symbolCategories = [
           unit: "m³/h",
           value: "0.0",
         },
+        tags: ["instrument", "flow", "meter", "measurement"],
+        description: "Flow measurement instrument",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["instrument", "flow", "meter", "measurement", "electromagnetic"],
       },
       {
         id: "pressure-gauge",
@@ -228,6 +271,10 @@ const symbolCategories = [
           value: "0.0",
           maxPressure: "10 bar",
         },
+        tags: ["instrument", "pressure", "gauge", "measurement"],
+        description: "Pressure measurement instrument",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["instrument", "pressure", "gauge", "measurement", "bar"],
       },
     ],
   },
@@ -244,16 +291,20 @@ const symbolCategories = [
           type: "shell-tube",
           duty: "1000 kW",
         },
+        tags: ["heat", "exchanger", "transfer", "shell", "tube"],
+        description: "Heat exchanger for thermal transfer",
+        standard: "ISA-5.1" as const,
+        searchKeywords: ["heat", "exchanger", "transfer", "thermal", "shell", "tube"],
       },
     ],
   },
 ];
 
 interface SymbolLibraryProps {
-  onDragStart: (event: React.DragEvent, nodeType: string, data: any) => void;
+  onDragStart: (event: React.DragEvent, nodeType: string, data: Record<string, unknown>) => void;
 }
 
-export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
+export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(symbolCategories.map((cat) => cat.name))
@@ -264,6 +315,9 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState<string>("all");
+
+  // Enhanced drag preview integration
+  const { startStencilDrag } = useDragPreview();
 
   // Load favorites and recently used from localStorage
   useEffect(() => {
@@ -281,7 +335,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
 
   // Save favorites to localStorage
   useEffect(() => {
-    localStorage.setItem("ergoplanner-favorites", JSON.stringify([...favorites]));
+    localStorage.setItem("ergoplanner-favorites", JSON.stringify(Array.from(favorites)));
   }, [favorites]);
 
   // Save recently used to localStorage
@@ -289,7 +343,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     localStorage.setItem("ergoplanner-recent-symbols", JSON.stringify(recentlyUsed));
   }, [recentlyUsed]);
 
-  const toggleCategory = (categoryName: string) => {
+  const toggleCategory = (categoryName: string): void => {
     const newExpanded = new Set(expandedCategories);
     if (newExpanded.has(categoryName)) {
       newExpanded.delete(categoryName);
@@ -304,7 +358,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     const tagSet = new Set<string>();
     symbolCategories.forEach((category) => {
       category.symbols.forEach((symbol) => {
-        symbol.tags?.forEach((tag) => tagSet.add(tag));
+        symbol.tags?.forEach((tag: string) => tagSet.add(tag));
       });
     });
     return Array.from(tagSet).sort();
@@ -321,13 +375,14 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
             searchTerm === "" ||
             symbol.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
             symbol.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            symbol.searchKeywords?.some((keyword) =>
+            symbol.searchKeywords?.some((keyword: string) =>
               keyword.toLowerCase().includes(searchTerm.toLowerCase())
             );
 
           // Tag filter
           const matchesTags =
-            selectedTags.size === 0 || symbol.tags?.some((tag) => selectedTags.has(tag));
+            selectedTags.size === 0 ||
+            (symbol.tags?.some((tag: string) => selectedTags.has(tag)) ?? false);
 
           // Standard filter
           const matchesStandard =
@@ -352,7 +407,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     ];
   }, [filteredCategories, recentlyUsed]);
 
-  const toggleFavorite = (symbolId: string) => {
+  const toggleFavorite = (symbolId: string): void => {
     const newFavorites = new Set(favorites);
     if (newFavorites.has(symbolId)) {
       newFavorites.delete(symbolId);
@@ -362,18 +417,31 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     setFavorites(newFavorites);
   };
 
-  const addToRecentlyUsed = (symbol: Symbol) => {
-    const filtered = recentlyUsed.filter((s) => s.id !== symbol.id);
-    const newRecent = [symbol, ...filtered].slice(0, 10); // Keep max 10 recent items
-    setRecentlyUsed(newRecent);
-  };
+  const addToRecentlyUsed = useCallback(
+    (symbol: Symbol): void => {
+      const filtered = recentlyUsed.filter((s) => s.id !== symbol.id);
+      const newRecent = [symbol, ...filtered].slice(0, 10); // Keep max 10 recent items
+      setRecentlyUsed(newRecent);
+    },
+    [recentlyUsed]
+  );
 
-  const handleDragStart = (event: React.DragEvent, symbol: Symbol) => {
-    addToRecentlyUsed(symbol);
-    onDragStart(event, symbol.type, symbol.defaultData);
-  };
+  const handleDragStart = useCallback(
+    (event: React.DragEvent, symbol: Symbol): void => {
+      addToRecentlyUsed(symbol);
 
-  const toggleTag = (tag: string) => {
+      // Set up traditional drag data for backward compatibility
+      onDragStart(event, symbol.type, symbol.defaultData);
+
+      // Start enhanced drag preview
+      const symbolElement = event.currentTarget as HTMLElement;
+      const mousePosition = { x: event.clientX, y: event.clientY };
+      startStencilDrag(symbolElement, mousePosition);
+    },
+    [addToRecentlyUsed, onDragStart, startStencilDrag]
+  );
+
+  const toggleTag = (tag: string): void => {
     const newTags = new Set(selectedTags);
     if (newTags.has(tag)) {
       newTags.delete(tag);
@@ -383,23 +451,35 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
     setSelectedTags(newTags);
   };
 
-  const clearFilters = () => {
+  const clearFilters = (): void => {
     setSearchTerm("");
     setSelectedTags(new Set());
     setSelectedStandard("all");
   };
 
-  const renderSymbolIcon = (type: string) => {
+  const renderSymbolIcon = (type: string): React.ReactNode => {
     // Simplified icon representations for the library
     const iconMap: { [key: string]: React.ReactNode } = {
       pump: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="12" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <path d="M 10 15 L 20 10 L 20 20 Z" fill="currentColor" />
         </svg>
       ),
       valve: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z"
             fill="currentColor"
@@ -408,7 +488,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       controlValve: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z"
             fill="currentColor"
@@ -418,7 +504,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       checkValve: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <path
             d="M 10 15 L 18 15 M 18 15 L 15 12 M 18 15 L 15 18"
@@ -428,7 +520,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       tank: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <rect
             x="8"
             y="8"
@@ -443,12 +541,24 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       pipe: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <line x1="5" y1="15" x2="25" y2="15" stroke="currentColor" strokeWidth="3" />
         </svg>
       ),
       flowMeter: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <text x="15" y="19" textAnchor="middle" fontSize="8" fontWeight="bold">
             FI
@@ -456,7 +566,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       pressureGauge: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="13" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <text x="15" y="16" textAnchor="middle" fontSize="8" fontWeight="bold">
             PI
@@ -465,7 +581,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       heatExchanger: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <rect
             x="5"
             y="10"
@@ -480,7 +602,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
         </svg>
       ),
       compressor: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="10" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <path
             d="M 15 10 L 12 15 L 15 20 M 15 10 L 18 15 L 15 20"
@@ -618,8 +746,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps) {
                 }`}
               >
                 {category.symbols.map((symbol) => {
-                  const isSymbol = "id" in symbol;
-                  const symbolData = isSymbol ? symbol : (symbol as Symbol);
+                  const symbolData = symbol;
 
                   return (
                     <div

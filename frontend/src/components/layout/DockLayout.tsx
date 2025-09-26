@@ -1,6 +1,6 @@
 "use client";
 
-import type { LayoutData, TabData, PanelData } from "rc-dock";
+import type { LayoutData as RcLayoutData, TabData as RcTabData } from "rc-dock";
 import DockLayout from "rc-dock";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 
@@ -17,21 +17,56 @@ import { useEnhancedDrawingStore } from "@/store/enhanced-drawing-store";
 import { DEFAULT_LAYOUT_PRESETS } from "@/types/dock-layout";
 import type { DockLayoutConfig, PanelProps } from "@/types/dock-layout";
 
-// Panel component mapping
+// Panel wrapper components to adapt interfaces
+const SymbolLibraryWrapper: React.FC<PanelProps> = () => {
+  const handleDragStart = (
+    _event: React.DragEvent,
+    nodeType: string,
+    nodeData: Record<string, unknown>
+  ): void => {
+    // Handle drag start - could dispatch to store or emit event
+    console.warn("Drag started:", { nodeType, nodeData });
+  };
+
+  return <SymbolLibrary onDragStart={handleDragStart} />;
+};
+
+const ToolbarWrapper: React.FC<PanelProps> = () => {
+  const handleExportSVG = (): void => console.warn("Export SVG");
+  const handleExportPNG = (): void => console.warn("Export PNG");
+  const handleFitView = (): void => console.warn("Fit view");
+  const handleZoomIn = (): void => console.warn("Zoom in");
+  const handleZoomOut = (): void => console.warn("Zoom out");
+  const handleToolChange = (tool: "select" | "pan"): void => console.warn("Tool change:", tool);
+
+  return (
+    <Toolbar
+      onExportSVG={handleExportSVG}
+      onExportPNG={handleExportPNG}
+      onFitView={handleFitView}
+      onZoomIn={handleZoomIn}
+      onZoomOut={handleZoomOut}
+      tool="select"
+      onToolChange={handleToolChange}
+    />
+  );
+};
+
+// Panel component mapping with proper wrappers
 const PANEL_COMPONENTS: Record<string, React.ComponentType<PanelProps>> = {
-  DrawingCanvas: DrawingCanvas as any,
-  SymbolLibrary: SymbolLibrary as any,
-  PropertyPanel: PropertyPanel as any,
-  Toolbar: Toolbar as any,
-  LayersPanel: LayersPanel as any,
-  BoQPanel: BoQPanel as any,
-  MinimapPanel: MinimapPanel as any,
-  HistoryPanel: HistoryPanel as any,
+  DrawingCanvas: DrawingCanvas as React.ComponentType<PanelProps>,
+  SymbolLibrary: SymbolLibraryWrapper,
+  PropertyPanel: PropertyPanel as React.ComponentType<PanelProps>,
+  Toolbar: ToolbarWrapper,
+  LayersPanel: LayersPanel as React.ComponentType<PanelProps>,
+  BoQPanel: BoQPanel as React.ComponentType<PanelProps>,
+  MinimapPanel: MinimapPanel as React.ComponentType<PanelProps>,
+  HistoryPanel: HistoryPanel as React.ComponentType<PanelProps>,
 };
 
 interface DockLayoutWrapperProps {
   config?: DockLayoutConfig;
-  onLayoutChange?: (layout: LayoutData) => void;
+  onLayoutChange?: (layout: RcLayoutData) => void;
   theme?: "light" | "dark";
 }
 
@@ -41,7 +76,7 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   theme = "light",
 }) => {
   const dockLayoutRef = useRef<DockLayout>(null);
-  const [layout, setLayout] = useState<LayoutData | null>(null);
+  const [layout, setLayout] = useState<RcLayoutData | null>(null);
   const [isClient, setIsClient] = useState(false);
   const { selectedElements } = useEnhancedDrawingStore();
 
@@ -57,15 +92,19 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
         setLayout(parsedLayout);
       } catch (e) {
         console.error("Failed to parse saved layout:", e);
-        setLayout(DEFAULT_LAYOUT_PRESETS[0].layout);
+        setLayout((DEFAULT_LAYOUT_PRESETS[0]?.layout as RcLayoutData) || null);
       }
     } else {
-      setLayout(config?.defaultLayout || DEFAULT_LAYOUT_PRESETS[0].layout);
+      setLayout(
+        (config?.defaultLayout as RcLayoutData) ||
+          (DEFAULT_LAYOUT_PRESETS[0]?.layout as RcLayoutData) ||
+          null
+      );
     }
   }, [config]);
 
   // Save layout to localStorage on change
-  const handleLayoutChange = (newLayout: LayoutData | null) => {
+  const handleLayoutChange = (newLayout: RcLayoutData | null): void => {
     if (!newLayout) return;
 
     setLayout(newLayout);
@@ -75,7 +114,7 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   };
 
   // Convert panel content string to component
-  const loadTab = (tab: TabData): PanelData => {
+  const loadTab = (tab: RcTabData): RcTabData => {
     const contentType = typeof tab.content === "string" ? tab.content : "DrawingCanvas";
     const Component = PANEL_COMPONENTS[contentType];
 
@@ -115,23 +154,25 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   );
 
   // Reset layout to default
-  const resetLayout = () => {
-    const defaultLayout = DEFAULT_LAYOUT_PRESETS[0].layout;
-    setLayout(defaultLayout);
-    handleLayoutChange(defaultLayout);
+  const resetLayout = (): void => {
+    const defaultLayout = DEFAULT_LAYOUT_PRESETS[0]?.layout;
+    if (defaultLayout) {
+      setLayout(defaultLayout as RcLayoutData);
+      handleLayoutChange(defaultLayout as RcLayoutData);
+    }
   };
 
   // Load preset layout
-  const loadPreset = (presetIndex: number) => {
+  const loadPreset = (presetIndex: number): void => {
     const preset = DEFAULT_LAYOUT_PRESETS[presetIndex];
-    if (preset) {
-      setLayout(preset.layout);
-      handleLayoutChange(preset.layout);
+    if (preset?.layout) {
+      setLayout(preset.layout as RcLayoutData);
+      handleLayoutChange(preset.layout as RcLayoutData);
     }
   };
 
   // Export current layout
-  const exportLayout = () => {
+  const exportLayout = (): void => {
     const dataStr = JSON.stringify(layout, null, 2);
     const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
     const exportFileDefaultName = "layout.json";
@@ -143,13 +184,16 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
   };
 
   // Import layout from file
-  const importLayout = (file: File) => {
+  const importLayout = (file: File): void => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const importedLayout = JSON.parse(e.target?.result as string);
-        setLayout(importedLayout);
-        handleLayoutChange(importedLayout);
+        const result = e.target?.result;
+        if (typeof result === "string") {
+          const importedLayout = JSON.parse(result);
+          setLayout(importedLayout);
+          handleLayoutChange(importedLayout);
+        }
       } catch (err) {
         console.error("Failed to import layout:", err);
       }
@@ -214,7 +258,7 @@ const DockLayoutWrapper: React.FC<DockLayoutWrapperProps> = ({
         layout={layout}
         loadTab={loadTab}
         groups={groups}
-        onLayoutChange={handleLayoutChange}
+        onLayoutChange={(newLayout) => handleLayoutChange(newLayout as RcLayoutData)}
         style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0 }}
       />
 

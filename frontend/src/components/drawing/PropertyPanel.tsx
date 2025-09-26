@@ -1,414 +1,446 @@
 "use client";
 
-import { X, ChevronDown, ChevronUp } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  X,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Info,
+  Ruler,
+  Activity,
+  Zap,
+  Gauge,
+  Wrench,
+} from "lucide-react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import type { Node, Edge } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawingStore";
+import { PROPERTY_SCHEMAS, type NodeType } from "@/types/propertySchemas";
+
+import { DynamicFormField } from "./PropertyPanel/FormFields";
+import {
+  getFormFieldsForNodeType,
+  groupFieldsBySection,
+  getSectionsWithFields,
+  type FormField,
+} from "./PropertyPanel/PropertyTemplates";
 
 interface PropertyPanelProps {
-  selectedNode: Node | null;
-  selectedEdge: Edge | null;
-  onClose: () => void;
+  selectedNode?: Node | null;
+  selectedNodes?: Node[];
+  selectedEdge?: Edge | null;
+  onClose?: () => void;
 }
 
-export default function PropertyPanel({ selectedNode, selectedEdge, onClose }: PropertyPanelProps) {
-  const { updateNode, updateEdge, deleteNode, deleteEdge } = useDrawingStore();
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["General", "Properties", "Appearance"])
+/**
+ * Icon mapping for sections
+ */
+const SECTION_ICONS = {
+  basic: Info,
+  dimensional: Ruler,
+  process: Activity,
+  electrical: Zap,
+  instrumentation: Gauge,
+  construction: Wrench,
+  advanced: Settings,
+} as const;
+
+export default function PropertyPanel({
+  selectedNode: propSelectedNode,
+  selectedNodes: propSelectedNodes,
+  selectedEdge: propSelectedEdge,
+  onClose,
+}: PropertyPanelProps = {}): React.ReactElement | null {
+  const {
+    updateNode,
+    updateEdge,
+    deleteNode,
+    deleteEdge,
+    selectedNodeId,
+    selectedEdgeId,
+    nodes,
+    edges,
+    setSelectedNode,
+    setSelectedEdge,
+  } = useDrawingStore();
+
+  // Use props if provided, otherwise get from store
+  const selectedNode =
+    propSelectedNode ??
+    (selectedNodeId ? nodes.find((n) => n.id === selectedNodeId) || null : null);
+  const selectedNodes = useMemo(() => {
+    if (propSelectedNodes) return propSelectedNodes;
+    if (selectedNodeId) {
+      const node = nodes.find((n) => n.id === selectedNodeId);
+      return node ? [node] : [];
+    }
+    return [];
+  }, [propSelectedNodes, selectedNodeId, nodes]);
+  const selectedEdge =
+    propSelectedEdge ??
+    (selectedEdgeId ? edges.find((e) => e.id === selectedEdgeId) || null : null);
+
+  // Default close handler
+  const handleClose = useMemo(
+    () =>
+      onClose ??
+      (() => {
+        setSelectedNode(null);
+        setSelectedEdge(null);
+      }),
+    [onClose, setSelectedNode, setSelectedEdge]
   );
-  const [localData, setLocalData] = useState<any>({});
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(["basic", "dimensional", "process", "info"])
+  );
+  const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
 
+  // Determine if we're in multi-selection mode
+  const isMultiSelect = selectedNodes.length > 1;
+  const primaryNode = selectedNode || (selectedNodes.length > 0 ? selectedNodes[0] : null);
+
+  // Get node type and form configuration
+  const nodeType = (primaryNode?.type as NodeType) || "instrument";
+  const formFields = getFormFieldsForNodeType(nodeType);
+  const fieldsBySection = groupFieldsBySection(formFields);
+  const availableSections = getSectionsWithFields(formFields);
+
+  // Get validation schema for current node type
+  const validationSchema = PROPERTY_SCHEMAS[nodeType] || PROPERTY_SCHEMAS.instrument;
+
+  // Initialize form with react-hook-form
+  const methods = useForm({
+    resolver: zodResolver(validationSchema),
+    defaultValues: primaryNode?.data || {},
+    mode: "onChange",
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors: formErrors, isDirty },
+  } = methods;
+
+  // Reset form when selection changes
   useEffect(() => {
-    if (selectedNode) {
-      setLocalData(selectedNode.data || {});
+    if (primaryNode) {
+      reset(primaryNode.data || {});
     } else if (selectedEdge) {
-      setLocalData(selectedEdge.data || {});
+      reset(selectedEdge.data || {});
     }
-  }, [selectedNode, selectedEdge]);
+  }, [primaryNode, selectedEdge, reset]);
 
-  const toggleSection = (section: string) => {
-    const newExpanded = new Set(expandedSections);
-    if (newExpanded.has(section)) {
-      newExpanded.delete(section);
-    } else {
-      newExpanded.add(section);
-    }
-    setExpandedSections(newExpanded);
-  };
+  // Watch form values for real-time updates
+  const formValues = watch();
 
-  const handlePropertyChange = (key: string, value: any) => {
-    const updatedData = { ...localData, [key]: value };
-    setLocalData(updatedData);
+  const toggleSection = useCallback((section: string): void => {
+    setExpandedSections((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(section)) {
+        newExpanded.delete(section);
+      } else {
+        newExpanded.add(section);
+      }
+      return newExpanded;
+    });
+  }, []);
 
-    if (selectedNode) {
-      updateNode(selectedNode.id, { data: updatedData });
-    } else if (selectedEdge) {
-      updateEdge(selectedEdge.id, { data: updatedData });
-    }
-  };
+  // Handle property changes with command pattern integration
+  const handlePropertyChange = useCallback(
+    (fieldName: string, value: unknown): void => {
+      setValue(fieldName, value, { shouldValidate: true, shouldDirty: true });
 
-  const handlePositionChange = (axis: "x" | "y", value: string) => {
-    const numValue = parseFloat(value);
-    if (!isNaN(numValue) && selectedNode) {
-      const position = { ...selectedNode.position, [axis]: numValue };
-      updateNode(selectedNode.id, { position });
-    }
-  };
+      // Apply changes immediately for real-time updates
+      if (isMultiSelect) {
+        // Update all selected nodes
+        selectedNodes.forEach((node) => {
+          const updatedData = { ...node.data, [fieldName]: value };
+          updateNode(node.id, { data: updatedData });
+        });
+      } else if (primaryNode) {
+        const updatedData = { ...primaryNode.data, [fieldName]: value };
+        updateNode(primaryNode.id, { data: updatedData });
+      } else if (selectedEdge) {
+        const updatedData = { ...selectedEdge.data, [fieldName]: value };
+        updateEdge(selectedEdge.id, { data: updatedData });
+      }
+    },
+    [setValue, isMultiSelect, selectedNodes, primaryNode, selectedEdge, updateNode, updateEdge]
+  );
 
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this element?")) {
-      if (selectedNode) {
-        deleteNode(selectedNode.id);
+  // Handle position changes with command pattern
+  const handlePositionChange = useCallback(
+    (axis: "x" | "y", value: string): void => {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        if (isMultiSelect) {
+          // Update all selected nodes' positions
+          selectedNodes.forEach((node) => {
+            const position = { ...node.position, [axis]: numValue };
+            updateNode(node.id, { position });
+          });
+        } else if (primaryNode) {
+          const position = { ...primaryNode.position, [axis]: numValue };
+          updateNode(primaryNode.id, { position });
+        }
+      }
+    },
+    [isMultiSelect, selectedNodes, primaryNode, updateNode]
+  );
+
+  // Handle deletion with confirmation
+  const handleDelete = useCallback((): void => {
+    const confirmMessage = isMultiSelect
+      ? `Are you sure you want to delete ${selectedNodes.length} selected elements?`
+      : "Are you sure you want to delete this element?";
+
+    // TODO: Replace with proper modal dialog component
+    // eslint-disable-next-line no-alert
+    if (confirm(confirmMessage)) {
+      if (isMultiSelect) {
+        selectedNodes.forEach((node) => deleteNode(node.id));
+      } else if (primaryNode) {
+        deleteNode(primaryNode.id);
       } else if (selectedEdge) {
         deleteEdge(selectedEdge.id);
       }
-      onClose();
+      handleClose();
     }
-  };
+  }, [
+    isMultiSelect,
+    selectedNodes,
+    primaryNode,
+    selectedEdge,
+    deleteNode,
+    deleteEdge,
+    handleClose,
+  ]);
 
-  const renderNodeProperties = () => {
-    if (!selectedNode) return null;
+  // Submit handler for form validation
+  const onSubmit = useCallback((_data: Record<string, unknown>) => {
+    // Form is valid, data is already being updated in real-time
+    // Validation successful - data is handled in real-time
+  }, []);
 
-    const nodeType = selectedNode.type;
+  // Render form field with error handling
+  const renderFormField = useCallback(
+    (field: FormField) => {
+      const fieldValue = formValues[field.name];
+      const fieldErrorObj = formErrors[field.name];
+      const fieldError: string | undefined =
+        typeof fieldErrorObj === "object" && fieldErrorObj !== null && "message" in fieldErrorObj
+          ? String(fieldErrorObj.message)
+          : undefined;
+
+      return (
+        <DynamicFormField
+          key={field.name}
+          field={field}
+          value={fieldValue}
+          onChange={handlePropertyChange}
+          error={fieldError}
+          disabled={false}
+          unitSystem={unitSystem}
+        />
+      );
+    },
+    [formValues, formErrors, handlePropertyChange, unitSystem]
+  );
+
+  // Render property sections dynamically
+  const renderPropertySections = useMemo(() => {
+    if (!primaryNode && !selectedEdge) return null;
 
     return (
-      <>
-        {/* General Section */}
-        <div className="mb-4">
-          <button
-            onClick={() => toggleSection("General")}
-            className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            <span>General</span>
-            {expandedSections.has("General") ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </button>
-          {expandedSections.has("General") && (
-            <div className="mt-2 space-y-2 px-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600">ID</label>
-                <input
-                  type="text"
-                  value={selectedNode.id}
-                  disabled
-                  className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm"
-                />
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Multi-selection info */}
+          {isMultiSelect && (
+            <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
+              <div className="flex items-center gap-2 text-sm text-blue-800">
+                <Info className="h-4 w-4" />
+                <span>{selectedNodes.length} elements selected</span>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600">Type</label>
-                <input
-                  type="text"
-                  value={nodeType || "default"}
-                  disabled
-                  className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600">Label</label>
-                <input
-                  type="text"
-                  value={localData.label || ""}
-                  onChange={(e) => handlePropertyChange("label", e.target.value)}
-                  className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
+              <p className="mt-1 text-xs text-blue-600">
+                Changes will be applied to all selected elements
+              </p>
             </div>
           )}
-        </div>
 
-        {/* Position Section */}
-        <div className="mb-4">
-          <button
-            onClick={() => toggleSection("Position")}
-            className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            <span>Position</span>
-            {expandedSections.has("Position") ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </button>
-          {expandedSections.has("Position") && (
-            <div className="mt-2 space-y-2 px-3">
-              <div className="grid grid-cols-2 gap-2">
+          {/* Basic Information Section (always visible) */}
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => toggleSection("info")}
+              className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                <span>Element Information</span>
+              </div>
+              {expandedSections.has("info") ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
+            {expandedSections.has("info") && (
+              <div className="mt-2 space-y-3 px-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600">X</label>
+                  <label className="block text-xs font-medium text-gray-600">ID</label>
                   <input
-                    type="number"
-                    value={Math.round(selectedNode.position.x)}
-                    onChange={(e) => handlePositionChange("x", e.target.value)}
-                    className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    type="text"
+                    value={primaryNode?.id || selectedEdge?.id || ""}
+                    disabled
+                    className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600">Y</label>
+                  <label className="block text-xs font-medium text-gray-600">Type</label>
                   <input
-                    type="number"
-                    value={Math.round(selectedNode.position.y)}
-                    onChange={(e) => handlePositionChange("y", e.target.value)}
-                    className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    type="text"
+                    value={nodeType || selectedEdge?.type || "edge"}
+                    disabled
+                    className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm"
                   />
                 </div>
+                {primaryNode && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600">X Position</label>
+                      <input
+                        type="number"
+                        value={Math.round(primaryNode.position.x)}
+                        onChange={(e) => handlePositionChange("x", e.target.value)}
+                        className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600">Y Position</label>
+                      <input
+                        type="number"
+                        value={Math.round(primaryNode.position.y)}
+                        onChange={(e) => handlePositionChange("y", e.target.value)}
+                        className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Type-specific Properties */}
-        <div className="mb-4">
-          <button
-            onClick={() => toggleSection("Properties")}
-            className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            <span>Properties</span>
-            {expandedSections.has("Properties") ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
             )}
-          </button>
-          {expandedSections.has("Properties") && (
-            <div className="mt-2 space-y-2 px-3">
-              {nodeType === "pump" && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Flow Rate</label>
-                    <input
-                      type="text"
-                      value={localData.flowRate || ""}
-                      onChange={(e) => handlePropertyChange("flowRate", e.target.value)}
-                      placeholder="e.g., 100 m³/h"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Head</label>
-                    <input
-                      type="text"
-                      value={localData.head || ""}
-                      onChange={(e) => handlePropertyChange("head", e.target.value)}
-                      placeholder="e.g., 50 m"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Power</label>
-                    <input
-                      type="text"
-                      value={localData.power || ""}
-                      onChange={(e) => handlePropertyChange("power", e.target.value)}
-                      placeholder="e.g., 15 kW"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                </>
-              )}
+          </div>
 
-              {nodeType === "valve" && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Valve Type</label>
-                    <select
-                      value={localData.type || "gate"}
-                      onChange={(e) => handlePropertyChange("type", e.target.value)}
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                      <option value="gate">Gate</option>
-                      <option value="ball">Ball</option>
-                      <option value="butterfly">Butterfly</option>
-                      <option value="globe">Globe</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">State</label>
-                    <select
-                      value={localData.state || "open"}
-                      onChange={(e) => handlePropertyChange("state", e.target.value)}
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                      <option value="open">Open</option>
-                      <option value="closed">Closed</option>
-                      <option value="partial">Partial</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Size</label>
-                    <input
-                      type="text"
-                      value={localData.size || ""}
-                      onChange={(e) => handlePropertyChange("size", e.target.value)}
-                      placeholder="e.g., DN100"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                </>
-              )}
-
-              {nodeType === "tank" && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Tank Type</label>
-                    <select
-                      value={localData.type || "storage"}
-                      onChange={(e) => handlePropertyChange("type", e.target.value)}
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                      <option value="storage">Storage</option>
-                      <option value="pressure">Pressure</option>
-                      <option value="mixing">Mixing</option>
-                      <option value="buffer">Buffer</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Capacity</label>
-                    <input
-                      type="text"
-                      value={localData.capacity || ""}
-                      onChange={(e) => handlePropertyChange("capacity", e.target.value)}
-                      placeholder="e.g., 1000 m³"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">
-                      Level ({localData.level || 0}%)
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={localData.level || 50}
-                      onChange={(e) => handlePropertyChange("level", parseInt(e.target.value))}
-                      className="mt-1 w-full"
-                    />
-                  </div>
-                </>
-              )}
-
-              {nodeType === "pipe" && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Orientation</label>
-                    <select
-                      value={localData.orientation || "horizontal"}
-                      onChange={(e) => handlePropertyChange("orientation", e.target.value)}
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                      <option value="horizontal">Horizontal</option>
-                      <option value="vertical">Vertical</option>
-                      <option value="elbow">Elbow</option>
-                      <option value="tee">Tee</option>
-                      <option value="cross">Cross</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Diameter</label>
-                    <input
-                      type="text"
-                      value={localData.diameter || ""}
-                      onChange={(e) => handlePropertyChange("diameter", e.target.value)}
-                      placeholder="e.g., DN100"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Material</label>
-                    <input
-                      type="text"
-                      value={localData.material || ""}
-                      onChange={(e) => handlePropertyChange("material", e.target.value)}
-                      placeholder="e.g., Steel"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                </>
-              )}
-
-              {nodeType === "controlValve" && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Control Type</label>
-                    <select
-                      value={localData.controlType || "pneumatic"}
-                      onChange={(e) => handlePropertyChange("controlType", e.target.value)}
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                      <option value="pneumatic">Pneumatic</option>
-                      <option value="electric">Electric</option>
-                      <option value="hydraulic">Hydraulic</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">
-                      Position ({localData.position || 50}%)
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={localData.position || 50}
-                      onChange={(e) => handlePropertyChange("position", parseInt(e.target.value))}
-                      className="mt-1 w-full"
-                    />
-                  </div>
-                </>
-              )}
-
-              {(nodeType === "flowMeter" || nodeType === "pressureGauge") && (
-                <>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Value</label>
-                    <input
-                      type="text"
-                      value={localData.value || ""}
-                      onChange={(e) => handlePropertyChange("value", e.target.value)}
-                      placeholder="e.g., 25.5"
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600">Unit</label>
-                    <input
-                      type="text"
-                      value={localData.unit || ""}
-                      onChange={(e) => handlePropertyChange("unit", e.target.value)}
-                      placeholder={nodeType === "flowMeter" ? "m³/h" : "bar"}
-                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    />
-                  </div>
-                </>
-              )}
+          {/* Unit System Selector */}
+          <div className="mb-4">
+            <label className="mb-1 block text-xs font-medium text-gray-600">Unit System</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setUnitSystem("metric")}
+                className={`rounded px-3 py-1 text-xs ${
+                  unitSystem === "metric"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Metric
+              </button>
+              <button
+                type="button"
+                onClick={() => setUnitSystem("imperial")}
+                className={`rounded px-3 py-1 text-xs ${
+                  unitSystem === "imperial"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Imperial
+              </button>
             </div>
-          )}
-        </div>
-      </>
+          </div>
+
+          {/* Dynamic Property Sections */}
+          {primaryNode &&
+            availableSections.map((section) => {
+              const sectionFields = fieldsBySection[section.id];
+              if (!sectionFields || sectionFields.length === 0) return null;
+
+              const IconComponent =
+                SECTION_ICONS[section.id as keyof typeof SECTION_ICONS] || Settings;
+
+              return (
+                <div key={section.id} className="mb-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.id)}
+                    className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4" />
+                      <span>{section.label}</span>
+                    </div>
+                    {expandedSections.has(section.id) ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
+                  {expandedSections.has(section.id) && (
+                    <div className="mt-2 space-y-3 px-3">{sectionFields.map(renderFormField)}</div>
+                  )}
+                </div>
+              );
+            })}
+        </form>
+      </FormProvider>
     );
-  };
+  }, [
+    primaryNode,
+    selectedEdge,
+    isMultiSelect,
+    selectedNodes,
+    expandedSections,
+    availableSections,
+    fieldsBySection,
+    methods,
+    handleSubmit,
+    onSubmit,
+    toggleSection,
+    unitSystem,
+    renderFormField,
+    handlePositionChange,
+    nodeType,
+  ]);
 
-  const renderEdgeProperties = () => {
+  // Render edge properties with similar structure
+  const renderEdgeProperties = useMemo(() => {
     if (!selectedEdge) return null;
 
     return (
-      <>
+      <div className="space-y-4">
         <div className="mb-4">
           <button
-            onClick={() => toggleSection("General")}
+            type="button"
+            onClick={() => toggleSection("edge-info")}
             className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
           >
-            <span>General</span>
-            {expandedSections.has("General") ? (
+            <div className="flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              <span>Connection Information</span>
+            </div>
+            {expandedSections.has("edge-info") ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
               <ChevronDown className="h-4 w-4" />
             )}
           </button>
-          {expandedSections.has("General") && (
-            <div className="mt-2 space-y-2 px-3">
+          {expandedSections.has("edge-info") && (
+            <div className="mt-2 space-y-3 px-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600">ID</label>
                 <input
@@ -419,7 +451,7 @@ export default function PropertyPanel({ selectedNode, selectedEdge, onClose }: P
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600">Source</label>
+                <label className="block text-xs font-medium text-gray-600">Source Node</label>
                 <input
                   type="text"
                   value={selectedEdge.source}
@@ -428,7 +460,7 @@ export default function PropertyPanel({ selectedNode, selectedEdge, onClose }: P
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600">Target</label>
+                <label className="block text-xs font-medium text-gray-600">Target Node</label>
                 <input
                   type="text"
                   value={selectedEdge.target}
@@ -436,40 +468,83 @@ export default function PropertyPanel({ selectedNode, selectedEdge, onClose }: P
                   className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm"
                 />
               </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600">Label</label>
+                <input
+                  type="text"
+                  value={selectedEdge.data?.label || ""}
+                  onChange={(e) => {
+                    const updatedData = { ...selectedEdge.data, label: e.target.value };
+                    updateEdge(selectedEdge.id, { data: updatedData });
+                  }}
+                  placeholder="Enter connection label..."
+                  className="mt-1 w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
             </div>
           )}
         </div>
-      </>
+      </div>
     );
-  };
+  }, [selectedEdge, expandedSections, toggleSection, updateEdge]);
 
-  if (!selectedNode && !selectedEdge) return null;
+  // Don't render if nothing is selected
+  if (!primaryNode && !selectedEdge && selectedNodes.length === 0) {
+    return null;
+  }
+
+  const title = isMultiSelect
+    ? `Properties (${selectedNodes.length} selected)`
+    : primaryNode
+      ? "Node Properties"
+      : "Edge Properties";
+
+  const deleteButtonText = isMultiSelect
+    ? `Delete ${selectedNodes.length} Elements`
+    : primaryNode
+      ? "Delete Node"
+      : "Delete Edge";
 
   return (
-    <div className="flex h-full w-80 flex-col border-l border-gray-200 bg-white">
+    <div
+      className="flex h-full w-80 flex-col border-l border-gray-200 bg-white"
+      role="complementary"
+      aria-label="Properties Panel"
+    >
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-gray-700">
-          {selectedNode ? "Node Properties" : "Edge Properties"}
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          aria-label="Close properties panel"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
+      {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {selectedNode && renderNodeProperties()}
-        {selectedEdge && renderEdgeProperties()}
+        {(primaryNode || isMultiSelect) && renderPropertySections}
+        {selectedEdge && renderEdgeProperties}
       </div>
 
-      <div className="border-t border-gray-200 p-4">
+      {/* Footer */}
+      <div className="space-y-2 border-t border-gray-200 p-4">
+        {/* Form validation status */}
+        {isDirty && (
+          <div className="flex items-center gap-1 text-xs text-blue-600">
+            <Info className="h-3 w-3" />
+            Changes are saved automatically
+          </div>
+        )}
+
+        {/* Delete button */}
         <button
           onClick={handleDelete}
-          className="w-full rounded bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600"
+          className="w-full rounded bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
         >
-          Delete {selectedNode ? "Node" : "Edge"}
+          {deleteButtonText}
         </button>
       </div>
     </div>
