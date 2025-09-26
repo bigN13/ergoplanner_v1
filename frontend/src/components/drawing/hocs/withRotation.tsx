@@ -24,7 +24,7 @@ export interface WithRotationProps {
 export function withRotation<T extends BaseSymbolData>(
   WrappedComponent: ComponentType<NodeProps<T>>
 ): ComponentType<NodeProps<T & WithRotationProps>> {
-  const RotatableComponent = (props: NodeProps<T & WithRotationProps>) => {
+  const RotatableComponent = (props: NodeProps<T & WithRotationProps>): React.ReactElement => {
     const { data, ...restProps } = props;
     const [rotation, setRotation] = useState(data.rotation || 0);
 

@@ -39,7 +39,7 @@ export interface VesselNodeData extends BaseSymbolData {
 type VesselNodeProps = NodeProps<VesselNodeData>;
 
 const VesselNode = memo<VesselNodeProps>(({ id, data, selected, dragging }): React.ReactElement => {
-  const renderVesselContent = (vesselData: VesselNodeData) => {
+  const renderVesselContent = (vesselData: VesselNodeData): React.ReactElement => {
     const { vesselType = 'vertical', vesselSubtype = 'storage_tank', level = 0 } = vesselData;
 
     // Calculate fill based on level

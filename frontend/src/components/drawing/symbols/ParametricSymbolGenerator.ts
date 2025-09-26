@@ -115,7 +115,7 @@ export class ParametricSymbolGenerator<T extends ISymbolBaseData = ISymbolBaseDa
           depth: dimensions.width * 0.8, // Default depth ratio
           unit: 'mm',
         },
-      } as any,
+      } as T['metadata'],
       // Visual properties based on material
       fillColor: materialProps?.visual.color,
       strokeColor: '#374151',

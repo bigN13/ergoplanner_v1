@@ -24,7 +24,7 @@ export interface WithFlippingProps {
 export function withFlipping<T extends BaseSymbolData>(
   WrappedComponent: ComponentType<NodeProps<T>>
 ): ComponentType<NodeProps<T & WithFlippingProps>> {
-  const FlippableComponent = (props: NodeProps<T & WithFlippingProps>) => {
+  const FlippableComponent = (props: NodeProps<T & WithFlippingProps>): React.ReactElement => {
     const { data, ...restProps } = props;
     const [flipHorizontal, setFlipHorizontal] = useState(data.flipHorizontal || false);
     const [flipVertical, setFlipVertical] = useState(data.flipVertical || false);

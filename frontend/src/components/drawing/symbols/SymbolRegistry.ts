@@ -28,7 +28,7 @@ export interface ISymbolRegistration {
   name: string;
   category: SymbolCategory;
   subCategory?: string;
-  component: ComponentType<NodeProps<any>>;
+  component: ComponentType<NodeProps<ISymbolBaseData>>;
   thumbnail?: string;
   description?: string;
   tags?: string[];
@@ -52,7 +52,7 @@ class SymbolRegistry {
   private symbols: Map<string, ISymbolRegistration> = new Map();
   private categories: Map<SymbolCategory, Set<string>> = new Map();
   private factories: Map<string, SymbolFactory> = new Map();
-  private loadedComponents: Map<string, ComponentType<any>> = new Map();
+  private loadedComponents: Map<string, ComponentType<NodeProps<ISymbolBaseData>>> = new Map();
 
   private constructor() {
     // Initialize categories
@@ -145,7 +145,7 @@ class SymbolRegistry {
   /**
    * Get symbol component by ID
    */
-  public async getComponent(id: string): Promise<ComponentType<any> | undefined> {
+  public async getComponent(id: string): Promise<ComponentType<NodeProps<ISymbolBaseData>> | undefined> {
     // Check if already loaded
     if (this.loadedComponents.has(id)) {
       return this.loadedComponents.get(id);
@@ -162,7 +162,7 @@ class SymbolRegistry {
     if (registration.lazyLoad) {
       try {
         // Assume component is a lazy import function
-        const component = await (registration.component as any)();
+        const component = await (registration.component as () => Promise<{ default: ComponentType<NodeProps<ISymbolBaseData>> }>)();
         this.loadedComponents.set(id, component.default || component);
         return this.loadedComponents.get(id);
       } catch (error) {
@@ -331,7 +331,7 @@ export const symbolRegistry = SymbolRegistry.getInstance();
  * Decorator for auto-registering symbols
  */
 export function RegisterSymbol(registration: Omit<ISymbolRegistration, 'component'>) {
-  return function (target: any) {
+  return function (target: ComponentType<NodeProps<ISymbolBaseData>>) {
     symbolRegistry.register({
       ...registration,
       component: target,
@@ -347,14 +347,14 @@ export function registerLazySymbol(
   id: string,
   name: string,
   category: SymbolCategory,
-  importFn: () => Promise<any>,
+  importFn: () => Promise<{ default: ComponentType<NodeProps<ISymbolBaseData>> }>,
   options?: Partial<ISymbolRegistration>
 ): void {
   symbolRegistry.register({
     id,
     name,
     category,
-    component: lazy(importFn) as any,
+    component: lazy(importFn) as ComponentType<NodeProps<ISymbolBaseData>>,
     lazyLoad: true,
     ...options,
   });

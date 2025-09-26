@@ -337,15 +337,19 @@ export const OptimizedSVGRenderer = memo<IOptimizedSVGRendererProps>(
       if (!renderOptions.enableLOD) return 'high';
 
       const {zoom} = viewport;
-      if (zoom >= renderOptions.lodHighThreshold!) {
+      const highThreshold = renderOptions.lodHighThreshold ?? 1.5;
+      const mediumThreshold = renderOptions.lodMediumThreshold ?? 0.75;
+      const lowThreshold = renderOptions.lodLowThreshold ?? 0.3;
+
+      if (zoom >= highThreshold) {
         return 'high';
-      } else if (zoom >= renderOptions.lodMediumThreshold!) {
+      } else if (zoom >= mediumThreshold) {
         return 'medium';
-      } else if (zoom >= renderOptions.lodLowThreshold!) {
+      } else if (zoom >= lowThreshold) {
         return 'low';
       }
       return 'minimal';
-    }, [viewport.zoom, renderOptions]);
+    }, [viewport, renderOptions]);
 
     // Get optimized SVG content
     const optimizedContent = useMemo(() => {

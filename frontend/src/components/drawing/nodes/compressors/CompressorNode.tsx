@@ -55,7 +55,7 @@ export interface CompressorNodeData extends BaseSymbolData {
 type CompressorNodeProps = NodeProps<CompressorNodeData>;
 
 const CompressorNode = memo<CompressorNodeProps>(({ id, data, selected, dragging }): React.ReactElement => {
-  const renderCompressorContent = (compressorData: CompressorNodeData) => {
+  const renderCompressorContent = (compressorData: CompressorNodeData): React.ReactElement => {
     const { compressorType = 'centrifugal', animated = false } = compressorData;
 
     return (

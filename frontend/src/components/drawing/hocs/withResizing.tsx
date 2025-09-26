@@ -33,7 +33,7 @@ export interface WithResizingProps {
 export function withResizing<T extends BaseSymbolData>(
   WrappedComponent: ComponentType<NodeProps<T>>
 ): ComponentType<NodeProps<T & WithResizingProps>> {
-  const ResizableComponent = (props: NodeProps<T & WithResizingProps>) => {
+  const ResizableComponent = (props: NodeProps<T & WithResizingProps>): React.ReactElement => {
     const { data, ...restProps } = props;
     const containerRef = useRef<HTMLDivElement>(null);
     

@@ -356,7 +356,7 @@ export abstract class SymbolBase<T extends ISymbolBaseData = ISymbolBaseData> {
       ...overrides,
       id: overrides.id || `${this.data.id}_clone_${Date.now()}`,
     };
-    return new (this.constructor as any)(clonedData);
+    return new (this.constructor as new (data: T) => SymbolBase<T>)(clonedData);
   }
 
   /**

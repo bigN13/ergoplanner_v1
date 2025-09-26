@@ -41,7 +41,7 @@ export interface HeatExchangerNodeData extends BaseSymbolData {
 type HeatExchangerNodeProps = NodeProps<HeatExchangerNodeData>;
 
 const HeatExchangerNode = memo<HeatExchangerNodeProps>(({ id, data, selected, dragging }): React.ReactElement => {
-  const renderExchangerContent = (exchangerData: HeatExchangerNodeData) => {
+  const renderExchangerContent = (exchangerData: HeatExchangerNodeData): React.ReactElement => {
     const { exchangerType = 'shell_and_tube', animated = false } = exchangerData;
 
     return (
