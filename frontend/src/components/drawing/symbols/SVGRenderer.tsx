@@ -336,7 +336,7 @@ export const OptimizedSVGRenderer = memo<IOptimizedSVGRendererProps>(
     const levelOfDetail = useMemo(() => {
       if (!renderOptions.enableLOD) return 'high';
 
-      const zoom = viewport.zoom;
+      const {zoom} = viewport;
       if (zoom >= renderOptions.lodHighThreshold!) {
         return 'high';
       } else if (zoom >= renderOptions.lodMediumThreshold!) {
@@ -364,7 +364,7 @@ export const OptimizedSVGRenderer = memo<IOptimizedSVGRendererProps>(
       // Generate content based on LOD
       let content: string;
       if (typeof svgContent === 'function') {
-        const element = svgContent();
+        // Function content is handled separately in render
         content = 'SVG_FUNCTION_CONTENT'; // Placeholder for function content
       } else {
         content = svgContent;

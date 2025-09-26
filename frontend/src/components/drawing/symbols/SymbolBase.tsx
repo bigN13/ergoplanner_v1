@@ -1,4 +1,5 @@
-import { ComponentType, ReactElement, memo } from 'react';
+import type { ComponentType, ReactElement} from 'react';
+import { memo } from 'react';
 import type { NodeProps, XYPosition } from 'reactflow';
 
 /**
@@ -227,7 +228,7 @@ export abstract class SymbolBase<T extends ISymbolBaseData = ISymbolBaseData> {
   protected validateMetadata(): { errors: string[]; warnings: string[] } {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const metadata = this.data.metadata;
+    const {metadata} = this.data;
 
     // Validate tag number format
     if (!metadata.tagNumber || !/^[A-Z0-9-]+$/.test(metadata.tagNumber)) {
@@ -321,7 +322,7 @@ export abstract class SymbolBase<T extends ISymbolBaseData = ISymbolBaseData> {
    * Get metadata for display
    */
   public getDisplayMetadata(): Record<string, string> {
-    const metadata = this.data.metadata;
+    const {metadata} = this.data;
     const display: Record<string, string> = {};
 
     display['Tag'] = metadata.tagNumber;
@@ -383,10 +384,14 @@ export abstract class SymbolBase<T extends ISymbolBaseData = ISymbolBaseData> {
 export function createSymbolComponent<T extends ISymbolBaseData>(
   BaseClass: new (data: T) => SymbolBase<T>
 ): ComponentType<ISymbolProps<T>> {
-  return memo<ISymbolProps<T>>((props: ISymbolProps<T>) => {
+  const Component = memo<ISymbolProps<T>>((props: ISymbolProps<T>) => {
     const instance = new BaseClass(props.data);
     return instance.render();
   });
+
+  Component.displayName = `SymbolComponent(${BaseClass.name})`;
+
+  return Component;
 }
 
 export default SymbolBase;

@@ -1,4 +1,5 @@
-import { ComponentType, lazy } from 'react';
+import type { ComponentType} from 'react';
+import { lazy } from 'react';
 import type { NodeProps } from 'reactflow';
 
 import type { ISymbolBaseData, ISymbolProps } from './SymbolBase';
