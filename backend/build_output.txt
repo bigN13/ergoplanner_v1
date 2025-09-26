@@ -1,0 +1,18 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Ergoplanner.Shared -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\src\Ergoplanner.Shared\bin\Debug\net9.0\Ergoplanner.Shared.dll
+  Ergoplanner.Domain -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\src\Ergoplanner.Domain\bin\Debug\net9.0\Ergoplanner.Domain.dll
+  Ergoplanner.MLServices -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\Ergoplanner.MLServices\bin\Debug\net9.0\Ergoplanner.MLServices.dll
+  Ergoplanner.Application -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\src\Ergoplanner.Application\bin\Debug\net9.0\Ergoplanner.Application.dll
+  Ergoplanner.Domain.Tests -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\tests\Ergoplanner.Domain.Tests\bin\Debug\net9.0\Ergoplanner.Domain.Tests.dll
+  Ergoplanner.Infrastructure -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\src\Ergoplanner.Infrastructure\bin\Debug\net9.0\Ergoplanner.Infrastructure.dll
+  Ergoplanner.Application.Tests -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\tests\Ergoplanner.Application.Tests\bin\Debug\net9.0\Ergoplanner.Application.Tests.dll
+  Ergoplanner.Infrastructure.Tests -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\tests\Ergoplanner.Infrastructure.Tests\bin\Debug\net9.0\Ergoplanner.Infrastructure.Tests.dll
+  Ergoplanner.API -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\src\Ergoplanner.API\bin\Debug\net9.0\Ergoplanner.API.dll
+  Ergoplanner.API.Tests -> C:\Users\siveg\OneDrive\Έγγραφα\PROJECTS\Ergoplanner\Ergoplanner_v1\backend\tests\Ergoplanner.API.Tests\bin\Debug\net9.0\Ergoplanner.API.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:10.32
