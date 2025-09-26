@@ -1,13 +1,20 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useReactFlow, type Node, type Edge, type Connection, type XYPosition } from "reactflow";
 import { MarkerType } from "reactflow";
 
-import {
-  PathfindingService,
-  type RoutingMode,
-  type RouteResult,
-} from "@/services/PathfindingService";
-import { useDrawingStore } from "@/store/drawingStore";
+import { useEnhancedDrawingStore as useDrawingStore } from "@/store/enhanced-drawing-store";
+
+export type RoutingMode = "orthogonal" | "straight" | "smooth" | "auto";
+
+export interface RouteResult {
+  path: XYPosition[];
+  segments: Array<{ start: XYPosition; end: XYPosition }>;
+  length: number;
+  isValid: boolean;
+  success: boolean;
+  distance?: number;
+  message?: string;
+}
 
 export interface SmartRoutingOptions {
   routingMode: RoutingMode;
@@ -36,20 +43,73 @@ export function useSmartRouting(
   const { getNodes, getEdges } = useReactFlow();
   const { addEdge } = useDrawingStore();
 
-  // Initialize pathfinding service with options
-  const pathfindingService = useMemo(() => {
-    const defaultOptions = {
-      routingMode: "orthogonal" as RoutingMode,
-      gridSize: 20,
-      obstacleMargin: 40,
-      allowDiagonal: false,
-      weight: 1.0,
-      autoRoute: true,
-      ...initialOptions,
-    };
+  const [options, setOptions] = useState<SmartRoutingOptions>({
+    routingMode: "orthogonal",
+    gridSize: 20,
+    obstacleMargin: 40,
+    allowDiagonal: false,
+    weight: 1.0,
+    autoRoute: true,
+    ...initialOptions,
+  });
 
-    return new PathfindingService(defaultOptions);
-  }, [initialOptions]);
+  /**
+   * Simple pathfinding implementation
+   */
+  const findPath = useCallback(
+    (start: XYPosition, end: XYPosition, obstacles: Node[]): RouteResult => {
+      // For now, return a simple orthogonal path
+      const path: XYPosition[] = [];
+
+      if (options.routingMode === "straight") {
+        path.push(start, end);
+      } else if (options.routingMode === "orthogonal") {
+        // Simple orthogonal routing
+        path.push(start);
+
+        // Determine if horizontal or vertical first based on positions
+        const dx = Math.abs(end.x - start.x);
+        const dy = Math.abs(end.y - start.y);
+
+        if (dx > dy) {
+          // Move horizontally first
+          path.push({ x: end.x, y: start.y });
+        } else {
+          // Move vertically first
+          path.push({ x: start.x, y: end.y });
+        }
+
+        path.push(end);
+      } else {
+        // Smooth or auto mode - just use straight for now
+        path.push(start, end);
+      }
+
+      const segments = [];
+      for (let i = 0; i < path.length - 1; i++) {
+        segments.push({ start: path[i], end: path[i + 1] });
+      }
+
+      const length = path.reduce((total, point, index) => {
+        if (index === 0) return 0;
+        const prev = path[index - 1];
+        return (
+          total +
+          Math.sqrt(Math.pow(point.x - prev.x, 2) + Math.pow(point.y - prev.y, 2))
+        );
+      }, 0);
+
+      return {
+        path,
+        segments,
+        length,
+        isValid: true,
+        success: true,
+        distance: length,
+      };
+    },
+    [options.routingMode]
+  );
 
   /**
    * Find optimal path between two points
@@ -57,17 +117,47 @@ export function useSmartRouting(
   const findOptimalPath = useCallback(
     (start: XYPosition, end: XYPosition): RouteResult => {
       const nodes = getNodes();
-      const edges = getEdges();
 
       // Filter out nodes that shouldn't be obstacles (e.g., connection points)
       const obstacles = nodes.filter(
         (node) => node.type !== "connection" && node.draggable !== false
       );
 
-      return pathfindingService.findPath(start, end, obstacles, edges);
+      return findPath(start, end, obstacles);
     },
-    [getNodes, getEdges, pathfindingService]
+    [getNodes, findPath]
   );
+
+  /**
+   * Helper function to get node connection point
+   */
+  const getNodeConnectionPoint = (node: Node, handle?: string | null): XYPosition => {
+    const nodeWidth = node.width || 100;
+    const nodeHeight = node.height || 60;
+    const centerX = node.position.x + nodeWidth / 2;
+    const centerY = node.position.y + nodeHeight / 2;
+
+    // If no specific handle, return center point
+    if (!handle) {
+      return { x: centerX, y: centerY };
+    }
+
+    // Parse handle position (e.g., "target-top", "source-right")
+    const position = handle.toLowerCase();
+
+    if (position.includes("top")) {
+      return { x: centerX, y: node.position.y };
+    } else if (position.includes("bottom")) {
+      return { x: centerX, y: node.position.y + nodeHeight };
+    } else if (position.includes("left")) {
+      return { x: node.position.x, y: centerY };
+    } else if (position.includes("right")) {
+      return { x: node.position.x + nodeWidth, y: centerY };
+    }
+
+    // Default to center if no matching position
+    return { x: centerX, y: centerY };
+  };
 
   /**
    * Create a smart connection with automatic routing
@@ -168,22 +258,18 @@ export function useSmartRouting(
    * Update routing options
    */
   const updateRoutingOptions = useCallback(
-    (options: Partial<SmartRoutingOptions>) => {
-      pathfindingService.updateOptions(options);
+    (newOptions: Partial<SmartRoutingOptions>) => {
+      setOptions((prev) => ({ ...prev, ...newOptions }));
     },
-    [pathfindingService]
+    []
   );
 
   /**
    * Get current routing options
    */
   const getRoutingOptions = useCallback((): SmartRoutingOptions => {
-    const pathOptions = pathfindingService.getOptions();
-    return {
-      ...pathOptions,
-      autoRoute: true, // This is managed by the hook
-    };
-  }, [pathfindingService]);
+    return options;
+  }, [options]);
 
   /**
    * Check if two nodes can be auto-routed
@@ -232,41 +318,22 @@ export function useSmartRouting(
     [getNodes]
   );
 
-  /**
-   * Helper function to get node connection point
-   */
-  const getNodeConnectionPoint = (node: Node, handle?: string | null): XYPosition => {
-    const nodeWidth = node.width || 100;
-    const nodeHeight = node.height || 60;
-    const centerX = node.position.x + nodeWidth / 2;
-    const centerY = node.position.y + nodeHeight / 2;
-
-    // If no specific handle, return center point
-    if (!handle) {
-      return { x: centerX, y: centerY };
-    }
-
-    // Map handle to connection point
-    switch (handle) {
-      case "top":
-        return { x: centerX, y: node.position.y };
-      case "right":
-        return { x: node.position.x + nodeWidth, y: centerY };
-      case "bottom":
-        return { x: centerX, y: node.position.y + nodeHeight };
-      case "left":
-        return { x: node.position.x, y: centerY };
-      default:
-        return { x: centerX, y: centerY };
-    }
-  };
-
-  return {
-    findOptimalPath,
-    createSmartConnection,
-    updateRoutingOptions,
-    getRoutingOptions,
-    canAutoRoute,
-    getConnectionPoints,
-  };
+  return useMemo(
+    () => ({
+      findOptimalPath,
+      createSmartConnection,
+      updateRoutingOptions,
+      getRoutingOptions,
+      canAutoRoute,
+      getConnectionPoints,
+    }),
+    [
+      findOptimalPath,
+      createSmartConnection,
+      updateRoutingOptions,
+      getRoutingOptions,
+      canAutoRoute,
+      getConnectionPoints,
+    ]
+  );
 }
