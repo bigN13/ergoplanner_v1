@@ -1,6 +1,11 @@
 import { useState, useCallback, useMemo } from "react";
 
-import type { QuickAction, ActionContext, ActionMacro, ActionSuggestion } from "@/types/quickActions";
+import type {
+  QuickAction,
+  ActionContext,
+  ActionMacro,
+  ActionSuggestion,
+} from "@/types/quickActions";
 
 export function useQuickActions(): {
   context: ActionContext;
@@ -45,14 +50,11 @@ export function useQuickActions(): {
     });
   }, []);
 
-  const createMacroFromHistory = useCallback(
-    (count: number) => {
-      // TODO: Implement macro creation
-      // eslint-disable-next-line no-console
-      console.log("Creating macro from last", count, "actions");
-    },
-    []
-  );
+  const createMacroFromHistory = useCallback((count: number) => {
+    // TODO: Implement macro creation
+    // eslint-disable-next-line no-console
+    console.log("Creating macro from last", count, "actions");
+  }, []);
 
   const executeMacro = useCallback((macro: ActionMacro) => {
     // TODO: Implement macro execution
@@ -60,10 +62,7 @@ export function useQuickActions(): {
     console.log("Executing macro:", macro.id);
   }, []);
 
-  const isPinned = useCallback(
-    (actionId: string) => pinnedActions.has(actionId),
-    [pinnedActions]
-  );
+  const isPinned = useCallback((actionId: string) => pinnedActions.has(actionId), [pinnedActions]);
 
   return {
     context,

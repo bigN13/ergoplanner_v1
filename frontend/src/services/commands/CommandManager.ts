@@ -25,7 +25,7 @@ export class CommandManager {
       maxHistorySize: 50,
       enableAutoBatching: true,
       batchTimeWindow: 1000, // 1 second
-      userId: 'current-user',
+      userId: "current-user",
       ...config,
     };
   }
@@ -49,9 +49,8 @@ export class CommandManager {
 
       // Add to history
       this.addToHistory(command);
-
     } catch (error) {
-      console.error('Failed to execute command:', error);
+      console.error("Failed to execute command:", error);
       throw error;
     }
   }
@@ -65,7 +64,10 @@ export class CommandManager {
     }
 
     if (commands.length === 1) {
-      this.execute(commands[0]);
+      const command = commands[0];
+      if (command) {
+        this.execute(command);
+      }
       return;
     }
 
@@ -87,11 +89,14 @@ export class CommandManager {
 
     try {
       const command = this.history[this.currentIndex];
-      command.undo();
-      this.currentIndex--;
-      return true;
+      if (command) {
+        command.undo();
+        this.currentIndex--;
+        return true;
+      }
+      return false;
     } catch (error) {
-      console.error('Failed to undo command:', error);
+      console.error("Failed to undo command:", error);
       return false;
     }
   }
@@ -107,10 +112,14 @@ export class CommandManager {
     try {
       this.currentIndex++;
       const command = this.history[this.currentIndex];
-      command.execute();
-      return true;
+      if (command) {
+        command.execute();
+        return true;
+      }
+      this.currentIndex--;
+      return false;
     } catch (error) {
-      console.error('Failed to redo command:', error);
+      console.error("Failed to redo command:", error);
       this.currentIndex--;
       return false;
     }
@@ -120,7 +129,7 @@ export class CommandManager {
    * Check if undo is available
    */
   public canUndo(): boolean {
-    return this.currentIndex >= 0 && this.history[this.currentIndex]?.canUndo();
+    return this.currentIndex >= 0 && (this.history[this.currentIndex]?.canUndo() || false);
   }
 
   /**
@@ -129,7 +138,7 @@ export class CommandManager {
   public canRedo(): boolean {
     return (
       this.currentIndex < this.history.length - 1 &&
-      this.history[this.currentIndex + 1]?.canRedo()
+      (this.history[this.currentIndex + 1]?.canRedo() || false)
     );
   }
 
@@ -253,7 +262,7 @@ export class CommandManager {
   } {
     const commandTypes: Record<string, number> = {};
 
-    this.history.forEach(command => {
+    this.history.forEach((command) => {
       commandTypes[command.type] = (commandTypes[command.type] || 0) + 1;
     });
 
@@ -304,7 +313,7 @@ export class CommandManager {
     const now = Date.now();
 
     // Check if we're within the batching time window
-    if (this.batchingStartTime && (now - this.batchingStartTime) > this.config.batchTimeWindow) {
+    if (this.batchingStartTime && now - this.batchingStartTime > this.config.batchTimeWindow) {
       this.finalizePendingBatch();
       return false;
     }
@@ -322,7 +331,7 @@ export class CommandManager {
       "move_node",
       "modify_node",
       "modify_edge",
-      "property_change"
+      "property_change",
     ];
 
     return batchableTypes.includes(command.type);
@@ -341,8 +350,10 @@ export class CommandManager {
 
     // Set up a timer to finalize the batch
     setTimeout(() => {
-      if (this.batchingStartTime &&
-          (Date.now() - this.batchingStartTime) >= this.config.batchTimeWindow) {
+      if (
+        this.batchingStartTime &&
+        Date.now() - this.batchingStartTime >= this.config.batchTimeWindow
+      ) {
         this.finalizePendingBatch();
       }
     }, this.config.batchTimeWindow);
@@ -378,8 +389,11 @@ export class CommandManager {
     const entries = Object.entries(summary);
 
     if (entries.length === 1) {
-      const [type, count] = entries[0];
-      return `${count} ${type.replace(/_/g, ' ')} operation${count > 1 ? 's' : ''}`;
+      const entry = entries[0];
+      if (entry) {
+        const [type, count] = entry;
+        return `${count} ${type.replace(/_/g, " ")} operation${count > 1 ? "s" : ""}`;
+      }
     }
 
     return `Batch: ${batch.size()} operations`;

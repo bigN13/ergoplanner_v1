@@ -88,7 +88,7 @@ export default function ValidationSystem({
                 elementType: "node",
                 position: node.position,
                 suggestions: [
-                  `Add tag like ${node.type?.toUpperCase() || 'SYMBOL'}-101`,
+                  `Add tag like ${node.type?.toUpperCase() || "SYMBOL"}-101`,
                   "Follow company tagging standards",
                   "Ensure tag is unique in drawing",
                 ],
@@ -322,7 +322,7 @@ export default function ValidationSystem({
                   elementType: "node",
                   position: node.position,
                   suggestions: [
-                    `Use format like ${getStandardExample(node.type || 'pump')}`,
+                    `Use format like ${getStandardExample(node.type || "pump")}`,
                     "Follow ISA-5.1 standard",
                     "Check company naming conventions",
                   ],
@@ -455,7 +455,7 @@ export default function ValidationSystem({
             let newTag = "";
             let counter = 101;
             do {
-              newTag = `${nodeType?.charAt(0)?.toUpperCase() || 'S'}-${counter}`;
+              newTag = `${nodeType?.charAt(0)?.toUpperCase() || "S"}-${counter}`;
               counter++;
             } while (existingTags.includes(newTag));
 

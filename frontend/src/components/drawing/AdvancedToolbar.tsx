@@ -103,7 +103,17 @@ export default function AdvancedToolbar({
 
   const handleToolClick = (toolId: string, action?: () => void): void => {
     // Only set as active tool if it's a valid DrawingTool_Type
-    const validTools = ["select", "pan", "multiSelect", "addNode", "drawEdge", "freehand", "text", "measurement", "callout"];
+    const validTools = [
+      "select",
+      "pan",
+      "multiSelect",
+      "addNode",
+      "drawEdge",
+      "freehand",
+      "text",
+      "measurement",
+      "callout",
+    ];
     if (validTools.includes(toolId)) {
       setStoreActiveTool(toolId as DrawingTool_Type);
     }
@@ -344,13 +354,15 @@ export default function AdvancedToolbar({
                   ? "cursor-not-allowed opacity-50"
                   : ""
               }`}
-              title={`${tool.label}${('shortcut' in tool && tool.shortcut) ? ` (${tool.shortcut})` : ""}`}
+              title={`${tool.label}${"shortcut" in tool && tool.shortcut ? ` (${tool.shortcut})` : ""}`}
             >
               <tool.icon className="h-4 w-4" />
               {/* Tooltip */}
               <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
                 {tool.label}
-                {('shortcut' in tool && tool.shortcut) && <span className="ml-2 text-gray-400">{tool.shortcut}</span>}
+                {"shortcut" in tool && tool.shortcut && (
+                  <span className="ml-2 text-gray-400">{tool.shortcut}</span>
+                )}
               </div>
             </button>
           ))}

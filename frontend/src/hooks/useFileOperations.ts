@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { Node, Edge } from "reactflow";
 
 import { useDrawingStore } from "@/store/drawingStore";
 
@@ -8,8 +9,8 @@ export interface Template {
   id: string;
   name: string;
   description?: string;
-  nodes: unknown[];
-  edges: unknown[];
+  nodes: Node[];
+  edges: Edge[];
 }
 
 export interface RecentFile {
@@ -136,10 +137,10 @@ export function useFileOperations(): {
         lastOpened: new Date().toISOString(),
       };
 
-      const updated = [
-        newRecentFile,
-        ...recentFiles.filter((f) => f.id !== file.id),
-      ].slice(0, MAX_RECENT_FILES);
+      const updated = [newRecentFile, ...recentFiles.filter((f) => f.id !== file.id)].slice(
+        0,
+        MAX_RECENT_FILES
+      );
 
       setRecentFiles(updated);
       localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(updated));

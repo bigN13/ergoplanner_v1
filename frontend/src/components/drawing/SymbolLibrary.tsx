@@ -14,7 +14,9 @@ import {
   Heart,
 } from "lucide-react";
 import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+
+import { useDragPreview } from "@/hooks/useDragPreview";
 
 export interface Symbol {
   id: string;
@@ -314,6 +316,9 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
   const [showFilters, setShowFilters] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState<string>("all");
 
+  // Enhanced drag preview integration
+  const { startStencilDrag } = useDragPreview();
+
   // Load favorites and recently used from localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem("ergoplanner-favorites");
@@ -376,7 +381,8 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
 
           // Tag filter
           const matchesTags =
-            selectedTags.size === 0 || (symbol.tags?.some((tag: string) => selectedTags.has(tag)) ?? false);
+            selectedTags.size === 0 ||
+            (symbol.tags?.some((tag: string) => selectedTags.has(tag)) ?? false);
 
           // Standard filter
           const matchesStandard =
@@ -411,16 +417,29 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
     setFavorites(newFavorites);
   };
 
-  const addToRecentlyUsed = (symbol: Symbol): void => {
-    const filtered = recentlyUsed.filter((s) => s.id !== symbol.id);
-    const newRecent = [symbol, ...filtered].slice(0, 10); // Keep max 10 recent items
-    setRecentlyUsed(newRecent);
-  };
+  const addToRecentlyUsed = useCallback(
+    (symbol: Symbol): void => {
+      const filtered = recentlyUsed.filter((s) => s.id !== symbol.id);
+      const newRecent = [symbol, ...filtered].slice(0, 10); // Keep max 10 recent items
+      setRecentlyUsed(newRecent);
+    },
+    [recentlyUsed]
+  );
 
-  const handleDragStart = (event: React.DragEvent, symbol: Symbol): void => {
-    addToRecentlyUsed(symbol);
-    onDragStart(event, symbol.type, symbol.defaultData);
-  };
+  const handleDragStart = useCallback(
+    (event: React.DragEvent, symbol: Symbol): void => {
+      addToRecentlyUsed(symbol);
+
+      // Set up traditional drag data for backward compatibility
+      onDragStart(event, symbol.type, symbol.defaultData);
+
+      // Start enhanced drag preview
+      const symbolElement = event.currentTarget as HTMLElement;
+      const mousePosition = { x: event.clientX, y: event.clientY };
+      startStencilDrag(symbolElement, mousePosition);
+    },
+    [addToRecentlyUsed, onDragStart, startStencilDrag]
+  );
 
   const toggleTag = (tag: string): void => {
     const newTags = new Set(selectedTags);
@@ -442,13 +461,25 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
     // Simplified icon representations for the library
     const iconMap: { [key: string]: React.ReactNode } = {
       pump: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="12" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <path d="M 10 15 L 20 10 L 20 20 Z" fill="currentColor" />
         </svg>
       ),
       valve: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z"
             fill="currentColor"
@@ -457,7 +488,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       controlValve: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M 8 15 L 15 8 L 15 22 Z M 22 15 L 15 8 L 15 22 Z"
             fill="currentColor"
@@ -467,7 +504,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       checkValve: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <path
             d="M 10 15 L 18 15 M 18 15 L 15 12 M 18 15 L 15 18"
@@ -477,7 +520,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       tank: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <rect
             x="8"
             y="8"
@@ -492,12 +541,24 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       pipe: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <line x1="5" y1="15" x2="25" y2="15" stroke="currentColor" strokeWidth="3" />
         </svg>
       ),
       flowMeter: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <text x="15" y="19" textAnchor="middle" fontSize="8" fontWeight="bold">
             FI
@@ -505,7 +566,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       pressureGauge: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="13" r="8" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <text x="15" y="16" textAnchor="middle" fontSize="8" fontWeight="bold">
             PI
@@ -514,7 +581,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       heatExchanger: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <rect
             x="5"
             y="10"
@@ -529,7 +602,13 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         </svg>
       ),
       compressor: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 30 30"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="15" cy="15" r="10" stroke="currentColor" strokeWidth="1.5" fill="white" />
           <path
             d="M 15 10 L 12 15 L 15 20 M 15 10 L 18 15 L 15 20"

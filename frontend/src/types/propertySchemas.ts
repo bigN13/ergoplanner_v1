@@ -16,10 +16,12 @@ export const BasePropertySchema = z.object({
   service: z.string().optional(),
 
   // Position
-  position: z.object({
-    x: z.number(),
-    y: z.number(),
-  }).optional(),
+  position: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+    })
+    .optional(),
 
   // Layer
   layer: z.string().optional(),
@@ -74,12 +76,14 @@ export const InstrumentationPropertiesSchema = z.object({
   unit: z.string().optional(),
   accuracy: z.string().optional(),
   calibrationDate: z.string().optional(),
-  alarmLimits: z.object({
-    high: z.string().optional(),
-    low: z.string().optional(),
-    highHigh: z.string().optional(),
-    lowLow: z.string().optional(),
-  }).optional(),
+  alarmLimits: z
+    .object({
+      high: z.string().optional(),
+      low: z.string().optional(),
+      highHigh: z.string().optional(),
+      lowLow: z.string().optional(),
+    })
+    .optional(),
 });
 
 /**
@@ -87,7 +91,9 @@ export const InstrumentationPropertiesSchema = z.object({
  */
 export const PumpPropertiesSchema = BasePropertySchema.extend({
   // Pump-specific properties
-  pumpType: z.enum(["centrifugal", "positive_displacement", "reciprocating", "gear", "screw"]).default("centrifugal"),
+  pumpType: z
+    .enum(["centrifugal", "positive_displacement", "reciprocating", "gear", "screw"])
+    .default("centrifugal"),
   pumpFlowRate: z.string().optional(),
   head: z.string().optional(),
   efficiency: z.string().optional(),
@@ -125,7 +131,9 @@ export const PumpPropertiesSchema = BasePropertySchema.extend({
  */
 export const ValvePropertiesSchema = BasePropertySchema.extend({
   // Valve-specific properties
-  valveType: z.enum(["gate", "globe", "ball", "butterfly", "check", "relief", "control"]).default("gate"),
+  valveType: z
+    .enum(["gate", "globe", "ball", "butterfly", "check", "relief", "control"])
+    .default("gate"),
   state: z.enum(["open", "closed", "partial", "locked_open", "locked_closed"]).default("closed"),
   size: z.string().optional(),
   pressureRating: z.string().optional(),
@@ -162,7 +170,9 @@ export const ValvePropertiesSchema = BasePropertySchema.extend({
  */
 export const TankPropertiesSchema = BasePropertySchema.extend({
   // Tank-specific properties
-  tankType: z.enum(["storage", "pressure", "mixing", "buffer", "reactor", "separator"]).default("storage"),
+  tankType: z
+    .enum(["storage", "pressure", "mixing", "buffer", "reactor", "separator"])
+    .default("storage"),
   capacity: z.string().optional(),
   level: z.number().min(0).max(100).default(50),
   maxLevel: z.string().optional(),
@@ -235,10 +245,20 @@ export const PipePropertiesSchema = BasePropertySchema.extend({
  */
 export const InstrumentPropertiesSchema = BasePropertySchema.extend({
   // Instrument-specific properties
-  instrumentType: z.enum([
-    "flow_meter", "pressure_gauge", "temperature_sensor", "level_indicator",
-    "analyzer", "controller", "transmitter", "indicator", "recorder", "switch"
-  ]).default("flow_meter"),
+  instrumentType: z
+    .enum([
+      "flow_meter",
+      "pressure_gauge",
+      "temperature_sensor",
+      "level_indicator",
+      "analyzer",
+      "controller",
+      "transmitter",
+      "indicator",
+      "recorder",
+      "switch",
+    ])
+    .default("flow_meter"),
 
   // Measurement properties
   ...InstrumentationPropertiesSchema.shape,
@@ -275,7 +295,9 @@ export const InstrumentPropertiesSchema = BasePropertySchema.extend({
  */
 export const HeatExchangerPropertiesSchema = BasePropertySchema.extend({
   // Heat exchanger-specific properties
-  exchangerType: z.enum(["shell_tube", "plate", "air_cooled", "double_pipe", "spiral"]).default("shell_tube"),
+  exchangerType: z
+    .enum(["shell_tube", "plate", "air_cooled", "double_pipe", "spiral"])
+    .default("shell_tube"),
   heatDuty: z.string().optional(),
   area: z.string().optional(),
   overallHeatTransferCoeff: z.string().optional(),
@@ -312,7 +334,9 @@ export const HeatExchangerPropertiesSchema = BasePropertySchema.extend({
  */
 export const CompressorPropertiesSchema = BasePropertySchema.extend({
   // Compressor-specific properties
-  compressorType: z.enum(["centrifugal", "reciprocating", "rotary", "axial", "scroll"]).default("centrifugal"),
+  compressorType: z
+    .enum(["centrifugal", "reciprocating", "rotary", "axial", "scroll"])
+    .default("centrifugal"),
   capacity: z.string().optional(),
   compressionRatio: z.string().optional(),
   suctionPressure: z.string().optional(),
@@ -322,7 +346,9 @@ export const CompressorPropertiesSchema = BasePropertySchema.extend({
   efficiency: z.string().optional(),
 
   // Driver properties
-  driverType: z.enum(["electric_motor", "steam_turbine", "gas_turbine", "engine"]).default("electric_motor"),
+  driverType: z
+    .enum(["electric_motor", "steam_turbine", "gas_turbine", "engine"])
+    .default("electric_motor"),
 
   // Electrical properties (for electric motor)
   voltage: z.string().optional(),

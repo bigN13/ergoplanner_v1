@@ -412,6 +412,8 @@ export const useEnhancedDrawingStore = create<EnhancedDrawingStore>()(
           const firstNode = sortedNodes[0];
           const lastNode = sortedNodes[sortedNodes.length - 1];
 
+          if (!firstNode || !lastNode) return;
+
           const totalDistance =
             direction === "horizontal"
               ? lastNode.position.x - firstNode.position.x
@@ -749,12 +751,12 @@ export const useEnhancedDrawingStore = create<EnhancedDrawingStore>()(
           // Move nodes from deleted layer to default layer
           const updatedNodes = nodes.map((node) => {
             const nodeData = node.data as PIDNodeData;
-            if (nodeData.layer === parseInt(id)) {
+            if (nodeData.layer === id) {
               return {
                 ...node,
                 data: {
                   ...nodeData,
-                  layer: 0,
+                  layer: "default",
                 },
               };
             }

@@ -81,7 +81,11 @@ export default function PipeRoutingSystem({
 }: PipeRoutingSystemProps): {
   handleConnection: (params: Connection) => void;
   PipeRoutingControls: () => React.ReactElement;
-  validateConnection: (sourceNode: Node, targetNode: Node, pipeSpec: PipeSpec) => { valid: boolean; warnings: string[]; errors: string[] };
+  validateConnection: (
+    sourceNode: Node,
+    targetNode: Node,
+    pipeSpec: PipeSpec
+  ) => { valid: boolean; warnings: string[]; errors: string[] };
   getConnectionPoints: (node: Node) => ConnectionPoint[];
   PIPE_MATERIALS: typeof PIPE_MATERIALS;
   PIPE_DIAMETERS: string[];
@@ -351,8 +355,8 @@ export default function PipeRoutingSystem({
       const newEdge: Edge = {
         ...params,
         id: `pipe-${params.source}-${params.target}-${Date.now()}`,
-        source: params.source || '',
-        target: params.target || '',
+        source: params.source || "",
+        target: params.target || "",
         type: "smoothstep",
         animated: showFlowDirection,
         style: {

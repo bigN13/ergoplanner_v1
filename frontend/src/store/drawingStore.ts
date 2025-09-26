@@ -10,7 +10,14 @@ import type { Layer } from "@/types/drawing";
 // Tool types for the drawing toolbar
 export type ToolGroup = "selection" | "drawing" | "annotation" | "shapes";
 export type SelectionTool = "select" | "pan" | "multiSelect";
-export type DrawingTool = "addNode" | "drawEdge" | "freehand" | "rectangle" | "rounded-rectangle" | "ellipse" | "rhombus";
+export type DrawingTool =
+  | "addNode"
+  | "drawEdge"
+  | "freehand"
+  | "rectangle"
+  | "rounded-rectangle"
+  | "ellipse"
+  | "rhombus";
 export type AnnotationTool = "text" | "measurement" | "callout";
 export type DrawingTool_Type = SelectionTool | DrawingTool | AnnotationTool;
 
@@ -144,16 +151,20 @@ export interface DrawingState {
   updateLayer: (layerId: string, updates: Partial<Layer>) => void;
   deleteLayer: (layerId: string) => void;
   setActiveLayer: (layerId: string) => void;
-  moveLayer: (layerId: string, direction: 'up' | 'down') => void;
+  moveLayer: (layerId: string, direction: "up" | "down") => void;
   getVisibleNodes: () => Node[];
   getVisibleEdges: () => Edge[];
-  assignElementToLayer: (elementId: string, layerId: string, elementType: 'node' | 'edge') => void;
+  assignElementToLayer: (elementId: string, layerId: string, elementType: "node" | "edge") => void;
 
   // Tool management actions
   setActiveTool: (tool: DrawingTool_Type) => void;
   setActiveToolGroup: (group: ToolGroup) => void;
-  updateToolOptions: (options: Partial<ToolState['toolOptions']>) => void;
-  getActiveToolConfig: () => { group: ToolGroup; tool: DrawingTool_Type; options: ToolState['toolOptions'] };
+  updateToolOptions: (options: Partial<ToolState["toolOptions"]>) => void;
+  getActiveToolConfig: () => {
+    group: ToolGroup;
+    tool: DrawingTool_Type;
+    options: ToolState["toolOptions"];
+  };
   setConnectorMode: (mode: ConnectorMode) => void;
 }
 
@@ -227,7 +238,7 @@ const initialState = {
     toolOptions: {
       lineStyle: "solid" as "solid" | "dashed" | "dotted",
       lineWeight: 1,
-      arrowStyle: "none",
+      arrowStyle: "none" as "none" | "arrow" | "diamond",
       snapEnabled: true,
       multiSelectMode: false,
     },
@@ -247,7 +258,7 @@ export const useDrawingStore = create<DrawingState>()(
             maxHistorySize: 50,
             enableAutoBatching: true,
             batchTimeWindow: 1000,
-            userId: 'current-user',
+            userId: "current-user",
           });
           set({ commandManager });
         }
@@ -452,12 +463,12 @@ export const useDrawingStore = create<DrawingState>()(
         state.copyToClipboard(nodes, edges);
 
         // Remove the nodes and edges from the drawing
-        const remainingNodes = state.nodes.filter(n => !nodes.find(cn => cn.id === n.id));
-        const remainingEdges = state.edges.filter(e => !edges.find(ce => ce.id === e.id));
+        const remainingNodes = state.nodes.filter((n) => !nodes.find((cn) => cn.id === n.id));
+        const remainingEdges = state.edges.filter((e) => !edges.find((ce) => ce.id === e.id));
         set({
           nodes: remainingNodes,
           edges: remainingEdges,
-          isDirty: true
+          isDirty: true,
         });
       },
 
@@ -471,7 +482,7 @@ export const useDrawingStore = create<DrawingState>()(
 
         // Create new nodes with offset and new IDs
         const nodeIdMap = new Map<string, string>();
-        const pastedNodes = clipboardData.nodes.map(node => {
+        const pastedNodes = clipboardData.nodes.map((node) => {
           const newId = `${node.id}-copy-${Date.now()}`;
           nodeIdMap.set(node.id, newId);
           return {
@@ -485,7 +496,7 @@ export const useDrawingStore = create<DrawingState>()(
         });
 
         // Create new edges with updated source/target IDs
-        const pastedEdges = clipboardData.edges.map(edge => ({
+        const pastedEdges = clipboardData.edges.map((edge) => ({
           ...edge,
           id: `${edge.id}-copy-${Date.now()}`,
           source: nodeIdMap.get(edge.source) || edge.source,
@@ -532,7 +543,7 @@ export const useDrawingStore = create<DrawingState>()(
       setFormatPainter: (data) => {
         set({
           formatPainterData: data,
-          isFormatPainterActive: data !== null
+          isFormatPainterActive: data !== null,
         });
       },
 
@@ -540,7 +551,7 @@ export const useDrawingStore = create<DrawingState>()(
         const { formatPainterData, nodes } = get();
         if (!formatPainterData) return;
 
-        const updatedNodes = nodes.map(node => {
+        const updatedNodes = nodes.map((node) => {
           if (targetIds.includes(node.id)) {
             return {
               ...node,
@@ -559,7 +570,7 @@ export const useDrawingStore = create<DrawingState>()(
         const { isFormatPainterActive } = get();
         set({
           isFormatPainterActive: !isFormatPainterActive,
-          formatPainterData: !isFormatPainterActive ? null : get().formatPainterData
+          formatPainterData: !isFormatPainterActive ? null : get().formatPainterData,
         });
       },
 
@@ -744,7 +755,7 @@ export const useDrawingStore = create<DrawingState>()(
         set({ layers: updatedLayers, isDirty: true });
 
         // Save layer state to localStorage
-        localStorage.setItem('ergoplanner-layers', JSON.stringify(updatedLayers));
+        localStorage.setItem("ergoplanner-layers", JSON.stringify(updatedLayers));
       },
 
       deleteLayer: (layerId) => {
@@ -846,18 +857,14 @@ export const useDrawingStore = create<DrawingState>()(
         const layerExists = layers.some((l) => l.id === layerId);
         if (!layerExists) return;
 
-        if (elementType === 'node') {
+        if (elementType === "node") {
           const updatedNodes = nodes.map((node) =>
-            node.id === elementId
-              ? { ...node, data: { ...node.data, layer: layerId } }
-              : node
+            node.id === elementId ? { ...node, data: { ...node.data, layer: layerId } } : node
           );
           set({ nodes: updatedNodes, isDirty: true });
-        } else if (elementType === 'edge') {
+        } else if (elementType === "edge") {
           const updatedEdges = edges.map((edge) =>
-            edge.id === elementId
-              ? { ...edge, data: { ...edge.data, layer: layerId } }
-              : edge
+            edge.id === elementId ? { ...edge, data: { ...edge.data, layer: layerId } } : edge
           );
           set({ edges: updatedEdges, isDirty: true });
         }
@@ -869,12 +876,22 @@ export const useDrawingStore = create<DrawingState>()(
         let newToolGroup: ToolGroup = toolState.activeToolGroup;
 
         // Determine the correct tool group based on the tool
-        if (['select', 'pan', 'multiSelect'].includes(tool)) {
-          newToolGroup = 'selection';
-        } else if (['addNode', 'drawEdge', 'freehand', 'rectangle', 'rounded-rectangle', 'ellipse', 'rhombus'].includes(tool)) {
-          newToolGroup = 'shapes';
-        } else if (['text', 'measurement', 'callout'].includes(tool)) {
-          newToolGroup = 'annotation';
+        if (["select", "pan", "multiSelect"].includes(tool)) {
+          newToolGroup = "selection";
+        } else if (
+          [
+            "addNode",
+            "drawEdge",
+            "freehand",
+            "rectangle",
+            "rounded-rectangle",
+            "ellipse",
+            "rhombus",
+          ].includes(tool)
+        ) {
+          newToolGroup = "shapes";
+        } else if (["text", "measurement", "callout"].includes(tool)) {
+          newToolGroup = "annotation";
         }
 
         set({
@@ -894,24 +911,28 @@ export const useDrawingStore = create<DrawingState>()(
 
         // Set default tool for each group if current tool doesn't belong to new group
         switch (group) {
-          case 'selection':
-            if (!['select', 'pan', 'multiSelect'].includes(toolState.activeTool)) {
-              newActiveTool = 'select';
+          case "selection":
+            if (!["select", "pan", "multiSelect"].includes(toolState.activeTool)) {
+              newActiveTool = "select";
             }
             break;
-          case 'drawing':
-            if (!['addNode', 'drawEdge', 'freehand'].includes(toolState.activeTool)) {
-              newActiveTool = 'addNode';
+          case "drawing":
+            if (!["addNode", "drawEdge", "freehand"].includes(toolState.activeTool)) {
+              newActiveTool = "addNode";
             }
             break;
-          case 'shapes':
-            if (!['rectangle', 'rounded-rectangle', 'ellipse', 'rhombus'].includes(toolState.activeTool)) {
-              newActiveTool = 'rectangle';
+          case "shapes":
+            if (
+              !["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(
+                toolState.activeTool
+              )
+            ) {
+              newActiveTool = "rectangle";
             }
             break;
-          case 'annotation':
-            if (!['text', 'measurement', 'callout'].includes(toolState.activeTool)) {
-              newActiveTool = 'text';
+          case "annotation":
+            if (!["text", "measurement", "callout"].includes(toolState.activeTool)) {
+              newActiveTool = "text";
             }
             break;
         }

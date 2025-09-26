@@ -917,12 +917,58 @@
         "id": 44,
         "title": "Implement Enhanced Drag Preview System",
         "description": "Create a sophisticated drag preview system with semi-transparent previews, smart positioning, and performance optimizations for smooth 60fps dragging operations",
-        "details": "Implement a custom drag preview system using React Portals and HTML5 Canvas for optimal performance. Create DragPreviewManager component that generates 50% opacity previews using html-to-image library for complex shapes. Implement preview positioning logic: center on cursor for stencil drags using getBoundingClientRect(), maintain grab offset for canvas elements. Add preview caching with Map<string, HTMLCanvasElement> for repeated elements. Scale previews larger than 500x500px using CSS transforms. For multi-selection, create composite preview showing all selected elements with relative positions preserved. Use requestAnimationFrame for smooth updates and throttle to 16ms intervals. Integrate with existing ReactFlow instance using useReactFlow hook. Store preview state in Zustand with actions: setPreviewElement, updatePreviewPosition, clearPreview. Use React.memo and useMemo for performance optimization. Implement preview generation worker for complex shapes with >100 vertices.",
-        "testStrategy": "Unit tests for preview generation logic, position calculations, and caching mechanisms. Integration tests for ReactFlow interaction and multi-element preview. Performance tests ensuring 60fps with Performance API monitoring. Visual regression tests using Playwright for preview appearance. E2E tests for complete drag preview workflow from stencil to canvas.",
-        "priority": "high",
+        "status": "done",
         "dependencies": [],
-        "status": "pending",
-        "subtasks": []
+        "priority": "high",
+        "details": "Implement a custom drag preview system integrated with the existing ReactFlow-based drawing canvas. Phase 1: Create DragPreviewManager component at frontend/src/components/drawing/DragPreviewManager.tsx using React Portals for optimal rendering outside the normal DOM hierarchy. Phase 2: Implement preview generation using the already installed html-to-image library (version 1.11.13) with 50% opacity for complex ReactFlow nodes and symbols. Phase 3: Add smart positioning logic that centers previews on cursor for symbol library drags (from SymbolLibrary.tsx) and maintains grab offset for existing canvas elements. Phase 4: Integrate with ReactFlow instance via useReactFlow hook and existing Zustand stores (drawingStore.ts/enhanced-drawing-store.ts) with preview state management. Phase 5: Implement performance optimizations including preview caching with Map<string, HTMLCanvasElement>, requestAnimationFrame throttling for smooth 60fps updates, and CSS transform scaling for previews larger than 500x500px. The system should handle drag operations from both the SymbolLibrary component (onDragStart at DrawioLayout.tsx:174) and direct canvas element manipulation. For multi-selection scenarios, create composite previews showing all selected ReactFlow nodes with their relative positions preserved using the selection API.",
+        "testStrategy": "Unit tests for DragPreviewManager component verifying preview generation with html-to-image, position calculation algorithms, and caching Map operations. Integration tests ensuring proper interaction between SymbolLibrary drag events and preview system, ReactFlow node selection and multi-element preview generation, Zustand store state updates. Performance tests using Performance API to verify consistent 60fps during drag operations with requestAnimationFrame monitoring. Visual regression tests using Playwright for preview opacity (50%), scaling behavior, and portal rendering. E2E tests for complete workflow: symbol library to canvas drag with preview, multi-node selection and drag with composite preview, large element scaling and performance.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create DragPreviewManager component with React Portal",
+            "description": "Build the core DragPreviewManager component using React Portals for rendering previews outside the normal DOM hierarchy",
+            "status": "done",
+            "dependencies": [],
+            "details": "Create frontend/src/components/drawing/DragPreviewManager.tsx that uses ReactDOM.createPortal to render previews at document.body level. Component should accept props for preview element, position, opacity (default 0.5), and scale. Implement useEffect hooks to handle portal lifecycle and cleanup. Add ref management for portal container div with proper z-index (9999) to ensure preview appears above all other elements.",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement preview generation with html-to-image",
+            "description": "Set up preview generation logic using the html-to-image library for converting ReactFlow nodes and symbols to canvas elements",
+            "status": "done",
+            "dependencies": [],
+            "details": "Utilize html-to-image (v1.11.13) to generate canvas previews from DOM elements. For ReactFlow nodes, use toPng or toCanvas methods with backgroundColor: 'transparent' and quality: 0.8 settings. Handle both simple symbols from SymbolLibrary and complex ReactFlow custom nodes (ValveNode, PumpNode, etc.). Implement error handling for failed conversions with fallback to simple rectangle preview.",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add smart positioning logic for different drag sources",
+            "description": "Implement intelligent preview positioning based on drag source (symbol library vs canvas elements)",
+            "status": "done",
+            "dependencies": [],
+            "details": "For SymbolLibrary drags (detected via event.dataTransfer.effectAllowed), center preview on cursor using getBoundingClientRect() and clientX/clientY coordinates. For canvas element drags, calculate and maintain initial grab offset using element position relative to cursor at drag start. Store offset in component state and apply during mousemove/drag events. Handle edge cases for viewport boundaries to prevent preview cutoff.",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate with ReactFlow and Zustand stores",
+            "description": "Connect the drag preview system with existing ReactFlow instance and state management",
+            "status": "done",
+            "dependencies": [],
+            "details": "Use useReactFlow hook from 'reactflow' to access instance methods and state. Extend existing Zustand stores (drawingStore.ts or enhanced-drawing-store.ts) with preview-specific state: previewElement, previewPosition, isDragging, dragSource. Add actions: setPreviewElement, updatePreviewPosition, clearPreview, setDragSource. Connect to existing onDragStart handler in DrawioLayout.tsx (line 174) for SymbolLibrary integration.",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement performance optimizations and caching",
+            "description": "Add preview caching, requestAnimationFrame throttling, and CSS transform optimizations",
+            "status": "done",
+            "dependencies": [],
+            "details": "Create preview cache using Map<string, HTMLCanvasElement> with symbol/node ID as key. Implement cache invalidation on element updates. Use requestAnimationFrame with 16ms throttle for smooth 60fps updates during drag operations. Apply CSS transforms for scaling previews larger than 500x500px instead of regenerating. Use React.memo on DragPreviewManager and useMemo for expensive calculations. Add performance monitoring using Performance API to ensure consistent frame rates.",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 45,
@@ -1061,7 +1107,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-25T19:32:55.378Z",
+      "updated": "2025-09-25T22:33:07.440Z",
       "description": "Tasks for master context"
     }
   }

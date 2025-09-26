@@ -89,7 +89,9 @@ export default function Toolbar({
     const selected = "sample-drawing"; // prompt(`Select a drawing to load:\n\nEnter drawing name:`);
 
     if (selected) {
-      const drawing = savedDrawings.find((d: Record<string, unknown>) => d.name === selected.split(" (")[0]);
+      const drawing = savedDrawings.find(
+        (d: Record<string, unknown>) => d.name === selected.split(" (")[0]
+      );
       if (drawing) {
         loadDrawing(drawing.id as string);
         // TODO: Replace with proper notification modal

@@ -63,10 +63,14 @@ export default function PrimaryDrawingToolsToolbar({
     },
     {
       id: "shapes",
-      icon: selectedShape === "rectangle" ? Square :
-            selectedShape === "ellipse" ? Circle :
-            selectedShape === "rhombus" ? Diamond :
-            RectangleHorizontal,
+      icon:
+        selectedShape === "rectangle"
+          ? Square
+          : selectedShape === "ellipse"
+            ? Circle
+            : selectedShape === "rhombus"
+              ? Diamond
+              : RectangleHorizontal,
       label: "Shapes",
       children: [
         {
@@ -110,24 +114,29 @@ export default function PrimaryDrawingToolsToolbar({
   // Keyboard shortcuts
   useHotkeys("v", () => setActiveTool("select"), [setActiveTool]);
   useHotkeys("t", () => setActiveTool("text"), [setActiveTool]);
-  useHotkeys("r", () => {
-    setSelectedShape("rectangle");
-    setActiveTool("rectangle");
-  }, [setActiveTool]);
-  useHotkeys("e", () => {
-    setSelectedShape("ellipse");
-    setActiveTool("ellipse");
-  }, [setActiveTool]);
+  useHotkeys(
+    "r",
+    () => {
+      setSelectedShape("rectangle");
+      setActiveTool("rectangle");
+    },
+    [setActiveTool]
+  );
+  useHotkeys(
+    "e",
+    () => {
+      setSelectedShape("ellipse");
+      setActiveTool("ellipse");
+    },
+    [setActiveTool]
+  );
   useHotkeys("c", () => setActiveTool("drawEdge"), [setActiveTool]);
   useHotkeys("p", () => setActiveTool("freehand"), [setActiveTool]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
-      if (
-        shapesDropdownRef.current &&
-        !shapesDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (shapesDropdownRef.current && !shapesDropdownRef.current.contains(event.target as Node)) {
         setShowShapesDropdown(false);
       }
     };
@@ -167,34 +176,26 @@ export default function PrimaryDrawingToolsToolbar({
 
   const renderToolButton = (tool: ToolButton): ReactElement => {
     const Icon = tool.icon;
-    const isActive = tool.id === "shapes"
-      ? ["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(activeTool)
-      : activeTool === tool.id;
+    const isActive =
+      tool.id === "shapes"
+        ? ["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(activeTool)
+        : activeTool === tool.id;
 
     return (
       <div key={tool.id} className="relative">
         <button
           onClick={() => handleToolClick(tool.id)}
-          className={`
-            relative flex items-center justify-center p-2 rounded transition-all
-            ${isActive ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"}
-            ${orientation === "vertical" ? "w-full" : ""}
-            group
-          `}
+          className={`relative flex items-center justify-center rounded p-2 transition-all ${isActive ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"} ${orientation === "vertical" ? "w-full" : ""} group`}
           title={`${tool.label}${tool.shortcut ? ` (${tool.shortcut})` : ""}`}
         >
           <Icon className="h-4 w-4" />
-          {tool.id === "shapes" && (
-            <ChevronDown className="ml-1 h-3 w-3" />
-          )}
+          {tool.id === "shapes" && <ChevronDown className="ml-1 h-3 w-3" />}
 
           {/* Tooltip */}
           {orientation === "horizontal" && (
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
               {tool.label}
-              {tool.shortcut && (
-                <span className="ml-1 text-gray-300">({tool.shortcut})</span>
-              )}
+              {tool.shortcut && <span className="ml-1 text-gray-300">({tool.shortcut})</span>}
             </div>
           )}
         </button>
@@ -203,10 +204,7 @@ export default function PrimaryDrawingToolsToolbar({
         {tool.id === "shapes" && showShapesDropdown && (
           <div
             ref={shapesDropdownRef}
-            className={`
-              absolute z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg
-              ${orientation === "vertical" ? "left-full top-0 ml-1" : "top-full left-0"}
-            `}
+            className={`absolute z-50 mt-1 rounded-md border border-gray-200 bg-white shadow-lg ${orientation === "vertical" ? "top-0 left-full ml-1" : "top-full left-0"} `}
           >
             {tool.children?.map((shape) => {
               const ShapeIcon = shape.icon;
@@ -214,17 +212,12 @@ export default function PrimaryDrawingToolsToolbar({
                 <button
                   key={shape.id}
                   onClick={() => handleShapeSelect(shape.id as DrawingTool_Type)}
-                  className={`
-                    flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100
-                    ${selectedShape === shape.id ? "bg-gray-50 text-blue-600" : ""}
-                  `}
+                  className={`flex w-full items-center px-3 py-2 text-sm hover:bg-gray-100 ${selectedShape === shape.id ? "bg-gray-50 text-blue-600" : ""} `}
                 >
-                  <ShapeIcon className="h-4 w-4 mr-2" />
+                  <ShapeIcon className="mr-2 h-4 w-4" />
                   <span className="whitespace-nowrap">{shape.label}</span>
                   {shape.shortcut && (
-                    <span className="ml-auto text-xs text-gray-400 pl-4">
-                      {shape.shortcut}
-                    </span>
+                    <span className="ml-auto pl-4 text-xs text-gray-400">{shape.shortcut}</span>
                   )}
                 </button>
               );
@@ -240,13 +233,12 @@ export default function PrimaryDrawingToolsToolbar({
     if (activeTool !== "drawEdge") return null;
 
     return (
-      <div className={`
-        flex items-center gap-1 ml-2 pl-2 border-l border-gray-300
-        ${orientation === "vertical" ? "flex-col mt-2 ml-0 pl-0 border-l-0 border-t pt-2" : ""}
-      `}>
+      <div
+        className={`ml-2 flex items-center gap-1 border-l border-gray-300 pl-2 ${orientation === "vertical" ? "mt-2 ml-0 flex-col border-t border-l-0 pt-2 pl-0" : ""} `}
+      >
         <button
           onClick={() => handleConnectorModeChange("straight")}
-          className={`p-1.5 rounded text-xs ${
+          className={`rounded p-1.5 text-xs ${
             connectorMode === "straight" ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
           }`}
           title="Straight connector"
@@ -257,7 +249,7 @@ export default function PrimaryDrawingToolsToolbar({
         </button>
         <button
           onClick={() => handleConnectorModeChange("orthogonal")}
-          className={`p-1.5 rounded text-xs ${
+          className={`rounded p-1.5 text-xs ${
             connectorMode === "orthogonal" ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
           }`}
           title="Orthogonal connector"
@@ -268,7 +260,7 @@ export default function PrimaryDrawingToolsToolbar({
         </button>
         <button
           onClick={() => handleConnectorModeChange("curved")}
-          className={`p-1.5 rounded text-xs ${
+          className={`rounded p-1.5 text-xs ${
             connectorMode === "curved" ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
           }`}
           title="Curved connector"
@@ -283,17 +275,10 @@ export default function PrimaryDrawingToolsToolbar({
 
   return (
     <div
-      className={`
-        flex items-center bg-white border rounded-lg shadow-sm p-1
-        ${orientation === "vertical" ? "flex-col w-12" : ""}
-        ${className}
-      `}
+      className={`flex items-center rounded-lg border bg-white p-1 shadow-sm ${orientation === "vertical" ? "w-12 flex-col" : ""} ${className} `}
     >
       {/* Main tool buttons */}
-      <div className={`
-        flex items-center gap-1
-        ${orientation === "vertical" ? "flex-col" : ""}
-      `}>
+      <div className={`flex items-center gap-1 ${orientation === "vertical" ? "flex-col" : ""} `}>
         {toolButtons.map(renderToolButton)}
       </div>
 
@@ -302,9 +287,7 @@ export default function PrimaryDrawingToolsToolbar({
 
       {/* Status indicator */}
       {orientation === "horizontal" && (
-        <div className="ml-auto mr-2 text-xs text-gray-500">
-          Active: {activeTool}
-        </div>
+        <div className="mr-2 ml-auto text-xs text-gray-500">Active: {activeTool}</div>
       )}
     </div>
   );

@@ -24,7 +24,7 @@
 
 /* Professional toolbar button styles */
 .toolbar-btn {
-  @apply p-1.5 rounded hover:bg-gray-100 transition-colors duration-150;
+  @apply rounded p-1.5 transition-colors duration-150 hover:bg-gray-100;
 }
 
 .toolbar-btn:active {
@@ -41,7 +41,7 @@
 }
 
 .resize-handle::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   width: 4px;
@@ -60,19 +60,19 @@
 
 /* Menu dropdown styles */
 .menu-dropdown {
-  @apply absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg py-1 min-w-[200px] z-50;
+  @apply absolute top-full left-0 z-50 mt-1 min-w-[200px] rounded-md border border-gray-200 bg-white py-1 shadow-lg;
 }
 
 .menu-item {
-  @apply px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center justify-between;
+  @apply flex cursor-pointer items-center justify-between px-4 py-2 text-sm hover:bg-gray-100;
 }
 
 .menu-item.disabled {
-  @apply opacity-50 cursor-not-allowed;
+  @apply cursor-not-allowed opacity-50;
 }
 
 .menu-divider {
-  @apply border-t border-gray-200 my-1;
+  @apply my-1 border-t border-gray-200;
 }
 
 /* Professional scrollbar styles */
@@ -96,7 +96,7 @@
 
 /* Panel styles */
 .panel-header {
-  @apply flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200;
+  @apply flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-2;
 }
 
 .panel-title {
@@ -104,7 +104,7 @@
 }
 
 .panel-content {
-  @apply p-3 overflow-auto;
+  @apply overflow-auto p-3;
 }
 
 /* Tab styles */
@@ -113,16 +113,16 @@
 }
 
 .tab {
-  @apply px-3 py-1.5 text-sm border-b-2 border-transparent hover:bg-gray-100 cursor-pointer transition-colors;
+  @apply cursor-pointer border-b-2 border-transparent px-3 py-1.5 text-sm transition-colors hover:bg-gray-100;
 }
 
 .tab.active {
-  @apply bg-white border-blue-500 text-blue-600;
+  @apply border-blue-500 bg-white text-blue-600;
 }
 
 /* Status bar styles */
 .status-item {
-  @apply text-xs text-gray-600 px-2;
+  @apply px-2 text-xs text-gray-600;
 }
 
 .status-divider {
@@ -131,16 +131,16 @@
 
 /* Professional input styles */
 .form-input {
-  @apply w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500;
+  @apply w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none;
 }
 
 .form-label {
-  @apply block text-xs font-medium text-gray-700 mb-1;
+  @apply mb-1 block text-xs font-medium text-gray-700;
 }
 
 /* Button styles */
 .btn {
-  @apply px-3 py-1.5 text-sm font-medium rounded transition-colors;
+  @apply rounded px-3 py-1.5 text-sm font-medium transition-colors;
 }
 
 .btn-primary {
@@ -157,12 +157,14 @@
 
 /* Color picker styles */
 .color-picker {
-  @apply w-8 h-8 border-2 border-gray-300 rounded cursor-pointer;
+  @apply h-8 w-8 cursor-pointer rounded border-2 border-gray-300;
 }
 
 /* Professional shadows */
 .shadow-panel {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 /* Animations */

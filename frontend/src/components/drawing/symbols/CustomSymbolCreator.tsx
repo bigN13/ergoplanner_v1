@@ -3,13 +3,13 @@
  * Allows users to create parametric custom symbols using a visual editor
  */
 
-import React, { useState, useRef, useCallback } from 'react';
-import type { NodeProps } from 'reactflow';
-import { Handle, Position } from 'reactflow';
+import React, { useState, useRef, useCallback } from "react";
+import type { NodeProps } from "reactflow";
+import { Handle, Position } from "reactflow";
 
 export interface SymbolParameter {
   name: string;
-  type: 'number' | 'string' | 'color' | 'boolean' | 'select';
+  type: "number" | "string" | "color" | "boolean" | "select";
   defaultValue: string | number | boolean;
   min?: number;
   max?: number;
@@ -51,39 +51,39 @@ interface CustomSymbolCreatorProps {
 export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
   onSave,
   onCancel,
-  initialSymbol
+  initialSymbol,
 }) => {
   const [symbolDef, setSymbolDef] = useState<CustomSymbolDefinition>(
     initialSymbol || {
-      id: '',
-      name: '',
-      category: 'Custom',
-      description: '',
+      id: "",
+      name: "",
+      category: "Custom",
+      description: "",
       parameters: [],
-      svgTemplate: '',
+      svgTemplate: "",
       connectionPoints: {
         top: true,
         bottom: true,
         left: true,
-        right: true
+        right: true,
       },
       defaultSize: {
         width: 60,
-        height: 60
+        height: 60,
       },
       tags: [],
-      author: '',
-      version: '1.0.0'
+      author: "",
+      version: "1.0.0",
     }
   );
 
   const [currentParameter, setCurrentParameter] = useState<SymbolParameter>({
-    name: '',
-    type: 'number',
-    defaultValue: 0
+    name: "",
+    type: "number",
+    defaultValue: 0,
   });
 
-  const [svgCode, setSvgCode] = useState('');
+  const [svgCode, setSvgCode] = useState("");
   const [previewParams, setPreviewParams] = useState<Record<string, string | number | boolean>>({});
   const svgPreviewRef = useRef<HTMLDivElement>(null);
 
@@ -92,12 +92,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
     if (currentParameter.name) {
       setSymbolDef({
         ...symbolDef,
-        parameters: [...symbolDef.parameters, currentParameter]
+        parameters: [...symbolDef.parameters, currentParameter],
       });
       setCurrentParameter({
-        name: '',
-        type: 'number',
-        defaultValue: 0
+        name: "",
+        type: "number",
+        defaultValue: 0,
       });
     }
   };
@@ -107,7 +107,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
     const newParams = symbolDef.parameters.filter((_, i) => i !== index);
     setSymbolDef({
       ...symbolDef,
-      parameters: newParams
+      parameters: newParams,
     });
   };
 
@@ -126,9 +126,9 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
     let svg = symbolDef.svgTemplate || svgCode;
 
     // Replace parameter placeholders with actual values
-    symbolDef.parameters.forEach(param => {
+    symbolDef.parameters.forEach((param) => {
       const value = previewParams[param.name] ?? param.defaultValue;
-      const placeholder = new RegExp(`{{${param.name}}}`, 'g');
+      const placeholder = new RegExp(`{{${param.name}}}`, "g");
       svg = svg.replace(placeholder, String(value));
     });
 
@@ -136,9 +136,9 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
     svg = svg
       .replace(/{{width}}/g, symbolDef.defaultSize.width.toString())
       .replace(/{{height}}/g, symbolDef.defaultSize.height.toString())
-      .replace(/{{color}}/g, '#000000')
-      .replace(/{{fillColor}}/g, '#ffffff')
-      .replace(/{{strokeWidth}}/g, '1.5');
+      .replace(/{{color}}/g, "#000000")
+      .replace(/{{fillColor}}/g, "#ffffff")
+      .replace(/{{strokeWidth}}/g, "1.5");
 
     return svg;
   }, [symbolDef, svgCode, previewParams]);
@@ -150,7 +150,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
       id: symbolDef.id || `custom-${Date.now()}`,
       svgTemplate: svgCode,
       createdAt: symbolDef.createdAt || new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     onSave(finalSymbol);
@@ -161,8 +161,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
       <div className="creator-header">
         <h2>Custom Symbol Creator</h2>
         <div className="header-actions">
-          <button onClick={onCancel} className="btn-cancel">Cancel</button>
-          <button onClick={handleSave} className="btn-save">Save Symbol</button>
+          <button onClick={onCancel} className="btn-cancel">
+            Cancel
+          </button>
+          <button onClick={handleSave} className="btn-save">
+            Save Symbol
+          </button>
         </div>
       </div>
 
@@ -200,11 +204,16 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
             <label>Tags (comma-separated)</label>
             <input
               type="text"
-              value={symbolDef.tags.join(', ')}
-              onChange={(e) => setSymbolDef({
-                ...symbolDef,
-                tags: e.target.value.split(',').map(t => t.trim()).filter(t => t)
-              })}
+              value={symbolDef.tags.join(", ")}
+              onChange={(e) =>
+                setSymbolDef({
+                  ...symbolDef,
+                  tags: e.target.value
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter((t) => t),
+                })
+              }
               placeholder="e.g., custom, pump, special"
             />
           </div>
@@ -219,7 +228,9 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
                 <span className="param-name">{param.name}</span>
                 <span className="param-type">{param.type}</span>
                 <span className="param-default">{param.defaultValue}</span>
-                <button onClick={() => removeParameter(index)} className="btn-remove">×</button>
+                <button onClick={() => removeParameter(index)} className="btn-remove">
+                  ×
+                </button>
               </div>
             ))}
           </div>
@@ -233,10 +244,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
             />
             <select
               value={currentParameter.type}
-              onChange={(e) => setCurrentParameter({
-                ...currentParameter,
-                type: e.target.value as SymbolParameter['type']
-              })}
+              onChange={(e) =>
+                setCurrentParameter({
+                  ...currentParameter,
+                  type: e.target.value as SymbolParameter["type"],
+                })
+              }
             >
               <option value="number">Number</option>
               <option value="string">String</option>
@@ -247,10 +260,14 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
             <input
               type="text"
               value={String(currentParameter.defaultValue)}
-              onChange={(e) => setCurrentParameter({ ...currentParameter, defaultValue: e.target.value })}
+              onChange={(e) =>
+                setCurrentParameter({ ...currentParameter, defaultValue: e.target.value })
+              }
               placeholder="Default value"
             />
-            <button onClick={addParameter} className="btn-add">Add Parameter</button>
+            <button onClick={addParameter} className="btn-add">
+              Add Parameter
+            </button>
           </div>
         </div>
 
@@ -267,13 +284,25 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
             <div className="template-help">
               <p>Available placeholders:</p>
               <ul>
-                <li><code>{'{{width}}'}</code> - Symbol width</li>
-                <li><code>{'{{height}}'}</code> - Symbol height</li>
-                <li><code>{'{{color}}'}</code> - Stroke color</li>
-                <li><code>{'{{fillColor}}'}</code> - Fill color</li>
-                <li><code>{'{{strokeWidth}}'}</code> - Stroke width</li>
+                <li>
+                  <code>{"{{width}}"}</code> - Symbol width
+                </li>
+                <li>
+                  <code>{"{{height}}"}</code> - Symbol height
+                </li>
+                <li>
+                  <code>{"{{color}}"}</code> - Stroke color
+                </li>
+                <li>
+                  <code>{"{{fillColor}}"}</code> - Fill color
+                </li>
+                <li>
+                  <code>{"{{strokeWidth}}"}</code> - Stroke width
+                </li>
                 {symbolDef.parameters.map((param, index) => (
-                  <li key={index}><code>{`{{${param.name}}}`}</code> - {param.description || param.name}</li>
+                  <li key={index}>
+                    <code>{`{{${param.name}}}`}</code> - {param.description || param.name}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -288,10 +317,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               <input
                 type="checkbox"
                 checked={symbolDef.connectionPoints.top}
-                onChange={(e) => setSymbolDef({
-                  ...symbolDef,
-                  connectionPoints: { ...symbolDef.connectionPoints, top: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setSymbolDef({
+                    ...symbolDef,
+                    connectionPoints: { ...symbolDef.connectionPoints, top: e.target.checked },
+                  })
+                }
               />
               Top
             </label>
@@ -299,10 +330,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               <input
                 type="checkbox"
                 checked={symbolDef.connectionPoints.bottom}
-                onChange={(e) => setSymbolDef({
-                  ...symbolDef,
-                  connectionPoints: { ...symbolDef.connectionPoints, bottom: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setSymbolDef({
+                    ...symbolDef,
+                    connectionPoints: { ...symbolDef.connectionPoints, bottom: e.target.checked },
+                  })
+                }
               />
               Bottom
             </label>
@@ -310,10 +343,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               <input
                 type="checkbox"
                 checked={symbolDef.connectionPoints.left}
-                onChange={(e) => setSymbolDef({
-                  ...symbolDef,
-                  connectionPoints: { ...symbolDef.connectionPoints, left: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setSymbolDef({
+                    ...symbolDef,
+                    connectionPoints: { ...symbolDef.connectionPoints, left: e.target.checked },
+                  })
+                }
               />
               Left
             </label>
@@ -321,10 +356,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               <input
                 type="checkbox"
                 checked={symbolDef.connectionPoints.right}
-                onChange={(e) => setSymbolDef({
-                  ...symbolDef,
-                  connectionPoints: { ...symbolDef.connectionPoints, right: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setSymbolDef({
+                    ...symbolDef,
+                    connectionPoints: { ...symbolDef.connectionPoints, right: e.target.checked },
+                  })
+                }
               />
               Right
             </label>
@@ -340,10 +377,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               <input
                 type="number"
                 value={symbolDef.defaultSize.width}
-                onChange={(e) => setSymbolDef({
-                  ...symbolDef,
-                  defaultSize: { ...symbolDef.defaultSize, width: parseInt(e.target.value) }
-                })}
+                onChange={(e) =>
+                  setSymbolDef({
+                    ...symbolDef,
+                    defaultSize: { ...symbolDef.defaultSize, width: parseInt(e.target.value) },
+                  })
+                }
               />
             </div>
             <div className="form-group">
@@ -351,10 +390,12 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               <input
                 type="number"
                 value={symbolDef.defaultSize.height}
-                onChange={(e) => setSymbolDef({
-                  ...symbolDef,
-                  defaultSize: { ...symbolDef.defaultSize, height: parseInt(e.target.value) }
-                })}
+                onChange={(e) =>
+                  setSymbolDef({
+                    ...symbolDef,
+                    defaultSize: { ...symbolDef.defaultSize, height: parseInt(e.target.value) },
+                  })
+                }
               />
             </div>
           </div>
@@ -368,58 +409,70 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
               {symbolDef.parameters.map((param, index) => (
                 <div key={index} className="preview-control">
                   <label>{param.name}</label>
-                  {param.type === 'number' && (
+                  {param.type === "number" && (
                     <input
                       type="number"
                       value={Number(previewParams[param.name] ?? param.defaultValue)}
-                      onChange={(e) => setPreviewParams({
-                        ...previewParams,
-                        [param.name]: parseFloat(e.target.value)
-                      })}
+                      onChange={(e) =>
+                        setPreviewParams({
+                          ...previewParams,
+                          [param.name]: parseFloat(e.target.value),
+                        })
+                      }
                       min={param.min}
                       max={param.max}
                     />
                   )}
-                  {param.type === 'string' && (
+                  {param.type === "string" && (
                     <input
                       type="text"
                       value={String(previewParams[param.name] ?? param.defaultValue)}
-                      onChange={(e) => setPreviewParams({
-                        ...previewParams,
-                        [param.name]: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setPreviewParams({
+                          ...previewParams,
+                          [param.name]: e.target.value,
+                        })
+                      }
                     />
                   )}
-                  {param.type === 'color' && (
+                  {param.type === "color" && (
                     <input
                       type="color"
                       value={String(previewParams[param.name] ?? param.defaultValue)}
-                      onChange={(e) => setPreviewParams({
-                        ...previewParams,
-                        [param.name]: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setPreviewParams({
+                          ...previewParams,
+                          [param.name]: e.target.value,
+                        })
+                      }
                     />
                   )}
-                  {param.type === 'boolean' && (
+                  {param.type === "boolean" && (
                     <input
                       type="checkbox"
                       checked={Boolean(previewParams[param.name] ?? param.defaultValue)}
-                      onChange={(e) => setPreviewParams({
-                        ...previewParams,
-                        [param.name]: e.target.checked
-                      })}
+                      onChange={(e) =>
+                        setPreviewParams({
+                          ...previewParams,
+                          [param.name]: e.target.checked,
+                        })
+                      }
                     />
                   )}
-                  {param.type === 'select' && param.options && (
+                  {param.type === "select" && param.options && (
                     <select
                       value={String(previewParams[param.name] ?? param.defaultValue)}
-                      onChange={(e) => setPreviewParams({
-                        ...previewParams,
-                        [param.name]: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setPreviewParams({
+                          ...previewParams,
+                          [param.name]: e.target.value,
+                        })
+                      }
                     >
                       {param.options.map((opt, i) => (
-                        <option key={i} value={opt}>{opt}</option>
+                        <option key={i} value={opt}>
+                          {opt}
+                        </option>
                       ))}
                     </select>
                   )}
@@ -441,7 +494,7 @@ export const CustomSymbolCreator: React.FC<CustomSymbolCreatorProps> = ({
  */
 export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefinition }> = ({
   data,
-  selected
+  selected,
 }) => {
   const [_parameters, _setParameters] = useState<Record<string, string | number | boolean>>({});
 
@@ -452,7 +505,7 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
     // Replace parameter placeholders
     data.parameters.forEach((param: SymbolParameter) => {
       const value = _parameters[param.name] ?? param.defaultValue;
-      const placeholder = new RegExp(`{{${param.name}}}`, 'g');
+      const placeholder = new RegExp(`{{${param.name}}}`, "g");
       svg = svg.replace(placeholder, String(value));
     });
 
@@ -460,30 +513,21 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
     svg = svg
       .replace(/{{width}}/g, data.defaultSize.width.toString())
       .replace(/{{height}}/g, data.defaultSize.height.toString())
-      .replace(/{{color}}/g, '#000000')
-      .replace(/{{fillColor}}/g, '#ffffff')
-      .replace(/{{strokeWidth}}/g, '1.5');
+      .replace(/{{color}}/g, "#000000")
+      .replace(/{{fillColor}}/g, "#ffffff")
+      .replace(/{{strokeWidth}}/g, "1.5");
 
     return svg;
   }, [data, _parameters]);
 
   return (
-    <div className={`custom-symbol-node ${selected ? 'selected' : ''}`}>
-      {data.connectionPoints.top && (
-        <Handle type="target" position={Position.Top} id="top" />
-      )}
-      {data.connectionPoints.left && (
-        <Handle type="target" position={Position.Left} id="left" />
-      )}
+    <div className={`custom-symbol-node ${selected ? "selected" : ""}`}>
+      {data.connectionPoints.top && <Handle type="target" position={Position.Top} id="top" />}
+      {data.connectionPoints.left && <Handle type="target" position={Position.Left} id="left" />}
 
-      <div
-        className="symbol-content"
-        dangerouslySetInnerHTML={{ __html: generateSVG() }}
-      />
+      <div className="symbol-content" dangerouslySetInnerHTML={{ __html: generateSVG() }} />
 
-      {data.connectionPoints.right && (
-        <Handle type="source" position={Position.Right} id="right" />
-      )}
+      {data.connectionPoints.right && <Handle type="source" position={Position.Right} id="right" />}
       {data.connectionPoints.bottom && (
         <Handle type="source" position={Position.Bottom} id="bottom" />
       )}
@@ -495,11 +539,11 @@ export const CustomSymbolNode: React.FC<NodeProps & { data: CustomSymbolDefiniti
  * Custom Symbol Manager - handles storage and retrieval of custom symbols
  */
 export class CustomSymbolManager {
-  private static STORAGE_KEY = 'ergoplanner-custom-symbols';
+  private static STORAGE_KEY = "ergoplanner-custom-symbols";
 
   static saveSymbol(symbol: CustomSymbolDefinition): void {
     const symbols = this.getSymbols();
-    const existingIndex = symbols.findIndex(s => s.id === symbol.id);
+    const existingIndex = symbols.findIndex((s) => s.id === symbol.id);
 
     if (existingIndex >= 0) {
       symbols[existingIndex] = symbol;
@@ -517,12 +561,12 @@ export class CustomSymbolManager {
 
   static getSymbol(id: string): CustomSymbolDefinition | undefined {
     const symbols = this.getSymbols();
-    return symbols.find(s => s.id === id);
+    return symbols.find((s) => s.id === id);
   }
 
   static deleteSymbol(id: string): void {
     const symbols = this.getSymbols();
-    const filtered = symbols.filter(s => s.id !== id);
+    const filtered = symbols.filter((s) => s.id !== id);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
   }
 

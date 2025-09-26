@@ -21,6 +21,7 @@ import { useDrawingStore } from "@/store/drawingStore";
 
 import AnnotationTools from "./AnnotationTools";
 import ContextMenu from "./ContextMenu";
+import EnhancedDragPreview from "./EnhancedDragPreview";
 import ExportImportPanel from "./ExportImportPanel";
 import MeasurementTools from "./MeasurementTools";
 import {
@@ -81,7 +82,7 @@ function DrawingCanvasContent(): React.ReactElement {
     obstacleMargin: 40,
     allowDiagonal: false,
     weight: 1.0,
-    autoRoute: true
+    autoRoute: true,
   });
 
   // Drawing tools hook
@@ -140,10 +141,14 @@ function DrawingCanvasContent(): React.ReactElement {
   });
 
   // Smart routing panel toggle
-  useHotkeys("ctrl+r, cmd+r", (e) => {
-    e.preventDefault();
-    setShowSmartRouting(!showSmartRouting);
-  }, [showSmartRouting]);
+  useHotkeys(
+    "ctrl+r, cmd+r",
+    (e) => {
+      e.preventDefault();
+      setShowSmartRouting(!showSmartRouting);
+    },
+    [showSmartRouting]
+  );
 
   // Initialize with an empty drawing
   useEffect(() => {
@@ -394,150 +399,151 @@ function DrawingCanvasContent(): React.ReactElement {
   );
 
   // Click handler to close context menu and handle drawing tools
-  const onCanvasClick = useCallback((event: React.MouseEvent) => {
-    setContextMenu((prev) => ({ ...prev, visible: false }));
+  const onCanvasClick = useCallback(
+    (event: React.MouseEvent) => {
+      setContextMenu((prev) => ({ ...prev, visible: false }));
 
-    // Handle drawing tools click
-    const rect = reactFlowWrapper.current?.getBoundingClientRect();
-    if (rect && reactFlowInstance) {
-      const position = reactFlowInstance.project({
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      });
-      handleCanvasClick(event, position);
-    }
-  }, [reactFlowInstance, handleCanvasClick]);
+      // Handle drawing tools click
+      const rect = reactFlowWrapper.current?.getBoundingClientRect();
+      if (rect && reactFlowInstance) {
+        const position = reactFlowInstance.project({
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        });
+        handleCanvasClick(event, position);
+      }
+    },
+    [reactFlowInstance, handleCanvasClick]
+  );
 
   return (
     <div className="flex h-full w-full">
       <div className="relative flex-1" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={getVisibleNodes()}
-            edges={getVisibleEdges()}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={handleConnect}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onSelectionChange={onSelectionChange}
-            onContextMenu={handleContextMenu}
-            onMouseMove={handleMouseMove}
-            onClick={onCanvasClick}
-            nodeTypes={nodeTypes}
-            snapToGrid={snapToGrid}
-            snapGrid={[gridSize, gridSize]}
-            // connectionMode="loose"
-            fitView
-            panOnDrag={tool === "pan"}
-            panOnScroll={true}
-            zoomOnScroll={true}
-            selectionMode={SelectionMode.Partial}
-            deleteKeyCode={["Delete", "Backspace"]}
-            multiSelectionKeyCode={["Control", "Meta"]}
-          >
-            {isGridVisible && (
-              <Background
-                variant={BackgroundVariant.Dots}
-                gap={gridSize}
-                size={1}
-                color="#e5e7eb"
-              />
-            )}
-            <MiniMap
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case "pump":
-                    return "#3B82F6";
-                  case "valve":
-                  case "controlValve":
-                  case "checkValve":
-                    return "#10B981";
-                  case "tank":
-                    return "#F59E0B";
-                  case "pipe":
-                    return "#6B7280";
-                  case "flowMeter":
-                  case "pressureGauge":
-                    return "#8B5CF6";
-                  case "heatExchanger":
-                    return "#EF4444";
-                  case "compressor":
-                    return "#06B6D4";
-                  default:
-                    return "#9CA3AF";
-                }
-              }}
-              style={{
-                backgroundColor: "#f3f4f6",
-              }}
-              className="!bg-gray-50"
+        <ReactFlow
+          nodes={getVisibleNodes()}
+          edges={getVisibleEdges()}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={handleConnect}
+          onInit={setReactFlowInstance}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onSelectionChange={onSelectionChange}
+          onContextMenu={handleContextMenu}
+          onMouseMove={handleMouseMove}
+          onClick={onCanvasClick}
+          nodeTypes={nodeTypes}
+          snapToGrid={snapToGrid}
+          snapGrid={[gridSize, gridSize]}
+          // connectionMode="loose"
+          fitView
+          panOnDrag={tool === "pan"}
+          panOnScroll={true}
+          zoomOnScroll={true}
+          selectionMode={SelectionMode.Partial}
+          deleteKeyCode={["Delete", "Backspace"]}
+          multiSelectionKeyCode={["Control", "Meta"]}
+        >
+          {isGridVisible && (
+            <Background variant={BackgroundVariant.Dots} gap={gridSize} size={1} color="#e5e7eb" />
+          )}
+          <MiniMap
+            nodeColor={(node) => {
+              switch (node.type) {
+                case "pump":
+                  return "#3B82F6";
+                case "valve":
+                case "controlValve":
+                case "checkValve":
+                  return "#10B981";
+                case "tank":
+                  return "#F59E0B";
+                case "pipe":
+                  return "#6B7280";
+                case "flowMeter":
+                case "pressureGauge":
+                  return "#8B5CF6";
+                case "heatExchanger":
+                  return "#EF4444";
+                case "compressor":
+                  return "#06B6D4";
+                default:
+                  return "#9CA3AF";
+              }
+            }}
+            style={{
+              backgroundColor: "#f3f4f6",
+            }}
+            className="!bg-gray-50"
+          />
+          <Controls className="!bg-white !shadow-md" />
+        </ReactFlow>
+
+        {/* Enhanced Drag Preview System */}
+        <EnhancedDragPreview />
+
+        {/* Context Menu */}
+        {contextMenu.visible && (
+          <ContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            selectedNode={selectedNode}
+            selectedEdge={selectedEdge}
+            selectedNodes={selectedNodes}
+            onClose={() => setContextMenu((prev) => ({ ...prev, visible: false }))}
+            onAction={handleContextMenuAction}
+          />
+        )}
+
+        {/* Measurement Tools */}
+        {showMeasurementTools && (
+          <div className="absolute top-4 right-4 w-80">
+            <MeasurementTools
+              visible={showMeasurementTools}
+              onToggle={() => setShowMeasurementTools(false)}
             />
-            <Controls className="!bg-white !shadow-md" />
-          </ReactFlow>
+          </div>
+        )}
 
-          {/* Context Menu */}
-          {contextMenu.visible && (
-            <ContextMenu
-              x={contextMenu.x}
-              y={contextMenu.y}
-              selectedNode={selectedNode}
-              selectedEdge={selectedEdge}
-              selectedNodes={selectedNodes}
-              onClose={() => setContextMenu((prev) => ({ ...prev, visible: false }))}
-              onAction={handleContextMenuAction}
+        {/* Annotation Tools */}
+        {showAnnotationTools && (
+          <div className="absolute top-4 right-4 w-80">
+            <AnnotationTools
+              visible={showAnnotationTools}
+              onToggle={() => setShowAnnotationTools(false)}
             />
-          )}
+          </div>
+        )}
 
-          {/* Measurement Tools */}
-          {showMeasurementTools && (
-            <div className="absolute top-4 right-4 w-80">
-              <MeasurementTools
-                visible={showMeasurementTools}
-                onToggle={() => setShowMeasurementTools(false)}
-              />
-            </div>
-          )}
-
-          {/* Annotation Tools */}
-          {showAnnotationTools && (
-            <div className="absolute top-4 right-4 w-80">
-              <AnnotationTools
-                visible={showAnnotationTools}
-                onToggle={() => setShowAnnotationTools(false)}
-              />
-            </div>
-          )}
-
-          {/* Smart Routing Panel */}
-          {showSmartRouting && (
-            <div className="absolute top-4 left-4 w-80">
-              <SmartRoutingPanel
-                visible={showSmartRouting}
-                onToggle={() => setShowSmartRouting(false)}
-              />
-            </div>
-          )}
-
-          {/* Quick Actions Panel */}
-          {showQuickActions && (
-            <QuickActionsPanel
-              isVisible={showQuickActions}
-              onClose={() => setShowQuickActions(false)}
-              defaultPosition={{ x: window.innerWidth - 350, y: 100 }}
-              canDrag={true}
+        {/* Smart Routing Panel */}
+        {showSmartRouting && (
+          <div className="absolute top-4 left-4 w-80">
+            <SmartRoutingPanel
+              visible={showSmartRouting}
+              onToggle={() => setShowSmartRouting(false)}
             />
-          )}
+          </div>
+        )}
 
-          {/* Export/Import Panel */}
-          {showExportPanel && (
-            <div className="absolute top-4 left-4 w-80">
-              <ExportImportPanel />
-            </div>
-          )}
+        {/* Quick Actions Panel */}
+        {showQuickActions && (
+          <QuickActionsPanel
+            isVisible={showQuickActions}
+            onClose={() => setShowQuickActions(false)}
+            defaultPosition={{ x: window.innerWidth - 350, y: 100 }}
+            canDrag={true}
+          />
+        )}
 
-          {/* Auto-save Manager - Hidden for now */}
-          {/* <AutoSaveManager enabled={true} interval={30000} maxAutoSaves={10} /> */}
+        {/* Export/Import Panel */}
+        {showExportPanel && (
+          <div className="absolute top-4 left-4 w-80">
+            <ExportImportPanel />
+          </div>
+        )}
+
+        {/* Auto-save Manager - Hidden for now */}
+        {/* <AutoSaveManager enabled={true} interval={30000} maxAutoSaves={10} /> */}
       </div>
     </div>
   );

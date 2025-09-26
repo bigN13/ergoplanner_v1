@@ -21,15 +21,16 @@ interface ExportImportPanelProps {
   className?: string;
 }
 
-export default function ExportImportPanel({ className = "" }: ExportImportPanelProps): React.ReactElement {
+export default function ExportImportPanel({
+  className = "",
+}: ExportImportPanelProps): React.ReactElement {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<"png" | "svg" | "pdf" | "json" | "dxf">("png");
 
   const { fitView } = useReactFlow();
-  const { nodes, edges, drawingName, setNodes, setEdges, setDrawingName } =
-    useDrawingStore();
+  const { nodes, edges, drawingName, setNodes, setEdges, setDrawingName } = useDrawingStore();
 
   // Export Functions
   const exportToPNG = useCallback(
@@ -103,7 +104,8 @@ export default function ExportImportPanel({ className = "" }: ExportImportPanelP
       if (!element) throw new Error("Canvas not found");
 
       // TODO: Import toPdf from appropriate library
-      const dataUrl = await toPng(element, { // Using toPng as fallback
+      const dataUrl = await toPng(element, {
+        // Using toPng as fallback
         backgroundColor: "#ffffff",
         pixelRatio: 2,
         filter: (node) => {
@@ -299,18 +301,14 @@ EOF`;
 
           if (data.drawing && data.drawing.nodes && data.drawing.edges) {
             // Validate the data structure
-            const validNodes = data.drawing.nodes.filter(
-              (node: unknown) => {
-                const n = node as Record<string, unknown>;
-                return n.id && n.type && n.position;
-              }
-            );
-            const validEdges = data.drawing.edges.filter(
-              (edge: unknown) => {
-                const e = edge as Record<string, unknown>;
-                return e.id && e.source && e.target;
-              }
-            );
+            const validNodes = data.drawing.nodes.filter((node: unknown) => {
+              const n = node as Record<string, unknown>;
+              return n.id && n.type && n.position;
+            });
+            const validEdges = data.drawing.edges.filter((edge: unknown) => {
+              const e = edge as Record<string, unknown>;
+              return e.id && e.source && e.target;
+            });
 
             setNodes(validNodes);
             setEdges(validEdges);

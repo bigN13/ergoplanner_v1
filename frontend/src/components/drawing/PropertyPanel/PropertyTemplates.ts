@@ -689,9 +689,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
 
   // Additional node types with basic configurations
   flowMeter: [
-    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Flow Meter Type",
@@ -710,9 +708,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   pressureGauge: [
-    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Pressure Type",
@@ -729,9 +725,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   temperatureSensor: [
-    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Sensor Type",
@@ -748,9 +742,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   levelIndicator: [
-    ...INSTRUMENT_BASE_TEMPLATE.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Level Type",
@@ -958,23 +950,26 @@ export function getFormFieldsForNodeType(nodeType: string): FormField[] {
  * Group form fields by section
  */
 export function groupFieldsBySection(fields: FormField[]): Record<string, FormField[]> {
-  return fields.reduce((acc, field) => {
-    const section = acc[field.section];
-    if (!section) {
-      acc[field.section] = [];
-    }
-    const sectionFields = acc[field.section];
-    if (sectionFields) {
-      sectionFields.push(field);
-    }
-    return acc;
-  }, {} as Record<string, FormField[]>);
+  return fields.reduce(
+    (acc, field) => {
+      const section = acc[field.section];
+      if (!section) {
+        acc[field.section] = [];
+      }
+      const sectionFields = acc[field.section];
+      if (sectionFields) {
+        sectionFields.push(field);
+      }
+      return acc;
+    },
+    {} as Record<string, FormField[]>
+  );
 }
 
 /**
  * Get sections that have fields
  */
 export function getSectionsWithFields(fields: FormField[]): PropertySection[] {
-  const usedSections = new Set(fields.map(f => f.section));
-  return DEFAULT_SECTIONS.filter(section => usedSections.has(section.id));
+  const usedSections = new Set(fields.map((f) => f.section));
+  return DEFAULT_SECTIONS.filter((section) => usedSections.has(section.id));
 }

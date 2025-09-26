@@ -20,23 +20,32 @@ interface BaseFieldProps {
 /**
  * Text input field component
  */
-export function TextInputField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(field.name, e.target.value);
-  }, [field.name, onChange]);
+export function TextInputField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(field.name, e.target.value);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
-          {field.unit && <span className="text-gray-400 ml-1">({field.unit})</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
+          {field.unit && <span className="ml-1 text-gray-400">({field.unit})</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -52,17 +61,18 @@ export function TextInputField({ field, value, onChange, error, disabled }: Base
         disabled={disabled || field.disabled}
         required={field.required}
         aria-describedby={error ? `${field.name}-error` : undefined}
-        className={`
-          mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none
-          ${error
+        className={`mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+          error
             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
             : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          }
-          ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-        `}
+        } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
       />
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -74,24 +84,33 @@ export function TextInputField({ field, value, onChange, error, disabled }: Base
 /**
  * Number input field component
  */
-export function NumberInputField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const numValue = parseFloat(e.target.value);
-    onChange(field.name, isNaN(numValue) ? "" : numValue);
-  }, [field.name, onChange]);
+export function NumberInputField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const numValue = parseFloat(e.target.value);
+      onChange(field.name, isNaN(numValue) ? "" : numValue);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
-          {field.unit && <span className="text-gray-400 ml-1">({field.unit})</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
+          {field.unit && <span className="ml-1 text-gray-400">({field.unit})</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -110,17 +129,18 @@ export function NumberInputField({ field, value, onChange, error, disabled }: Ba
         disabled={disabled || field.disabled}
         required={field.required}
         aria-describedby={error ? `${field.name}-error` : undefined}
-        className={`
-          mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none
-          ${error
+        className={`mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+          error
             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
             : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          }
-          ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-        `}
+        } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
       />
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -132,22 +152,31 @@ export function NumberInputField({ field, value, onChange, error, disabled }: Ba
 /**
  * Select dropdown field component
  */
-export function SelectField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange(field.name, e.target.value);
-  }, [field.name, onChange]);
+export function SelectField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      onChange(field.name, e.target.value);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -161,23 +190,24 @@ export function SelectField({ field, value, onChange, error, disabled }: BaseFie
         disabled={disabled || field.disabled}
         required={field.required}
         aria-describedby={error ? `${field.name}-error` : undefined}
-        className={`
-          mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none
-          ${error
+        className={`mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+          error
             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
             : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          }
-          ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-        `}
+        } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
       >
-        {field.options?.map(option => (
+        {field.options?.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -189,10 +219,19 @@ export function SelectField({ field, value, onChange, error, disabled }: BaseFie
 /**
  * Checkbox field component
  */
-export function CheckboxField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(field.name, e.target.checked);
-  }, [field.name, onChange]);
+export function CheckboxField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(field.name, e.target.checked);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
@@ -205,24 +244,21 @@ export function CheckboxField({ field, value, onChange, error, disabled }: BaseF
           onChange={handleChange}
           disabled={disabled || field.disabled}
           aria-describedby={error ? `${field.name}-error` : undefined}
-          className={`
-            h-4 w-4 rounded border focus:ring-1 focus:outline-none
-            ${error
+          className={`h-4 w-4 rounded border focus:ring-1 focus:outline-none ${
+            error
               ? "border-red-300 text-red-600 focus:ring-red-500"
               : "border-gray-300 text-blue-600 focus:ring-blue-500"
-            }
-            ${disabled || field.disabled ? "opacity-50" : ""}
-          `}
+          } ${disabled || field.disabled ? "opacity-50" : ""} `}
         />
         <div className="flex items-center gap-1">
           <label htmlFor={field.name} className="text-xs font-medium text-gray-600">
             {field.label}
-            {field.required && <span className="text-red-500 ml-1">*</span>}
+            {field.required && <span className="ml-1 text-red-500">*</span>}
           </label>
           {field.tooltip && (
             <div className="group relative">
-              <Info className="h-3 w-3 text-gray-400 cursor-help" />
-              <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+              <Info className="h-3 w-3 cursor-help text-gray-400" />
+              <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
                 {field.tooltip}
               </div>
             </div>
@@ -230,7 +266,11 @@ export function CheckboxField({ field, value, onChange, error, disabled }: BaseF
         </div>
       </div>
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -242,28 +282,38 @@ export function CheckboxField({ field, value, onChange, error, disabled }: BaseF
 /**
  * Slider field component
  */
-export function SliderField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
+export function SliderField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
   const numValue = typeof value === "number" ? value : field.min || 0;
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const numValue = parseFloat(e.target.value);
-    onChange(field.name, numValue);
-  }, [field.name, onChange]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const numValue = parseFloat(e.target.value);
+      onChange(field.name, numValue);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
-          <span className="text-gray-500 ml-1">
-            ({numValue}{field.unit && field.unit})
+          {field.required && <span className="ml-1 text-red-500">*</span>}
+          <span className="ml-1 text-gray-500">
+            ({numValue}
+            {field.unit && field.unit})
           </span>
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -280,13 +330,14 @@ export function SliderField({ field, value, onChange, error, disabled }: BaseFie
         step={field.step || 1}
         disabled={disabled || field.disabled}
         aria-describedby={error ? `${field.name}-error` : undefined}
-        className={`
-          mt-1 w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer
-          ${disabled || field.disabled ? "opacity-50" : ""}
-        `}
+        className={`mt-1 h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 ${disabled || field.disabled ? "opacity-50" : ""} `}
       />
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -298,22 +349,31 @@ export function SliderField({ field, value, onChange, error, disabled }: BaseFie
 /**
  * Textarea field component
  */
-export function TextareaField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(field.name, e.target.value);
-  }, [field.name, onChange]);
+export function TextareaField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onChange(field.name, e.target.value);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -329,17 +389,18 @@ export function TextareaField({ field, value, onChange, error, disabled }: BaseF
         disabled={disabled || field.disabled}
         required={field.required}
         aria-describedby={error ? `${field.name}-error` : undefined}
-        className={`
-          mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none resize-vertical
-          ${error
+        className={`resize-vertical mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+          error
             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
             : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          }
-          ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-        `}
+        } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
       />
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -351,22 +412,31 @@ export function TextareaField({ field, value, onChange, error, disabled }: BaseF
 /**
  * Color picker field component
  */
-export function ColorField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(field.name, e.target.value);
-  }, [field.name, onChange]);
+export function ColorField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(field.name, e.target.value);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -382,14 +452,9 @@ export function ColorField({ field, value, onChange, error, disabled }: BaseFiel
           disabled={disabled || field.disabled}
           required={field.required}
           aria-describedby={error ? `${field.name}-error` : undefined}
-          className={`
-            h-8 w-16 rounded border cursor-pointer
-            ${error
-              ? "border-red-300"
-              : "border-gray-300"
-            }
-            ${disabled || field.disabled ? "opacity-50" : ""}
-          `}
+          className={`h-8 w-16 cursor-pointer rounded border ${
+            error ? "border-red-300" : "border-gray-300"
+          } ${disabled || field.disabled ? "opacity-50" : ""} `}
         />
         <input
           type="text"
@@ -397,18 +462,19 @@ export function ColorField({ field, value, onChange, error, disabled }: BaseFiel
           onChange={handleChange}
           placeholder="#000000"
           disabled={disabled || field.disabled}
-          className={`
-            flex-1 rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none
-            ${error
+          className={`flex-1 rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+            error
               ? "border-red-300 focus:border-red-500 focus:ring-red-500"
               : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-            }
-            ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-          `}
+          } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
         />
       </div>
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -420,22 +486,31 @@ export function ColorField({ field, value, onChange, error, disabled }: BaseFiel
 /**
  * Date input field component
  */
-export function DateField({ field, value, onChange, error, disabled }: BaseFieldProps): React.ReactElement {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(field.name, e.target.value);
-  }, [field.name, onChange]);
+export function DateField({
+  field,
+  value,
+  onChange,
+  error,
+  disabled,
+}: BaseFieldProps): React.ReactElement {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(field.name, e.target.value);
+    },
+    [field.name, onChange]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -450,17 +525,18 @@ export function DateField({ field, value, onChange, error, disabled }: BaseField
         disabled={disabled || field.disabled}
         required={field.required}
         aria-describedby={error ? `${field.name}-error` : undefined}
-        className={`
-          mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none
-          ${error
+        className={`mt-1 w-full rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+          error
             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
             : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          }
-          ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-        `}
+        } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
       />
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -478,7 +554,7 @@ export function UnitInputField({
   onChange,
   error,
   disabled,
-  unitSystem = "metric"
+  unitSystem = "metric",
 }: BaseFieldProps & { unitSystem?: "metric" | "imperial" }): React.ReactElement {
   const [inputValue, setInputValue] = useState(String(value || ""));
   const [selectedUnit, setSelectedUnit] = useState<string>("");
@@ -486,43 +562,49 @@ export function UnitInputField({
   // Get suggested units for this field
   const suggestedUnits = getSuggestedUnits(field.name, unitSystem);
 
-  const handleValueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
+  const handleValueChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setInputValue(newValue);
 
-    // Parse value with unit if present
-    const parsed = parseValueWithUnit(newValue);
-    if (parsed.success && parsed.unit) {
-      setSelectedUnit(parsed.unit);
-    }
+      // Parse value with unit if present
+      const parsed = parseValueWithUnit(newValue);
+      if (parsed.success && parsed.unit) {
+        setSelectedUnit(parsed.unit);
+      }
 
-    onChange(field.name, newValue);
-  }, [field.name, onChange]);
+      onChange(field.name, newValue);
+    },
+    [field.name, onChange]
+  );
 
-  const handleUnitChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newUnit = e.target.value;
-    setSelectedUnit(newUnit);
+  const handleUnitChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newUnit = e.target.value;
+      setSelectedUnit(newUnit);
 
-    // Parse current value
-    const parsed = parseValueWithUnit(inputValue);
-    if (parsed.success && parsed.value !== null) {
-      const formattedValue = formatValueWithUnit(parsed.value, newUnit);
-      setInputValue(formattedValue);
-      onChange(field.name, formattedValue);
-    }
-  }, [inputValue, onChange, field.name]);
+      // Parse current value
+      const parsed = parseValueWithUnit(inputValue);
+      if (parsed.success && parsed.value !== null) {
+        const formattedValue = formatValueWithUnit(parsed.value, newUnit);
+        setInputValue(formattedValue);
+        onChange(field.name, formattedValue);
+      }
+    },
+    [inputValue, onChange, field.name]
+  );
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1">
         <label htmlFor={field.name} className="block text-xs font-medium text-gray-600">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="ml-1 text-red-500">*</span>}
         </label>
         {field.tooltip && (
           <div className="group relative">
-            <Info className="h-3 w-3 text-gray-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute z-10 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-4">
+            <Info className="h-3 w-3 cursor-help text-gray-400" />
+            <div className="invisible absolute -top-8 left-4 z-10 w-48 rounded bg-gray-800 p-2 text-xs text-white shadow-lg group-hover:visible">
               {field.tooltip}
             </div>
           </div>
@@ -539,14 +621,11 @@ export function UnitInputField({
           disabled={disabled || field.disabled}
           required={field.required}
           aria-describedby={error ? `${field.name}-error` : undefined}
-          className={`
-            flex-1 rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none
-            ${error
+          className={`flex-1 rounded border px-2 py-1 text-sm focus:ring-1 focus:outline-none ${
+            error
               ? "border-red-300 focus:border-red-500 focus:ring-red-500"
               : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-            }
-            ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""}
-          `}
+          } ${disabled || field.disabled ? "bg-gray-50 text-gray-500" : ""} `}
         />
         {suggestedUnits.length > 0 && (
           <select
@@ -556,7 +635,7 @@ export function UnitInputField({
             className="w-20 rounded border border-gray-300 px-1 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           >
             <option value="">Unit</option>
-            {suggestedUnits.map(unit => (
+            {suggestedUnits.map((unit) => (
               <option key={unit} value={unit}>
                 {unit}
               </option>
@@ -565,7 +644,11 @@ export function UnitInputField({
         )}
       </div>
       {error && (
-        <div id={`${field.name}-error`} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+        <div
+          id={`${field.name}-error`}
+          className="flex items-center gap-1 text-xs text-red-600"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3" />
           {error}
         </div>
@@ -583,16 +666,18 @@ export function DynamicFormField({
   onChange,
   error,
   disabled,
-  unitSystem = "metric"
+  unitSystem = "metric",
 }: BaseFieldProps & { unitSystem?: "metric" | "imperial" }): React.ReactElement {
   const props = { field, value, onChange, error, disabled };
 
   switch (field.type) {
     case "text":
       // Use unit input for fields with units, regular text input otherwise
-      return field.unit || getSuggestedUnits(field.name, unitSystem).length > 0
-        ? <UnitInputField {...props} unitSystem={unitSystem} />
-        : <TextInputField {...props} />;
+      return field.unit || getSuggestedUnits(field.name, unitSystem).length > 0 ? (
+        <UnitInputField {...props} unitSystem={unitSystem} />
+      ) : (
+        <TextInputField {...props} />
+      );
     case "number":
       return <NumberInputField {...props} />;
     case "select":
