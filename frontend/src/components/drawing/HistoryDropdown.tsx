@@ -61,19 +61,20 @@ const formatTimestamp = (timestamp: Date): string => {
 // Helper function to get command type color
 const getCommandTypeColor = (type: CommandType): string => {
   switch (type) {
-    case CommandType.NODE:
+    case CommandType.ADD_NODE:
+    case CommandType.DELETE_NODE:
+    case CommandType.MODIFY_NODE:
+    case CommandType.MOVE_NODE:
       return "text-blue-600";
-    case CommandType.EDGE:
+    case CommandType.ADD_EDGE:
+    case CommandType.DELETE_EDGE:
+    case CommandType.MODIFY_EDGE:
       return "text-green-600";
-    case CommandType.SELECTION:
+    case CommandType.LAYER_CHANGE:
       return "text-purple-600";
-    case CommandType.TRANSFORM:
+    case CommandType.PROPERTY_CHANGE:
       return "text-orange-600";
-    case CommandType.FORMAT:
-      return "text-pink-600";
-    case CommandType.LAYOUT:
-      return "text-indigo-600";
-    case CommandType.COMPOSITE:
+    case CommandType.BATCH:
       return "text-red-600";
     default:
       return "text-gray-600";
@@ -111,9 +112,11 @@ export default function HistoryDropdown({
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
+
+    return undefined;
   }, [isOpen]);
 
-  const handleEntryClick = (entry: HistoryEntry, entryIndex: number): void => {
+  const handleEntryClick = (_entry: HistoryEntry, entryIndex: number): void => {
     const targetIndex = isUndo
       ? currentIndex - entryIndex - 1
       : currentIndex + entryIndex + 1;
@@ -178,7 +181,6 @@ export default function HistoryDropdown({
           {/* History entries */}
           <div className="py-1">
             {relevantEntries.map((entry, index) => {
-              const _isHovered = hoveredIndex === index;
               const willBeAffected = hoveredIndex !== null && index <= hoveredIndex;
 
               return (

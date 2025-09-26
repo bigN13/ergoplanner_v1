@@ -9,7 +9,7 @@ import {
   type RoutingMode,
   type PathfindingConfig,
   type Point
-} from "@/services/pathfindingService";
+} from "@/services/PathfindingService";
 
 /**
  * Extended edge data with pathfinding configuration
@@ -97,7 +97,7 @@ export default function SmartRoutingEdge({
     if (pathPoints.length >= 2) {
       const midIndex = Math.floor(pathPoints.length / 2);
       const midPoint = pathPoints[midIndex];
-      return { x: midPoint.x, y: midPoint.y };
+      return midPoint ? { x: midPoint.x, y: midPoint.y } : { x: (sourceX + targetX) / 2, y: (sourceY + targetY) / 2 };
     }
     return { x: (sourceX + targetX) / 2, y: (sourceY + targetY) / 2 };
   }, [pathPoints, sourceX, sourceY, targetX, targetY]);

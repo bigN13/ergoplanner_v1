@@ -12,8 +12,7 @@ import {
 } from "lucide-react";
 import React, { useState, useCallback } from "react";
 
-import { useSmartRouting, type SmartRoutingOptions } from "@/hooks/useSmartRouting";
-import type { RoutingMode } from "@/services/PathfindingService";
+import { useSmartRouting, type SmartRoutingOptions, type RoutingMode } from "@/hooks/useSmartRouting";
 
 interface SmartRoutingPanelProps {
   className?: string;

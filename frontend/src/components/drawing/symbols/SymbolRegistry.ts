@@ -162,7 +162,7 @@ class SymbolRegistry {
     if (registration.lazyLoad) {
       try {
         // Assume component is a lazy import function
-        const component = await (registration.component as () => Promise<{ default: ComponentType<NodeProps<ISymbolBaseData>> }>)();
+        const component = await (registration.component as unknown as () => Promise<{ default: ComponentType<NodeProps<ISymbolBaseData>> }>)();
         this.loadedComponents.set(id, component.default || component);
         return this.loadedComponents.get(id);
       } catch (error) {

@@ -53,17 +53,20 @@ export interface ICommand {
 /**
  * Types of commands that can be performed
  */
-export type CommandType =
-  | "add_node"
-  | "delete_node"
-  | "modify_node"
-  | "move_node"
-  | "add_edge"
-  | "delete_edge"
-  | "modify_edge"
-  | "batch"
-  | "layer_change"
-  | "property_change";
+export const CommandType = {
+  ADD_NODE: "add_node",
+  DELETE_NODE: "delete_node",
+  MODIFY_NODE: "modify_node",
+  MOVE_NODE: "move_node",
+  ADD_EDGE: "add_edge",
+  DELETE_EDGE: "delete_edge",
+  MODIFY_EDGE: "modify_edge",
+  BATCH: "batch",
+  LAYER_CHANGE: "layer_change",
+  PROPERTY_CHANGE: "property_change",
+} as const;
+
+export type CommandType = (typeof CommandType)[keyof typeof CommandType];
 
 /**
  * Interface for batch commands that contain multiple sub-commands
@@ -152,12 +155,20 @@ export interface HistoryItem {
   id: string;
   type: CommandType;
   action: string;
+  name: string;
+  description: string;
+  icon?: string;
   timestamp: Date;
   user?: string;
   details: Record<string, unknown>;
   canUndo: boolean;
   canRedo: boolean;
 }
+
+/**
+ * Alias for HistoryItem for compatibility
+ */
+export type HistoryEntry = HistoryItem;
 
 /**
  * Command manager configuration

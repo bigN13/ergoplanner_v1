@@ -150,6 +150,8 @@ export class CommandManager {
       id: command.id,
       type: command.type,
       action: command.description,
+      name: command.description,
+      description: command.description,
       timestamp: command.timestamp,
       user: this.config.userId,
       details: command.getDetails(),

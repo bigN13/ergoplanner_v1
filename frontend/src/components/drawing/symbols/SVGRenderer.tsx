@@ -56,7 +56,9 @@ export class SVGPathOptimizer {
     let currentY = 0;
 
     commands.forEach((cmd) => {
-      const type = cmd[0];
+      const type = cmd?.[0];
+      if (!type) return;
+
       const coords = cmd
         .slice(1)
         .trim()
@@ -66,16 +68,16 @@ export class SVGPathOptimizer {
       switch (type.toUpperCase()) {
         case 'M':
         case 'L':
-          currentX = type === type.toUpperCase() ? coords[0] : currentX + coords[0];
-          currentY = type === type.toUpperCase() ? coords[1] : currentY + coords[1];
+          currentX = type === type.toUpperCase() ? (coords[0] ?? 0) : currentX + (coords[0] ?? 0);
+          currentY = type === type.toUpperCase() ? (coords[1] ?? 0) : currentY + (coords[1] ?? 0);
           points.push({ x: currentX, y: currentY });
           break;
         case 'H':
-          currentX = type === type.toUpperCase() ? coords[0] : currentX + coords[0];
+          currentX = type === type.toUpperCase() ? (coords[0] ?? 0) : currentX + (coords[0] ?? 0);
           points.push({ x: currentX, y: currentY });
           break;
         case 'V':
-          currentY = type === type.toUpperCase() ? coords[0] : currentY + coords[0];
+          currentY = type === type.toUpperCase() ? (coords[0] ?? 0) : currentY + (coords[0] ?? 0);
           points.push({ x: currentX, y: currentY });
           break;
       }
@@ -98,10 +100,15 @@ export class SVGPathOptimizer {
 
     // Find point with maximum distance from line
     for (let i = 1; i < points.length - 1; i++) {
-      const distance = this.perpendicularDistance(points[i], points[0], points[points.length - 1]);
-      if (distance > maxDistance) {
-        maxDistance = distance;
-        maxIndex = i;
+      const point = points[i];
+      const startPoint = points[0];
+      const endPoint = points[points.length - 1];
+      if (point && startPoint && endPoint) {
+        const distance = this.perpendicularDistance(point, startPoint, endPoint);
+        if (distance > maxDistance) {
+          maxDistance = distance;
+          maxIndex = i;
+        }
       }
     }
 
@@ -111,7 +118,9 @@ export class SVGPathOptimizer {
       const right = this.douglasPeucker(points.slice(maxIndex), tolerance);
       return [...left.slice(0, -1), ...right];
     } else {
-      return [points[0], points[points.length - 1]];
+      const startPoint = points[0];
+      const endPoint = points[points.length - 1];
+      return [startPoint, endPoint].filter(p => p !== undefined) as Array<{ x: number; y: number }>;
     }
   }
 
@@ -146,9 +155,15 @@ export class SVGPathOptimizer {
   private static pointsToPath(points: Array<{ x: number; y: number }>): string {
     if (points.length === 0) return '';
 
-    let path = `M ${points[0].x} ${points[0].y}`;
+    const firstPoint = points[0];
+    if (!firstPoint) return '';
+
+    let path = `M ${firstPoint.x} ${firstPoint.y}`;
     for (let i = 1; i < points.length; i++) {
-      path += ` L ${points[i].x} ${points[i].y}`;
+      const point = points[i];
+      if (point) {
+        path += ` L ${point.x} ${point.y}`;
+      }
     }
 
     return path;
@@ -378,7 +393,7 @@ export const OptimizedSVGRenderer = memo<IOptimizedSVGRendererProps>(
           const tolerance = levelOfDetail === 'minimal' ? 3 : 1.5;
           content = content.replace(
             /d="([^"]*)"/g,
-            (match, path) => `d="${SVGPathOptimizer.simplifyPath(path, tolerance)}"`
+            (_match, path) => `d="${SVGPathOptimizer.simplifyPath(path, tolerance)}"`
           );
         }
       }

@@ -246,10 +246,16 @@ export class PathfindingService {
   pathToSvg(points: Point[]): string {
     if (points.length < 2) return "";
 
-    let svg = `M ${points[0].x} ${points[0].y}`;
+    const firstPoint = points[0];
+    if (!firstPoint) return "";
+
+    let svg = `M ${firstPoint.x} ${firstPoint.y}`;
 
     for (let i = 1; i < points.length; i++) {
-      svg += ` L ${points[i].x} ${points[i].y}`;
+      const point = points[i];
+      if (point) {
+        svg += ` L ${point.x} ${point.y}`;
+      }
     }
 
     return svg;
@@ -409,12 +415,17 @@ export class PathfindingService {
   private optimizePath(path: Point[]): Point[] {
     if (path.length <= 2) return path;
 
-    const optimized: Point[] = [path[0]];
+    const firstPoint = path[0];
+    if (!firstPoint) return path;
+
+    const optimized: Point[] = [firstPoint];
 
     for (let i = 1; i < path.length - 1; i++) {
       const prev = path[i - 1];
       const current = path[i];
       const next = path[i + 1];
+
+      if (!prev || !current || !next) continue;
 
       // Calculate directions
       const dir1 = this.getDirectionBetweenPoints(prev, current);
@@ -426,7 +437,10 @@ export class PathfindingService {
       }
     }
 
-    optimized.push(path[path.length - 1]);
+    const lastPoint = path[path.length - 1];
+    if (lastPoint) {
+      optimized.push(lastPoint);
+    }
     return optimized;
   }
 
@@ -454,17 +468,24 @@ export class PathfindingService {
    */
   private smoothPath(points: Point[]): string {
     if (points.length < 2) return "";
+
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    if (!firstPoint || !secondPoint) return "";
+
     if (points.length === 2) {
-      return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+      return `M ${firstPoint.x} ${firstPoint.y} L ${secondPoint.x} ${secondPoint.y}`;
     }
 
-    let svg = `M ${points[0].x} ${points[0].y}`;
+    let svg = `M ${firstPoint.x} ${firstPoint.y}`;
 
     // Create smooth curves through corners
     for (let i = 1; i < points.length - 1; i++) {
       const prev = points[i - 1];
       const current = points[i];
       const next = points[i + 1];
+
+      if (!prev || !current || !next) continue;
 
       // Calculate control point offset
       const offset = Math.min(
@@ -484,7 +505,10 @@ export class PathfindingService {
       svg += ` Q ${current.x} ${current.y} ${cp2.x} ${cp2.y}`;
     }
 
-    svg += ` L ${points[points.length - 1].x} ${points[points.length - 1].y}`;
+    const lastPoint = points[points.length - 1];
+    if (lastPoint) {
+      svg += ` L ${lastPoint.x} ${lastPoint.y}`;
+    }
     return svg;
   }
 
@@ -520,13 +544,19 @@ export class PathfindingService {
     for (let i = 0; i < points.length - 1; i++) {
       const start = points[i];
       const end = points[i + 1];
+
+      if (!start || !end) continue;
+
       const direction = this.getDirectionBetweenPoints(start, end);
 
       let type: SegmentType = SegmentType.STRAIGHT;
       if (i > 0) {
-        const prevDirection = this.getDirectionBetweenPoints(points[i - 1], start);
-        if (prevDirection !== direction) {
-          type = SegmentType.CORNER;
+        const prevPoint = points[i - 1];
+        if (prevPoint) {
+          const prevDirection = this.getDirectionBetweenPoints(prevPoint, start);
+          if (prevDirection !== direction) {
+            type = SegmentType.CORNER;
+          }
         }
       }
       if ([Direction.NORTHEAST, Direction.NORTHWEST, Direction.SOUTHEAST, Direction.SOUTHWEST].includes(direction)) {

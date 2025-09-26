@@ -17,7 +17,7 @@ export interface RouteResult {
 }
 
 export interface SmartRoutingOptions {
-  routingMode: RoutingMode;
+  routingMode?: RoutingMode;
   gridSize: number;
   obstacleMargin: number;
   allowDiagonal: boolean;
@@ -85,14 +85,19 @@ export function useSmartRouting(
         path.push(start, end);
       }
 
-      const segments = [];
+      const segments: Array<{ start: XYPosition; end: XYPosition }> = [];
       for (let i = 0; i < path.length - 1; i++) {
-        segments.push({ start: path[i], end: path[i + 1] });
+        const start = path[i];
+        const end = path[i + 1];
+        if (start && end) {
+          segments.push({ start, end });
+        }
       }
 
       const length = path.reduce((total, point, index) => {
         if (index === 0) return 0;
         const prev = path[index - 1];
+        if (!prev) return total;
         return (
           total +
           Math.sqrt(Math.pow(point.x - prev.x, 2) + Math.pow(point.y - prev.y, 2))

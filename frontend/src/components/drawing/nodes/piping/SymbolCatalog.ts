@@ -1039,7 +1039,7 @@ export class PipingSymbolCatalog {
     this.catalog.forEach(symbol => {
       const key = `${symbol.category}s`;
       if (key in stats) {
-        stats[key]++;
+        (stats as Record<string, number>)[key] = ((stats as Record<string, number>)[key] ?? 0) + 1;
       }
     });
 
