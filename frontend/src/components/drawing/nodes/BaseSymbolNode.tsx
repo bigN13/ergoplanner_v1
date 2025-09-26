@@ -40,6 +40,9 @@ export interface BaseSymbolData extends PIDNodeData {
   connectionPoints: ConnectionPoint[];
   svgContent?: string;
   state?: 'operating' | 'idle' | 'fault' | 'maintenance';
+  strokeWidth?: number;
+  strokeColor?: string;
+  fillColor?: string;
 
   // Standards compliance
   standard?: 'ISA-5.1' | 'ISO-14617' | 'UK-Water';

@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
 import {
   ChevronDown,
   Plus,
@@ -14,6 +13,8 @@ import {
   Command,
   Clock,
 } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+
 import { CommandType } from "@/types/commands";
 import type { HistoryEntry } from "@/types/commands";
 
