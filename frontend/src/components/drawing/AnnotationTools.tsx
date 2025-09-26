@@ -122,54 +122,21 @@ export default function AnnotationTools({
     [activeTool, screenToFlowPosition]
   );
 
-  const handleTextAnnotation = useCallback((point: { x: number; y: number }): void => {
-    // const text = prompt("Enter text:");
-    const text = "Sample text"; // TODO: Replace with proper input modal
-    if (!text) return;
-
-    const annotation: Annotation = {
-      id: `text-${Date.now()}`,
-      type: "text",
-      position: point,
-      data: { text },
-      style: {
-        color: currentColor,
-        fontSize: currentFontSize,
-        fontWeight: "normal",
-      },
-      visible: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    setAnnotations((prev) => [...prev, annotation]);
-    markDirty();
-  }, [currentColor, currentFontSize, markDirty]);
-
-  const handleCalloutAnnotation = useCallback((point: { x: number; y: number }): void => {
-    if (!currentAnnotation) {
-      // const text = prompt("Enter callout text:");
-      const text = "Callout text"; // TODO: Replace with proper input modal
+  const handleTextAnnotation = useCallback(
+    (point: { x: number; y: number }): void => {
+      // const text = prompt("Enter text:");
+      const text = "Sample text"; // TODO: Replace with proper input modal
       if (!text) return;
 
-      setCurrentAnnotation({
-        id: `callout-${Date.now()}`,
-        type: "callout",
+      const annotation: Annotation = {
+        id: `text-${Date.now()}`,
+        type: "text",
         position: point,
-        data: { text, targetPoint: null },
+        data: { text },
         style: {
           color: currentColor,
-          backgroundColor: "#ffffff",
           fontSize: currentFontSize,
-        },
-      });
-      setIsDrawing(true);
-    } else if (currentAnnotation.data && !currentAnnotation.data.targetPoint) {
-      const annotation: Annotation = {
-        ...(currentAnnotation as Annotation),
-        data: {
-          ...currentAnnotation.data,
-          targetPoint: point,
+          fontWeight: "normal",
         },
         visible: true,
         createdAt: new Date().toISOString(),
@@ -177,174 +144,227 @@ export default function AnnotationTools({
       };
 
       setAnnotations((prev) => [...prev, annotation]);
-      setCurrentAnnotation(null);
-      setIsDrawing(false);
       markDirty();
-    }
-  }, [currentAnnotation, currentColor, currentFontSize, markDirty]);
+    },
+    [currentColor, currentFontSize, markDirty]
+  );
 
-  const handleDimensionAnnotation = useCallback((point: { x: number; y: number }): void => {
-    if (!currentAnnotation) {
-      setCurrentAnnotation({
-        id: `dimension-${Date.now()}`,
-        type: "dimension",
+  const handleCalloutAnnotation = useCallback(
+    (point: { x: number; y: number }): void => {
+      if (!currentAnnotation) {
+        // const text = prompt("Enter callout text:");
+        const text = "Callout text"; // TODO: Replace with proper input modal
+        if (!text) return;
+
+        setCurrentAnnotation({
+          id: `callout-${Date.now()}`,
+          type: "callout",
+          position: point,
+          data: { text, targetPoint: null },
+          style: {
+            color: currentColor,
+            backgroundColor: "#ffffff",
+            fontSize: currentFontSize,
+          },
+        });
+        setIsDrawing(true);
+      } else if (currentAnnotation.data && !currentAnnotation.data.targetPoint) {
+        const annotation: Annotation = {
+          ...(currentAnnotation as Annotation),
+          data: {
+            ...currentAnnotation.data,
+            targetPoint: point,
+          },
+          visible: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        setAnnotations((prev) => [...prev, annotation]);
+        setCurrentAnnotation(null);
+        setIsDrawing(false);
+        markDirty();
+      }
+    },
+    [currentAnnotation, currentColor, currentFontSize, markDirty]
+  );
+
+  const handleDimensionAnnotation = useCallback(
+    (point: { x: number; y: number }): void => {
+      if (!currentAnnotation) {
+        setCurrentAnnotation({
+          id: `dimension-${Date.now()}`,
+          type: "dimension",
+          position: point,
+          data: { endPoint: null, value: 0, unit: "mm" },
+          style: {
+            color: currentColor,
+            strokeWidth: currentStrokeWidth,
+          },
+        });
+        setIsDrawing(true);
+      } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
+        const { position } = currentAnnotation;
+        if (!position) return;
+        const distance = Math.sqrt(
+          Math.pow(point.x - position.x, 2) + Math.pow(point.y - position.y, 2)
+        );
+
+        const { data } = currentAnnotation;
+        if (!data) return;
+        const annotation: Annotation = {
+          ...(currentAnnotation as Annotation),
+          data: {
+            ...data,
+            endPoint: point,
+            value: Math.round(distance),
+          },
+          visible: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        setAnnotations((prev) => [...prev, annotation]);
+        setCurrentAnnotation(null);
+        setIsDrawing(false);
+        markDirty();
+      }
+    },
+    [currentAnnotation, currentColor, currentStrokeWidth, markDirty]
+  );
+
+  const handleArrowAnnotation = useCallback(
+    (point: { x: number; y: number }): void => {
+      if (!currentAnnotation) {
+        setCurrentAnnotation({
+          id: `arrow-${Date.now()}`,
+          type: "arrow",
+          position: point,
+          data: { endPoint: null },
+          style: {
+            color: currentColor,
+            strokeWidth: currentStrokeWidth,
+          },
+        });
+        setIsDrawing(true);
+      } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
+        const annotation: Annotation = {
+          ...(currentAnnotation as Annotation),
+          data: {
+            ...currentAnnotation.data,
+            endPoint: point,
+          },
+          visible: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        setAnnotations((prev) => [...prev, annotation]);
+        setCurrentAnnotation(null);
+        setIsDrawing(false);
+        markDirty();
+      }
+    },
+    [currentAnnotation, currentColor, currentStrokeWidth, markDirty]
+  );
+
+  const handleShapeAnnotation = useCallback(
+    (point: { x: number; y: number }): void => {
+      const shape = "rectangle"; // Default shape, could be made configurable
+
+      if (!currentAnnotation) {
+        setCurrentAnnotation({
+          id: `shape-${Date.now()}`,
+          type: "shape",
+          position: point,
+          data: { shape, endPoint: null },
+          style: {
+            color: currentColor,
+            strokeWidth: currentStrokeWidth,
+            backgroundColor: "transparent",
+          },
+        });
+        setIsDrawing(true);
+      } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
+        const annotation: Annotation = {
+          ...(currentAnnotation as Annotation),
+          data: {
+            ...currentAnnotation.data,
+            endPoint: point,
+          },
+          visible: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        setAnnotations((prev) => [...prev, annotation]);
+        setCurrentAnnotation(null);
+        setIsDrawing(false);
+        markDirty();
+      }
+    },
+    [currentAnnotation, currentColor, currentStrokeWidth, markDirty]
+  );
+
+  const handleFreehandStart = useCallback(
+    (point: { x: number; y: number }): void => {
+      const annotation: Annotation = {
+        id: `freehand-${Date.now()}`,
+        type: "freehand",
         position: point,
-        data: { endPoint: null, value: 0, unit: "mm" },
+        data: {},
         style: {
           color: currentColor,
           strokeWidth: currentStrokeWidth,
         },
-      });
-      setIsDrawing(true);
-    } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
-      const { position } = currentAnnotation;
-      if (!position) return;
-      const distance = Math.sqrt(
-        Math.pow(point.x - position.x, 2) +
-          Math.pow(point.y - position.y, 2)
-      );
-
-      const { data } = currentAnnotation;
-      if (!data) return;
-      const annotation: Annotation = {
-        ...(currentAnnotation as Annotation),
-        data: {
-          ...data,
-          endPoint: point,
-          value: Math.round(distance),
-        },
+        points: [point],
         visible: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
       setAnnotations((prev) => [...prev, annotation]);
-      setCurrentAnnotation(null);
-      setIsDrawing(false);
-      markDirty();
-    }
-  }, [currentAnnotation, currentColor, currentStrokeWidth, markDirty]);
-
-  const handleArrowAnnotation = useCallback((point: { x: number; y: number }): void => {
-    if (!currentAnnotation) {
-      setCurrentAnnotation({
-        id: `arrow-${Date.now()}`,
-        type: "arrow",
-        position: point,
-        data: { endPoint: null },
-        style: {
-          color: currentColor,
-          strokeWidth: currentStrokeWidth,
-        },
-      });
+      setCurrentAnnotation(annotation);
       setIsDrawing(true);
-    } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
-      const annotation: Annotation = {
-        ...(currentAnnotation as Annotation),
-        data: {
-          ...currentAnnotation.data,
-          endPoint: point,
-        },
-        visible: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+    },
+    [currentColor, currentStrokeWidth]
+  );
 
-      setAnnotations((prev) => [...prev, annotation]);
-      setCurrentAnnotation(null);
-      setIsDrawing(false);
-      markDirty();
-    }
-  }, [currentAnnotation, currentColor, currentStrokeWidth, markDirty]);
+  const handleHighlightAnnotation = useCallback(
+    (point: { x: number; y: number }): void => {
+      if (!currentAnnotation) {
+        setCurrentAnnotation({
+          id: `highlight-${Date.now()}`,
+          type: "highlight",
+          position: point,
+          data: { endPoint: null },
+          style: {
+            color: currentColor,
+            opacity: 0.3,
+            strokeWidth: 20,
+          },
+        });
+        setIsDrawing(true);
+      } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
+        const annotation: Annotation = {
+          ...(currentAnnotation as Annotation),
+          data: {
+            ...currentAnnotation.data,
+            endPoint: point,
+          },
+          visible: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
-  const handleShapeAnnotation = useCallback((point: { x: number; y: number }): void => {
-    const shape = "rectangle"; // Default shape, could be made configurable
-
-    if (!currentAnnotation) {
-      setCurrentAnnotation({
-        id: `shape-${Date.now()}`,
-        type: "shape",
-        position: point,
-        data: { shape, endPoint: null },
-        style: {
-          color: currentColor,
-          strokeWidth: currentStrokeWidth,
-          backgroundColor: "transparent",
-        },
-      });
-      setIsDrawing(true);
-    } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
-      const annotation: Annotation = {
-        ...(currentAnnotation as Annotation),
-        data: {
-          ...currentAnnotation.data,
-          endPoint: point,
-        },
-        visible: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setAnnotations((prev) => [...prev, annotation]);
-      setCurrentAnnotation(null);
-      setIsDrawing(false);
-      markDirty();
-    }
-  }, [currentAnnotation, currentColor, currentStrokeWidth, markDirty]);
-
-  const handleFreehandStart = useCallback((point: { x: number; y: number }): void => {
-    const annotation: Annotation = {
-      id: `freehand-${Date.now()}`,
-      type: "freehand",
-      position: point,
-      data: {},
-      style: {
-        color: currentColor,
-        strokeWidth: currentStrokeWidth,
-      },
-      points: [point],
-      visible: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    setAnnotations((prev) => [...prev, annotation]);
-    setCurrentAnnotation(annotation);
-    setIsDrawing(true);
-  }, [currentColor, currentStrokeWidth]);
-
-  const handleHighlightAnnotation = useCallback((point: { x: number; y: number }): void => {
-    if (!currentAnnotation) {
-      setCurrentAnnotation({
-        id: `highlight-${Date.now()}`,
-        type: "highlight",
-        position: point,
-        data: { endPoint: null },
-        style: {
-          color: currentColor,
-          opacity: 0.3,
-          strokeWidth: 20,
-        },
-      });
-      setIsDrawing(true);
-    } else if (currentAnnotation.data && !currentAnnotation.data.endPoint) {
-      const annotation: Annotation = {
-        ...(currentAnnotation as Annotation),
-        data: {
-          ...currentAnnotation.data,
-          endPoint: point,
-        },
-        visible: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setAnnotations((prev) => [...prev, annotation]);
-      setCurrentAnnotation(null);
-      setIsDrawing(false);
-      markDirty();
-    }
-  }, [currentAnnotation, currentColor, markDirty]);
+        setAnnotations((prev) => [...prev, annotation]);
+        setCurrentAnnotation(null);
+        setIsDrawing(false);
+        markDirty();
+      }
+    },
+    [currentAnnotation, currentColor, markDirty]
+  );
 
   const deleteAnnotation = (id: string): void => {
     setAnnotations((prev) => prev.filter((a) => a.id !== id));
@@ -422,7 +442,9 @@ export default function AnnotationTools({
 
               case "arrow":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
+                  const endScreen = flowToScreenPosition(
+                    annotation.data.endPoint as { x: number; y: number }
+                  );
                   return (
                     <g key={annotation.id}>
                       <defs>
@@ -453,7 +475,9 @@ export default function AnnotationTools({
 
               case "dimension":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
+                  const endScreen = flowToScreenPosition(
+                    annotation.data.endPoint as { x: number; y: number }
+                  );
                   const midX = (screenPos.x + endScreen.x) / 2;
                   const midY = (screenPos.y + endScreen.y) / 2;
                   return (
@@ -482,7 +506,9 @@ export default function AnnotationTools({
 
               case "shape":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
+                  const endScreen = flowToScreenPosition(
+                    annotation.data.endPoint as { x: number; y: number }
+                  );
                   const width = endScreen.x - screenPos.x;
                   const height = endScreen.y - screenPos.y;
                   return (
@@ -502,7 +528,9 @@ export default function AnnotationTools({
 
               case "callout":
                 if (annotation.data.targetPoint) {
-                  const targetScreen = flowToScreenPosition(annotation.data.targetPoint as { x: number; y: number });
+                  const targetScreen = flowToScreenPosition(
+                    annotation.data.targetPoint as { x: number; y: number }
+                  );
                   return (
                     <g key={annotation.id}>
                       <line
@@ -562,7 +590,9 @@ export default function AnnotationTools({
 
               case "highlight":
                 if (annotation.data.endPoint) {
-                  const endScreen = flowToScreenPosition(annotation.data.endPoint as { x: number; y: number });
+                  const endScreen = flowToScreenPosition(
+                    annotation.data.endPoint as { x: number; y: number }
+                  );
                   return (
                     <line
                       key={annotation.id}

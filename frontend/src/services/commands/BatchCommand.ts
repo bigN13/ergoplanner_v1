@@ -34,15 +34,15 @@ export class BatchCommand extends BaseCommand implements IBatchCommand {
   /**
    * Check if this batch can be undone (all commands can be undone)
    */
-  public canUndo(): boolean {
-    return super.canUndo() && this.commands.every(cmd => cmd.canUndo());
+  public override canUndo(): boolean {
+    return super.canUndo() && this.commands.every((cmd) => cmd.canUndo());
   }
 
   /**
    * Check if this batch can be redone (all commands can be redone)
    */
-  public canRedo(): boolean {
-    return super.canRedo() && this.commands.every(cmd => cmd.canRedo());
+  public override canRedo(): boolean {
+    return super.canRedo() && this.commands.every((cmd) => cmd.canRedo());
   }
 
   /**
@@ -60,7 +60,10 @@ export class BatchCommand extends BaseCommand implements IBatchCommand {
       // If any command fails, undo the ones that succeeded
       for (let i = executedCommands.length - 1; i >= 0; i--) {
         try {
-          executedCommands[i].undo();
+          const command = executedCommands[i];
+          if (command) {
+            command.undo();
+          }
         } catch (undoError) {
           console.error(`Failed to undo command during batch rollback:`, undoError);
         }
@@ -78,7 +81,10 @@ export class BatchCommand extends BaseCommand implements IBatchCommand {
     // Undo in reverse order
     for (let i = this.commands.length - 1; i >= 0; i--) {
       try {
-        this.commands[i].undo();
+        const command = this.commands[i];
+        if (command) {
+          command.undo();
+        }
       } catch (error) {
         errors.push(error as Error);
         console.error(`Failed to undo command in batch:`, error);
@@ -93,11 +99,11 @@ export class BatchCommand extends BaseCommand implements IBatchCommand {
   /**
    * Get detailed information about this batch and its commands
    */
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       commandCount: this.commands.length,
-      commands: this.commands.map(cmd => ({
+      commands: this.commands.map((cmd) => ({
         id: cmd.id,
         type: cmd.type,
         description: cmd.description,
@@ -113,7 +119,7 @@ export class BatchCommand extends BaseCommand implements IBatchCommand {
   public getCommandSummary(): Record<CommandType, number> {
     const summary: Record<string, number> = {};
 
-    this.commands.forEach(cmd => {
+    this.commands.forEach((cmd) => {
       summary[cmd.type] = (summary[cmd.type] || 0) + 1;
     });
 
@@ -167,21 +173,23 @@ export class BatchCommand extends BaseCommand implements IBatchCommand {
     }
 
     if (this.commands.length === 1) {
-      return this.commands[0].description;
+      const firstCommand = this.commands[0];
+      return firstCommand ? firstCommand.description : "Single command";
     }
 
     const summary = this.getCommandSummary();
     const summaryEntries = Object.entries(summary);
 
     if (summaryEntries.length === 1) {
-      const [type, count] = summaryEntries[0];
-      return `${count} ${type.replace(/_/g, ' ')} operations`;
+      const entry = summaryEntries[0];
+      if (entry) {
+        const [type, count] = entry;
+        return `${count} ${type.replace(/_/g, " ")} operations`;
+      }
     }
 
-    const parts = summaryEntries.map(([type, count]) =>
-      `${count} ${type.replace(/_/g, ' ')}`
-    );
+    const parts = summaryEntries.map(([type, count]) => `${count} ${type.replace(/_/g, " ")}`);
 
-    return `Batch: ${parts.join(', ')}`;
+    return `Batch: ${parts.join(", ")}`;
   }
 }

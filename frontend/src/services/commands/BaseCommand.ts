@@ -13,7 +13,7 @@ export abstract class BaseCommand implements ICommand {
 
   constructor(
     type: CommandType,
-    protected description: string,
+    public description: string,
     context: ICommandContext
   ) {
     this.id = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

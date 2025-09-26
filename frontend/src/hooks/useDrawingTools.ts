@@ -22,14 +22,10 @@ interface UseDrawingToolsResult {
   previewEdge: Edge | null;
 }
 
-export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): UseDrawingToolsResult {
-  const {
-    activeTool,
-    connectorMode,
-    addNode,
-    addEdge,
-    setSelectedNode,
-  } = useDrawingStore();
+export function useDrawingTools(
+  reactFlowInstance: ReactFlowInstance | null
+): UseDrawingToolsResult {
+  const { activeTool, connectorMode, addNode, addEdge, setSelectedNode } = useDrawingStore();
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState<DrawingPoint[]>([]);
@@ -77,8 +73,12 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
   // Handle connector creation
   const createConnector = useCallback(
     (source: string, target: string, sourceHandle?: string, targetHandle?: string) => {
-      const edgeType = connectorMode === "straight" ? "straight" :
-                       connectorMode === "curved" ? "default" : "smoothstep";
+      const edgeType =
+        connectorMode === "straight"
+          ? "straight"
+          : connectorMode === "curved"
+            ? "default"
+            : "smoothstep";
 
       const newEdge: Edge = {
         id: `edge-${Date.now()}`,
@@ -119,17 +119,26 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
   const smoothPath = useCallback((points: DrawingPoint[]): string => {
     if (points.length < 2) return "";
 
-    let path = `M ${points[0].x} ${points[0].y}`;
+    const firstPoint = points[0];
+    if (!firstPoint) return "";
+
+    let path = `M ${firstPoint.x} ${firstPoint.y}`;
 
     for (let i = 1; i < points.length - 1; i++) {
-      const cpx = (points[i].x + points[i + 1].x) / 2;
-      const cpy = (points[i].y + points[i + 1].y) / 2;
-      path += ` Q ${points[i].x} ${points[i].y}, ${cpx} ${cpy}`;
+      const currentPoint = points[i];
+      const nextPoint = points[i + 1];
+      if (!currentPoint || !nextPoint) continue;
+
+      const cpx = (currentPoint.x + nextPoint.x) / 2;
+      const cpy = (currentPoint.y + nextPoint.y) / 2;
+      path += ` Q ${currentPoint.x} ${currentPoint.y}, ${cpx} ${cpy}`;
     }
 
     if (points.length > 1) {
       const lastPoint = points[points.length - 1];
-      path += ` L ${lastPoint.x} ${lastPoint.y}`;
+      if (lastPoint) {
+        path += ` L ${lastPoint.x} ${lastPoint.y}`;
+      }
     }
 
     return path;
@@ -168,7 +177,10 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
 
       if (isDrawing && activeTool === "freehand") {
         handleFreehandDrawing(position, false);
-      } else if (isDrawing && ["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(activeTool)) {
+      } else if (
+        isDrawing &&
+        ["rectangle", "rounded-rectangle", "ellipse", "rhombus"].includes(activeTool)
+      ) {
         // Update preview shape
         if (startPosition) {
           const width = Math.abs(position.x - startPosition.x);
@@ -196,7 +208,12 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
           id: "preview-edge",
           source: connectingNodeId,
           target: "preview-target",
-          type: connectorMode === "straight" ? "straight" : connectorMode === "curved" ? "default" : "smoothstep",
+          type:
+            connectorMode === "straight"
+              ? "straight"
+              : connectorMode === "curved"
+                ? "default"
+                : "smoothstep",
           sourceHandle: undefined,
           targetHandle: undefined,
           markerEnd: {
@@ -262,10 +279,10 @@ export function useDrawingTools(reactFlowInstance: ReactFlowInstance | null): Us
             maxY: Math.max(acc.maxY, point.y),
           }),
           {
-            minX: currentPath[0].x,
-            maxX: currentPath[0].x,
-            minY: currentPath[0].y,
-            maxY: currentPath[0].y,
+            minX: currentPath[0]?.x || 0,
+            maxX: currentPath[0]?.x || 0,
+            minY: currentPath[0]?.y || 0,
+            maxY: currentPath[0]?.y || 0,
           }
         );
 

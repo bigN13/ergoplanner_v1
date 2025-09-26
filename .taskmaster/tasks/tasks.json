@@ -66,7 +66,7 @@
         "id": 2,
         "title": "Implement authentication and authorization system",
         "description": "Create JWT-based authentication system with role-based access control",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           "1"
@@ -76,31 +76,31 @@
             "id": 1,
             "title": "Design authentication database schema",
             "description": "Create User, Role, Organization, and Session entities",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 2,
             "title": "Implement JWT token generation and validation",
             "description": "Create JWT service with access/refresh token logic",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 3,
             "title": "Create authentication API endpoints",
             "description": "Implement login, logout, refresh token, and password reset",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 4,
             "title": "Implement role-based authorization",
             "description": "Create authorization policies for different roles",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 5,
             "title": "Add organization-based access control",
             "description": "Implement multi-tenancy with organization isolation",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -246,7 +246,7 @@
         "id": 4,
         "title": "Develop comprehensive symbol library system",
         "description": "Create and manage symbol libraries for multiple industry standards as an integral part of the P&ID drawing component",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "3"
         ],
@@ -258,7 +258,7 @@
             "id": 1,
             "title": "Create ISA-5.1 symbol library",
             "description": "Implement 200+ ISA-5.1 standard symbols as React components/SVGs in frontend/public/symbols/isa-5.1/",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "",
             "testStrategy": ""
@@ -267,7 +267,7 @@
             "id": 2,
             "title": "Add ISO 14617 symbols",
             "description": "Implement ISO 14617 international standard symbols in frontend/public/symbols/iso-14617/",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "",
             "testStrategy": ""
@@ -276,7 +276,7 @@
             "id": 3,
             "title": "Implement UK water company standards",
             "description": "Add Thames Water, Severn Trent, United Utilities symbols in frontend/public/symbols/uk-water/",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "",
             "testStrategy": ""
@@ -285,7 +285,7 @@
             "id": 4,
             "title": "Build symbol conversion engine",
             "description": "Create one-click conversion between standards using mapping definitions in frontend/src/components/drawing/symbols/SymbolConverter.tsx",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "",
             "testStrategy": ""
@@ -294,7 +294,7 @@
             "id": 5,
             "title": "Add custom symbol creator",
             "description": "Implement parametric symbol creation tool in frontend/src/components/drawing/symbols/SymbolBuilder.tsx",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "",
             "testStrategy": ""
@@ -912,11 +912,228 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 44,
+        "title": "Implement Enhanced Drag Preview System",
+        "description": "Create a sophisticated drag preview system with semi-transparent previews, smart positioning, and performance optimizations for smooth 60fps dragging operations",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Implement a custom drag preview system integrated with the existing ReactFlow-based drawing canvas. Phase 1: Create DragPreviewManager component at frontend/src/components/drawing/DragPreviewManager.tsx using React Portals for optimal rendering outside the normal DOM hierarchy. Phase 2: Implement preview generation using the already installed html-to-image library (version 1.11.13) with 50% opacity for complex ReactFlow nodes and symbols. Phase 3: Add smart positioning logic that centers previews on cursor for symbol library drags (from SymbolLibrary.tsx) and maintains grab offset for existing canvas elements. Phase 4: Integrate with ReactFlow instance via useReactFlow hook and existing Zustand stores (drawingStore.ts/enhanced-drawing-store.ts) with preview state management. Phase 5: Implement performance optimizations including preview caching with Map<string, HTMLCanvasElement>, requestAnimationFrame throttling for smooth 60fps updates, and CSS transform scaling for previews larger than 500x500px. The system should handle drag operations from both the SymbolLibrary component (onDragStart at DrawioLayout.tsx:174) and direct canvas element manipulation. For multi-selection scenarios, create composite previews showing all selected ReactFlow nodes with their relative positions preserved using the selection API.",
+        "testStrategy": "Unit tests for DragPreviewManager component verifying preview generation with html-to-image, position calculation algorithms, and caching Map operations. Integration tests ensuring proper interaction between SymbolLibrary drag events and preview system, ReactFlow node selection and multi-element preview generation, Zustand store state updates. Performance tests using Performance API to verify consistent 60fps during drag operations with requestAnimationFrame monitoring. Visual regression tests using Playwright for preview opacity (50%), scaling behavior, and portal rendering. E2E tests for complete workflow: symbol library to canvas drag with preview, multi-node selection and drag with composite preview, large element scaling and performance.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create DragPreviewManager component with React Portal",
+            "description": "Build the core DragPreviewManager component using React Portals for rendering previews outside the normal DOM hierarchy",
+            "status": "done",
+            "dependencies": [],
+            "details": "Create frontend/src/components/drawing/DragPreviewManager.tsx that uses ReactDOM.createPortal to render previews at document.body level. Component should accept props for preview element, position, opacity (default 0.5), and scale. Implement useEffect hooks to handle portal lifecycle and cleanup. Add ref management for portal container div with proper z-index (9999) to ensure preview appears above all other elements.",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement preview generation with html-to-image",
+            "description": "Set up preview generation logic using the html-to-image library for converting ReactFlow nodes and symbols to canvas elements",
+            "status": "done",
+            "dependencies": [],
+            "details": "Utilize html-to-image (v1.11.13) to generate canvas previews from DOM elements. For ReactFlow nodes, use toPng or toCanvas methods with backgroundColor: 'transparent' and quality: 0.8 settings. Handle both simple symbols from SymbolLibrary and complex ReactFlow custom nodes (ValveNode, PumpNode, etc.). Implement error handling for failed conversions with fallback to simple rectangle preview.",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add smart positioning logic for different drag sources",
+            "description": "Implement intelligent preview positioning based on drag source (symbol library vs canvas elements)",
+            "status": "done",
+            "dependencies": [],
+            "details": "For SymbolLibrary drags (detected via event.dataTransfer.effectAllowed), center preview on cursor using getBoundingClientRect() and clientX/clientY coordinates. For canvas element drags, calculate and maintain initial grab offset using element position relative to cursor at drag start. Store offset in component state and apply during mousemove/drag events. Handle edge cases for viewport boundaries to prevent preview cutoff.",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate with ReactFlow and Zustand stores",
+            "description": "Connect the drag preview system with existing ReactFlow instance and state management",
+            "status": "done",
+            "dependencies": [],
+            "details": "Use useReactFlow hook from 'reactflow' to access instance methods and state. Extend existing Zustand stores (drawingStore.ts or enhanced-drawing-store.ts) with preview-specific state: previewElement, previewPosition, isDragging, dragSource. Add actions: setPreviewElement, updatePreviewPosition, clearPreview, setDragSource. Connect to existing onDragStart handler in DrawioLayout.tsx (line 174) for SymbolLibrary integration.",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement performance optimizations and caching",
+            "description": "Add preview caching, requestAnimationFrame throttling, and CSS transform optimizations",
+            "status": "done",
+            "dependencies": [],
+            "details": "Create preview cache using Map<string, HTMLCanvasElement> with symbol/node ID as key. Implement cache invalidation on element updates. Use requestAnimationFrame with 16ms throttle for smooth 60fps updates during drag operations. Apply CSS transforms for scaling previews larger than 500x500px instead of regenerating. Use React.memo on DragPreviewManager and useMemo for expensive calculations. Add performance monitoring using Performance API to ensure consistent frame rates.",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 45,
+        "title": "Build Visual Feedback and Drop Zone System",
+        "description": "Implement comprehensive visual feedback including drop zone highlighting, smart guides, alignment indicators, and grid visualization during drag operations",
+        "details": "Create DropZoneManager using React Context to manage drop zones across the application. Implement drop zone detection using Intersection Observer API for performance. Add visual feedback layers: valid zones with green overlay (rgba(0,255,0,0.1)), invalid zones with red overlay and prohibition cursor. Build SmartGuides component using SVG overlays for alignment lines (center, edge, distribution). Implement distance indicators showing pixel measurements between elements using Canvas 2D API. Create GridOverlay component that activates during drag, showing grid lines based on current snap settings (5px, 10px, 20px). Use CSS custom properties for theming feedback colors. Implement feedback state machine: idle -> hovering -> valid_drop -> invalid_drop. Add haptic feedback support for touch devices using Vibration API. Store feedback state in Zustand: dropZones, activeDropZone, smartGuides, gridVisible. Use React Spring for smooth feedback transitions.",
+        "testStrategy": "Unit tests for drop zone detection algorithms and state machine transitions. Integration tests for visual feedback rendering with different drop scenarios. Accessibility tests ensuring feedback is perceivable without color. Performance tests for feedback updates with 100+ drop zones. E2E tests for complete feedback flow during drag operations.",
+        "priority": "high",
+        "dependencies": [
+          44
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 46,
+        "title": "Develop Auto-Connection and Snap System",
+        "description": "Build intelligent auto-connection system that detects connection points, validates compatibility, and automatically creates connections with proper routing",
+        "details": "Implement ConnectionDetector class using spatial indexing (R-tree with rbush library) for efficient connection point detection within 20px. Create connection point registry storing type compatibility rules (pumps->pipes, pipes->valves, valves->tanks). Build AutoConnector service that creates edge elements using ReactFlow's addEdges API. Implement connection preview using temporary edges with dashed styling. Add magnetic snapping behavior using spring physics (react-spring). Create connection validation rules based on flow direction, pressure ratings, and material compatibility. Integrate with existing useSmartRouting hook for orthogonal routing. Implement connection rerouting to avoid overlaps using A* pathfinding. Store connection state: availableConnections, activeConnection, connectionPreview. Add visual feedback: green highlights for valid connections, red for invalid, animated connection lines. Support multiple simultaneous connections for manifolds and distributors.",
+        "testStrategy": "Unit tests for connection detection algorithms and compatibility validation. Integration tests for auto-connection with different node types. Performance tests for connection detection with 1000+ connection points. E2E tests for complete connection workflow including validation and routing. Visual tests for connection preview and feedback.",
+        "priority": "high",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 47,
+        "title": "Implement Multi-Selection Drag Operations",
+        "description": "Enhance multi-selection dragging with relative positioning preservation, performance optimization for large selections, and distribution pattern support",
+        "details": "Extend ReactFlow's selection system with custom SelectionManager class. Implement relative position preservation using offset calculations from selection center. Create optimized preview for large selections: simplified rendering for >50 items using bounding box representation. Add selection count badge using React Portal positioned near cursor. Implement distribution patterns: GridDistribution (rows/columns with customizable spacing), LineDistribution (even spacing along line), CircleDistribution (radial arrangement), CustomDistribution (user-defined patterns via UI). Build group drag physics with momentum and inertia using matter-js for natural feel. Preserve connections during movement with automatic rerouting. Maintain parent-child hierarchies using tree traversal. Add selection grouping/ungrouping with Ctrl+G/Ctrl+Shift+G. Store selection state: selectedNodes, selectionBounds, dragOffsets, distributionMode. Implement virtual scrolling for selection lists using react-window.",
+        "testStrategy": "Unit tests for position calculations and distribution algorithms. Integration tests for multi-selection with ReactFlow. Performance tests with 100+ selected elements ensuring 60fps. E2E tests for selection, grouping, and distribution workflows. Stress tests for memory usage with large selections.",
+        "priority": "medium",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 48,
+        "title": "Add Keyboard Modifier Support System",
+        "description": "Implement comprehensive keyboard modifier system for constrained movement, copy operations, and snap control with visual indicators",
+        "details": "Create ModifierKeyManager using keyboard event listeners with proper cleanup. Implement Shift key constraints: 45-degree angle snapping using vector math, 90-degree rotation increments, multiple copy creation for array operations. Add Ctrl/Cmd key for copy mode: show plus (+) badge cursor using CSS cursor property, generate new UUIDs for copied elements, preserve styling and properties, update BoQ with new items. Implement Alt/Option key for precision mode: temporarily disable grid snapping, allow pixel-level positioning, suppress smart guides, enable center-point resize for shapes. Create visual modifier indicator overlay showing active modifiers (pill-shaped badges in corner). Add modifier combinations: Shift+Ctrl for constrained copy, Alt+Shift for precise constrained movement. Store modifier state in Zustand: activeModifiers, modifierMode, copyCount. Integrate with existing useKeyboardShortcuts hook. Support touch modifier gestures for tablet devices.",
+        "testStrategy": "Unit tests for modifier key detection and constraint calculations. Integration tests for modifier combinations with drag operations. Cross-browser tests for key event handling. Accessibility tests for keyboard-only workflows. E2E tests for complete modifier-enhanced drag scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          44,
+          45,
+          47
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 49,
+        "title": "Create Container and Nested Drop System",
+        "description": "Implement advanced container drop targets supporting nested elements, automatic layout, boundary enforcement, and parent-child relationships",
+        "details": "Build ContainerManager class extending ReactFlow's group nodes with custom drop behavior. Implement container types: Swimlanes (horizontal/vertical lanes with auto-sizing), Groups (free-form containers with borders), Tables (grid-based layout with cells), Frames (viewport containers with scrolling). Add drop validation: check container capacity limits, enforce type restrictions (e.g., only instruments in instrument panel), validate nesting depth (max 5 levels). Create automatic layout engines: FlexLayout for swimlanes using CSS Flexbox algorithm, GridLayout for tables using CSS Grid, PackingLayout for optimal space usage using bin packing algorithm. Implement container boundaries with visual feedback during hover. Add auto-resize behavior with smooth animations using Framer Motion. Establish parent-child relationships in node data structure. Support container operations: expand/collapse, lock/unlock, show/hide children. Store container state: containers, containerHierarchy, layoutSettings. Add container-specific properties panel.",
+        "testStrategy": "Unit tests for container validation and layout algorithms. Integration tests for nested drops and parent-child relationships. Performance tests with deeply nested structures (5+ levels). Visual tests for container rendering and auto-resize. E2E tests for complete container workflows including creation, nesting, and management.",
+        "priority": "medium",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 50,
+        "title": "Implement External File Drop Integration",
+        "description": "Build comprehensive external file drop system supporting images, documents, and cross-application dragging with format conversion and validation",
+        "details": "Create FileDropHandler using HTML5 File API and DataTransfer API. Implement image drop support: accept PNG, JPG, SVG formats, convert to data URLs using FileReader, create image nodes with aspect ratio preservation, add image optimization using browser-image-compression library. Support document drops: PDF embedding using react-pdf, text file content extraction, CSV data import for BoQ. Handle URL drops: create link nodes with favicon fetching, embed external diagrams via iframe, support P&ID file formats (.p&id, .dxf via dxf-parser). Implement clipboard integration: paste as drop using Clipboard API, support rich content (HTML, images), handle copy from external apps (Excel, CAD). Add drag preview for external content using file type icons. Create validation system: file size limits (max 10MB), virus scanning integration, format verification. Store external content in blob storage with references. Add progress indicators for large file processing.",
+        "testStrategy": "Unit tests for file validation and format conversion. Integration tests for different file types and sources. Security tests for malicious file handling. Performance tests for large file drops (10MB+). E2E tests for complete external drop workflows including clipboard operations.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 51,
+        "title": "Optimize Performance and Visual Effects",
+        "description": "Implement advanced performance optimizations and smooth visual effects including auto-scrolling, hardware acceleration, and viewport culling",
+        "details": "Implement auto-scrolling near edges: detect proximity to viewport boundaries (50px threshold), calculate scroll velocity based on distance, use requestAnimationFrame for smooth scrolling, support diagonal scrolling. Add hardware acceleration: force GPU layers using will-change CSS property, use transform3d for element movement, implement WebGL renderer for 1000+ elements using PixiJS. Create viewport culling system: use Intersection Observer for visibility detection, render only visible elements plus buffer zone, implement virtual scrolling for symbol library. Build performance monitoring: track FPS using Performance API, measure render times with User Timing API, detect performance bottlenecks, auto-adjust quality settings based on performance. Add advanced animations: spring physics for natural movement using react-spring, momentum and inertia for drag release, parallax effects for layered elements. Implement progressive rendering: render in chunks for large diagrams, use Web Workers for heavy computations, add loading states for complex operations. Create performance settings panel with quality presets.",
+        "testStrategy": "Performance benchmarks for 1000+ elements maintaining 60fps. Memory leak tests using Chrome DevTools. Stress tests for auto-scrolling with large canvases. Visual regression tests for rendering quality. Load tests for progressive rendering with complex diagrams.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45,
+          46,
+          47
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 52,
+        "title": "Build Accessibility and Keyboard Navigation",
+        "description": "Implement comprehensive accessibility features including keyboard-only drag operations, screen reader support, and WCAG 2.1 AA compliance",
+        "details": "Create KeyboardDragManager for mouse-free operations: Arrow keys for 1 grid unit movement, Shift+Arrow for 10 unit movement, Enter to pick up/drop elements, Space for toggle selection, Tab for navigation between elements. Implement screen reader support: ARIA live regions for drag status announcements, descriptive labels for all draggable elements, role='application' for canvas area, announce drop zone availability and validation. Add high contrast mode: detect prefers-contrast media query, provide alternative color schemes, ensure 4.5:1 contrast ratios, add focus indicators with 3px outlines. Support reduced motion: detect prefers-reduced-motion, provide instant transitions option, disable auto-animations, maintain functionality without animation. Create accessibility settings panel: configurable movement increments, sound feedback options, keyboard shortcut customization. Implement focus management: trap focus during drag operations, restore focus after completion, provide skip links for navigation. Add alternative input methods: voice commands using Web Speech API, eye tracking support preparation.",
+        "testStrategy": "Accessibility audits using axe-core and WAVE. Keyboard-only testing for all operations. Screen reader tests with JAWS, NVDA, VoiceOver. WCAG 2.1 AA compliance validation. User testing with assistive technology users.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45,
+          47,
+          48
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 53,
+        "title": "Implement Error Handling and Recovery System",
+        "description": "Build robust error handling with graceful recovery, clear user feedback, conflict resolution, and comprehensive operation logging",
+        "details": "Create ErrorBoundary components for drag operation failures with fallback UI. Implement validation system: pre-drop validation with business rules engine, check user permissions using RBAC, verify capacity limits (max nodes per diagram), enforce diagram constraints. Build recovery mechanisms: automatic return to origin on failed drops with smooth animation, checkpoint system for complex operations, retry logic for network-related failures, undo/redo integration for quick recovery. Add conflict resolution: detect overlapping elements using collision detection, offer resolution options (replace, merge, cancel), implement automatic spacing adjustment, handle concurrent editing conflicts. Create error messaging: toast notifications using react-hot-toast, contextual error messages with actionable guidance, error details panel for debugging, multilingual error messages. Implement operation logging: track all drag operations with timestamps, log errors with stack traces to Sentry, create audit trail for compliance, add analytics using Mixpanel/Amplitude. Build telemetry system: measure operation success rates, track common error patterns, monitor performance metrics, generate usage heat maps.",
+        "testStrategy": "Unit tests for validation rules and error recovery logic. Integration tests for error boundaries and conflict resolution. Chaos testing for failure scenarios. E2E tests for complete error workflows. Analytics verification for logging accuracy.",
+        "priority": "low",
+        "dependencies": [
+          44,
+          45,
+          46,
+          47,
+          49,
+          50
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 54,
+        "title": "Upgrade backend from .NET 8 to .NET 9",
+        "description": "Upgrade all backend projects from .NET 8 to .NET 9, including updating target frameworks, NuGet packages, Docker base images, and verifying compatibility across the entire solution",
+        "details": "Execute systematic upgrade process for all backend components:\n\n1. UPDATE TARGET FRAMEWORK in all project files:\n   - Ergoplanner.API/Ergoplanner.API.csproj: Change TargetFramework from net8.0 to net9.0\n   - Ergoplanner.Domain/Ergoplanner.Domain.csproj: Update to net9.0\n   - Ergoplanner.Application/Ergoplanner.Application.csproj: Update to net9.0\n   - Ergoplanner.Infrastructure/Ergoplanner.Infrastructure.csproj: Update to net9.0\n   - Ergoplanner.Shared/Ergoplanner.Shared.csproj: Update to net9.0\n   - Ergoplanner.MLServices/Ergoplanner.MLServices.csproj: Update to net9.0\n   - All test projects (API.Tests, Application.Tests, Domain.Tests, Infrastructure.Tests): Update to net9.0\n\n2. UPGRADE NUGET PACKAGES to .NET 9 compatible versions:\n   - Microsoft.AspNetCore.Authentication.JwtBearer: 8.0.0 → 9.0.0\n   - Microsoft.AspNetCore.OpenApi: 8.0.19 → 9.0.0\n   - Microsoft.EntityFrameworkCore: 8.0.8 → 9.0.0\n   - Microsoft.EntityFrameworkCore.Design: 8.0.4 → 9.0.0\n   - Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore: 8.0.0 → 9.0.0\n   - Npgsql.EntityFrameworkCore.PostgreSQL: 8.0.4 → 9.0.0\n   - Serilog.AspNetCore: 8.0.0 → 9.0.0 (or latest compatible)\n   - Microsoft.NET.Test.Sdk: 17.8.0 → 17.11.1 (or latest)\n   - Check compatibility for: Swashbuckle.AspNetCore, StackExchange.Redis, Microsoft.ML, Microsoft.ML.OnnxRuntime\n\n3. UPDATE DOCKER BASE IMAGES in backend/Dockerfile:\n   - Build stage: mcr.microsoft.com/dotnet/sdk:8.0 → mcr.microsoft.com/dotnet/sdk:9.0\n   - Runtime stage: mcr.microsoft.com/dotnet/aspnet:8.0 → mcr.microsoft.com/dotnet/aspnet:9.0\n\n4. HANDLE BREAKING CHANGES:\n   - Review .NET 9 breaking changes documentation\n   - Update any deprecated API usage\n   - Adjust authentication/authorization code if affected\n   - Check Entity Framework Core 9 migration guide for schema changes\n   - Verify SignalR compatibility if used\n   - Update any custom middleware for new pipeline changes\n\n5. UPDATE BUILD CONFIGURATIONS:\n   - Verify GitHub Actions workflows use .NET 9 SDK\n   - Update any global.json if present to specify SDK version 9.0.x\n   - Ensure docker-compose.yml environment variables are compatible\n\n6. PERFORMANCE OPTIMIZATIONS:\n   - Enable new .NET 9 performance features\n   - Review and implement new C# 13 language features where beneficial\n   - Consider enabling Native AOT for applicable services\n   - Update to use new collection expressions and primary constructors\n\n7. ML.NET COMPATIBILITY:\n   - Verify Microsoft.ML and Microsoft.ML.OnnxRuntime compatibility with .NET 9\n   - Update ML model loading/inference code if API changes exist\n   - Test model performance with new runtime",
+        "testStrategy": "Comprehensive testing approach for .NET 9 upgrade:\n\n1. BUILD VERIFICATION:\n   - Run 'dotnet build --no-incremental' on entire solution\n   - Verify zero compilation errors and warnings\n   - Check all project references resolve correctly\n   - Validate package restoration completes without conflicts\n\n2. UNIT TEST EXECUTION:\n   - Run 'dotnet test' for all test projects\n   - Verify all existing tests pass without modification\n   - Check test coverage remains at or above current levels\n   - Monitor for any performance regression in test execution\n\n3. INTEGRATION TESTING:\n   - Test database migrations with EF Core 9\n   - Verify Redis caching operations\n   - Test JWT authentication flow\n   - Validate API endpoint responses\n   - Check Swagger/OpenAPI documentation generation\n\n4. DOCKER VALIDATION:\n   - Build all Docker images with new base images\n   - Run docker-compose up and verify all services start\n   - Test inter-service communication\n   - Verify health checks pass\n   - Check container resource usage hasn't increased significantly\n\n5. PERFORMANCE BENCHMARKING:\n   - Run load tests on API endpoints\n   - Compare response times with .NET 8 baseline\n   - Monitor memory usage and GC pressure\n   - Test ML model inference performance\n\n6. COMPATIBILITY TESTING:\n   - Test with existing PostgreSQL database\n   - Verify frontend-backend integration unchanged\n   - Check SignalR real-time features if implemented\n   - Validate external API integrations\n\n7. REGRESSION TESTING:\n   - Execute full E2E test suite if available\n   - Test critical user workflows\n   - Verify BoQ synchronization\n   - Check drawing operations\n   - Test file upload/download functionality",
+        "status": "pending",
+        "dependencies": [
+          12
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 55,
+        "title": "Upgrade backend from .NET 8 to .NET 9",
+        "description": "Upgrade all backend projects from .NET 8 to .NET 9, including updating target frameworks, NuGet packages, Docker base images, CI/CD pipelines, and verifying compatibility across the entire Ergoplanner solution",
+        "details": "Execute comprehensive upgrade process for all backend components:\n\n1. UPDATE TARGET FRAMEWORK in all project files:\n   - backend/src/Ergoplanner.API/Ergoplanner.API.csproj: Change TargetFramework from net8.0 to net9.0\n   - backend/src/Ergoplanner.Domain/Ergoplanner.Domain.csproj: Update to net9.0\n   - backend/src/Ergoplanner.Application/Ergoplanner.Application.csproj: Update to net9.0\n   - backend/src/Ergoplanner.Infrastructure/Ergoplanner.Infrastructure.csproj: Update to net9.0\n   - backend/src/Ergoplanner.Shared/Ergoplanner.Shared.csproj: Update to net9.0\n   - backend/Ergoplanner.MLServices/Ergoplanner.MLServices.csproj: Update to net9.0\n   - backend/tests/Ergoplanner.API.Tests/Ergoplanner.API.Tests.csproj: Update to net9.0\n   - backend/tests/Ergoplanner.Application.Tests/Ergoplanner.Application.Tests.csproj: Update to net9.0\n   - backend/tests/Ergoplanner.Domain.Tests/Ergoplanner.Domain.Tests.csproj: Update to net9.0\n   - backend/tests/Ergoplanner.Infrastructure.Tests/Ergoplanner.Infrastructure.Tests.csproj: Update to net9.0\n\n2. UPDATE GLOBAL.JSON:\n   - backend/global.json: Change SDK version from 8.0.0 to 9.0.0\n   - Maintain rollForward: latestMajor and allowPrerelease: false settings\n\n3. UPGRADE NUGET PACKAGES to .NET 9 compatible versions:\n   - Microsoft.AspNetCore.Authentication.JwtBearer: 8.0.0 → 9.0.0\n   - Microsoft.AspNetCore.OpenApi: 8.0.19 → 9.0.0\n   - Microsoft.EntityFrameworkCore: 8.0.8 → 9.0.0 (API project)\n   - Microsoft.EntityFrameworkCore: 8.0.0 → 9.0.0 (Application project)\n   - Microsoft.EntityFrameworkCore.Design: 8.0.4 → 9.0.0\n   - Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore: 8.0.0 → 9.0.0\n   - Npgsql.EntityFrameworkCore.PostgreSQL: 8.0.4 → 9.0.0\n   - Serilog.AspNetCore: 8.0.0 → 9.0.0 or latest\n   - Microsoft.NET.Test.Sdk: 17.8.0 → 17.11.0 or latest\n   - Verify compatibility for third-party packages: AutoMapper 12.0.1, FluentValidation 11.9.0, MediatR 12.2.0, Swashbuckle.AspNetCore 6.5.0\n\n4. UPDATE DOCKER CONFIGURATIONS:\n   - backend/Dockerfile: Change base images from mcr.microsoft.com/dotnet/sdk:8.0 to mcr.microsoft.com/dotnet/sdk:9.0\n   - backend/Dockerfile: Change runtime from mcr.microsoft.com/dotnet/aspnet:8.0 to mcr.microsoft.com/dotnet/aspnet:9.0\n   - Update all Docker multi-stage build references\n\n5. UPDATE CI/CD PIPELINES:\n   - .github/workflows/backend-ci.yml: Change dotnet-version from '8.0.x' to '9.0.x' in setup-dotnet action\n   - Update any other GitHub Actions workflows that reference .NET version\n   - Verify all build agents support .NET 9 SDK\n\n6. HANDLE BREAKING CHANGES:\n   - Review .NET 9 breaking changes documentation\n   - Update any deprecated APIs or methods\n   - Check for changes in default behaviors especially around:\n     * JSON serialization (System.Text.Json)\n     * Minimal APIs\n     * Authentication/Authorization middleware\n     * Entity Framework Core query behaviors\n\n7. PERFORMANCE OPTIMIZATIONS:\n   - Enable new .NET 9 performance features:\n     * Native AOT compilation readiness assessment\n     * Improved garbage collection settings\n     * HTTP/3 support configuration\n   - Update launchSettings.json for new Kestrel improvements\n\n8. CLEAN AND REBUILD:\n   - Delete all bin and obj directories\n   - Clear NuGet cache: dotnet nuget locals all --clear\n   - Restore packages: dotnet restore --force\n   - Build solution: dotnet build --no-incremental /warnaserror",
+        "testStrategy": "Comprehensive testing approach for .NET 9 upgrade:\n\n1. BUILD VERIFICATION:\n   - Run 'dotnet build --no-incremental /warnaserror' on entire solution from backend directory\n   - Verify zero compilation errors and warnings\n   - Check all project references resolve correctly\n   - Validate package restoration completes without version conflicts\n\n2. UNIT TEST EXECUTION:\n   - Run all unit tests: 'dotnet test --configuration Release --verbosity detailed'\n   - Verify test projects run on .NET 9 runtime\n   - Check for any test failures related to framework changes\n   - Validate xUnit, Moq, FluentAssertions compatibility\n\n3. INTEGRATION TESTS:\n   - Execute integration tests with PostgreSQL 15 container\n   - Verify Entity Framework Core 9 migrations work correctly\n   - Test database connection with Npgsql.EntityFrameworkCore.PostgreSQL 9.0\n   - Validate health checks using updated HealthChecks.EntityFrameworkCore\n\n4. API TESTING:\n   - Start API project: 'dotnet run --project src/Ergoplanner.API'\n   - Test Swagger UI functionality with updated Swashbuckle\n   - Verify JWT authentication with upgraded JwtBearer package\n   - Test all API endpoints using Postman or curl\n   - Validate CORS, rate limiting, and middleware pipeline\n\n5. DOCKER BUILD VERIFICATION:\n   - Build Docker image: 'docker build -f backend/Dockerfile -t ergoplanner-backend:net9 backend/'\n   - Run container: 'docker run -p 5000:80 ergoplanner-backend:net9'\n   - Verify application starts without errors\n   - Test containerized API endpoints\n\n6. CI/CD PIPELINE VALIDATION:\n   - Create test branch and push changes\n   - Verify GitHub Actions workflow executes successfully\n   - Check build artifacts are created correctly\n   - Validate code coverage reports still generate\n\n7. PERFORMANCE BENCHMARKING:\n   - Run performance tests comparing .NET 8 vs .NET 9\n   - Measure API response times\n   - Check memory usage and GC statistics\n   - Validate startup time improvements\n\n8. REGRESSION TESTING:\n   - Test all critical user flows\n   - Verify drawing operations, BoQ generation, authentication flows\n   - Check SignalR real-time features\n   - Validate ML services integration if applicable\n\n9. DEPENDENCY SCANNING:\n   - Run 'dotnet list package --vulnerable' to check for security issues\n   - Verify all packages are at supported versions\n   - Document any packages requiring future updates",
+        "status": "pending",
+        "dependencies": [
+          54
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-25T09:58:02.973Z",
+      "updated": "2025-09-26T07:16:28.600Z",
       "description": "Tasks for master context"
     }
   }

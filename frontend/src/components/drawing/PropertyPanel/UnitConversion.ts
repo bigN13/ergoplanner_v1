@@ -52,12 +52,30 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
 
   area: [
     // Metric
-    { symbol: "mm²", name: "Square Millimeters", category: "area", system: "metric", factor: 0.000001 },
-    { symbol: "cm²", name: "Square Centimeters", category: "area", system: "metric", factor: 0.0001 },
+    {
+      symbol: "mm²",
+      name: "Square Millimeters",
+      category: "area",
+      system: "metric",
+      factor: 0.000001,
+    },
+    {
+      symbol: "cm²",
+      name: "Square Centimeters",
+      category: "area",
+      system: "metric",
+      factor: 0.0001,
+    },
     { symbol: "m²", name: "Square Meters", category: "area", system: "metric", factor: 1 },
     { symbol: "ha", name: "Hectares", category: "area", system: "metric", factor: 10000 },
     // Imperial
-    { symbol: "in²", name: "Square Inches", category: "area", system: "imperial", factor: 0.00064516 },
+    {
+      symbol: "in²",
+      name: "Square Inches",
+      category: "area",
+      system: "imperial",
+      factor: 0.00064516,
+    },
     { symbol: "ft²", name: "Square Feet", category: "area", system: "imperial", factor: 0.092903 },
     { symbol: "yd²", name: "Square Yards", category: "area", system: "imperial", factor: 0.836127 },
   ],
@@ -68,24 +86,84 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
     { symbol: "l", name: "Liters", category: "volume", system: "metric", factor: 0.001 },
     { symbol: "m³", name: "Cubic Meters", category: "volume", system: "metric", factor: 1 },
     // Imperial
-    { symbol: "fl oz", name: "Fluid Ounces", category: "volume", system: "imperial", factor: 0.0000295735 },
+    {
+      symbol: "fl oz",
+      name: "Fluid Ounces",
+      category: "volume",
+      system: "imperial",
+      factor: 0.0000295735,
+    },
     { symbol: "pt", name: "Pints", category: "volume", system: "imperial", factor: 0.000473176 },
     { symbol: "qt", name: "Quarts", category: "volume", system: "imperial", factor: 0.000946353 },
     { symbol: "gal", name: "Gallons", category: "volume", system: "imperial", factor: 0.00378541 },
-    { symbol: "ft³", name: "Cubic Feet", category: "volume", system: "imperial", factor: 0.0283168 },
+    {
+      symbol: "ft³",
+      name: "Cubic Feet",
+      category: "volume",
+      system: "imperial",
+      factor: 0.0283168,
+    },
   ],
 
   flow_rate: [
     // Metric
-    { symbol: "l/min", name: "Liters per Minute", category: "flow_rate", system: "metric", factor: 0.0000166667 },
-    { symbol: "l/h", name: "Liters per Hour", category: "flow_rate", system: "metric", factor: 0.000000277778 },
-    { symbol: "m³/h", name: "Cubic Meters per Hour", category: "flow_rate", system: "metric", factor: 0.000277778 },
-    { symbol: "m³/s", name: "Cubic Meters per Second", category: "flow_rate", system: "metric", factor: 1 },
+    {
+      symbol: "l/min",
+      name: "Liters per Minute",
+      category: "flow_rate",
+      system: "metric",
+      factor: 0.0000166667,
+    },
+    {
+      symbol: "l/h",
+      name: "Liters per Hour",
+      category: "flow_rate",
+      system: "metric",
+      factor: 0.000000277778,
+    },
+    {
+      symbol: "m³/h",
+      name: "Cubic Meters per Hour",
+      category: "flow_rate",
+      system: "metric",
+      factor: 0.000277778,
+    },
+    {
+      symbol: "m³/s",
+      name: "Cubic Meters per Second",
+      category: "flow_rate",
+      system: "metric",
+      factor: 1,
+    },
     // Imperial
-    { symbol: "gpm", name: "Gallons per Minute", category: "flow_rate", system: "imperial", factor: 0.0000630902 },
-    { symbol: "gph", name: "Gallons per Hour", category: "flow_rate", system: "imperial", factor: 0.00000105150 },
-    { symbol: "ft³/min", name: "Cubic Feet per Minute", category: "flow_rate", system: "imperial", factor: 0.000471947 },
-    { symbol: "ft³/s", name: "Cubic Feet per Second", category: "flow_rate", system: "imperial", factor: 0.0283168 },
+    {
+      symbol: "gpm",
+      name: "Gallons per Minute",
+      category: "flow_rate",
+      system: "imperial",
+      factor: 0.0000630902,
+    },
+    {
+      symbol: "gph",
+      name: "Gallons per Hour",
+      category: "flow_rate",
+      system: "imperial",
+      factor: 0.0000010515,
+    },
+    {
+      symbol: "ft³/min",
+      name: "Cubic Feet per Minute",
+      category: "flow_rate",
+      system: "imperial",
+      factor: 0.000471947,
+    },
+    {
+      symbol: "ft³/s",
+      name: "Cubic Feet per Second",
+      category: "flow_rate",
+      system: "imperial",
+      factor: 0.0283168,
+    },
   ],
 
   pressure: [
@@ -97,20 +175,78 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
     { symbol: "mbar", name: "Millibar", category: "pressure", system: "metric", factor: 100 },
     { symbol: "atm", name: "Atmospheres", category: "pressure", system: "metric", factor: 101325 },
     // Imperial
-    { symbol: "psi", name: "Pounds per Square Inch", category: "pressure", system: "imperial", factor: 6894.76 },
-    { symbol: "psig", name: "Pounds per Square Inch Gauge", category: "pressure", system: "imperial", factor: 6894.76 },
-    { symbol: "psia", name: "Pounds per Square Inch Absolute", category: "pressure", system: "imperial", factor: 6894.76 },
-    { symbol: "inHg", name: "Inches of Mercury", category: "pressure", system: "imperial", factor: 3386.39 },
-    { symbol: "inH2O", name: "Inches of Water", category: "pressure", system: "imperial", factor: 248.84 },
+    {
+      symbol: "psi",
+      name: "Pounds per Square Inch",
+      category: "pressure",
+      system: "imperial",
+      factor: 6894.76,
+    },
+    {
+      symbol: "psig",
+      name: "Pounds per Square Inch Gauge",
+      category: "pressure",
+      system: "imperial",
+      factor: 6894.76,
+    },
+    {
+      symbol: "psia",
+      name: "Pounds per Square Inch Absolute",
+      category: "pressure",
+      system: "imperial",
+      factor: 6894.76,
+    },
+    {
+      symbol: "inHg",
+      name: "Inches of Mercury",
+      category: "pressure",
+      system: "imperial",
+      factor: 3386.39,
+    },
+    {
+      symbol: "inH2O",
+      name: "Inches of Water",
+      category: "pressure",
+      system: "imperial",
+      factor: 248.84,
+    },
   ],
 
   temperature: [
     // Metric
-    { symbol: "°C", name: "Celsius", category: "temperature", system: "metric", factor: 1, offset: 273.15 },
-    { symbol: "K", name: "Kelvin", category: "temperature", system: "metric", factor: 1, offset: 0 },
+    {
+      symbol: "°C",
+      name: "Celsius",
+      category: "temperature",
+      system: "metric",
+      factor: 1,
+      offset: 273.15,
+    },
+    {
+      symbol: "K",
+      name: "Kelvin",
+      category: "temperature",
+      system: "metric",
+      factor: 1,
+      offset: 0,
+    },
     // Imperial
-    { symbol: "°F", name: "Fahrenheit", category: "temperature", system: "imperial", factor: 5/9, offset: 255.372 },
-    { symbol: "°R", name: "Rankine", category: "temperature", system: "imperial", factor: 5/9, offset: 0 },
+    {
+      symbol: "°F",
+      name: "Fahrenheit",
+      category: "temperature",
+      system: "imperial",
+      factor: 5 / 9,
+      offset: 255.372,
+    },
+    {
+      symbol: "°R",
+      name: "Rankine",
+      category: "temperature",
+      system: "imperial",
+      factor: 5 / 9,
+      offset: 0,
+    },
   ],
 
   power: [
@@ -120,7 +256,13 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
     { symbol: "MW", name: "Megawatts", category: "power", system: "metric", factor: 1000000 },
     // Imperial
     { symbol: "hp", name: "Horsepower", category: "power", system: "imperial", factor: 745.7 },
-    { symbol: "BTU/h", name: "BTU per Hour", category: "power", system: "imperial", factor: 0.293071 },
+    {
+      symbol: "BTU/h",
+      name: "BTU per Hour",
+      category: "power",
+      system: "imperial",
+      factor: 0.293071,
+    },
   ],
 
   mass: [
@@ -136,21 +278,63 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
 
   density: [
     // Metric
-    { symbol: "kg/m³", name: "Kilograms per Cubic Meter", category: "density", system: "metric", factor: 1 },
-    { symbol: "g/cm³", name: "Grams per Cubic Centimeter", category: "density", system: "metric", factor: 1000 },
-    { symbol: "g/ml", name: "Grams per Milliliter", category: "density", system: "metric", factor: 1000 },
+    {
+      symbol: "kg/m³",
+      name: "Kilograms per Cubic Meter",
+      category: "density",
+      system: "metric",
+      factor: 1,
+    },
+    {
+      symbol: "g/cm³",
+      name: "Grams per Cubic Centimeter",
+      category: "density",
+      system: "metric",
+      factor: 1000,
+    },
+    {
+      symbol: "g/ml",
+      name: "Grams per Milliliter",
+      category: "density",
+      system: "metric",
+      factor: 1000,
+    },
     // Imperial
-    { symbol: "lb/ft³", name: "Pounds per Cubic Foot", category: "density", system: "imperial", factor: 16.0185 },
-    { symbol: "lb/gal", name: "Pounds per Gallon", category: "density", system: "imperial", factor: 119.826 },
+    {
+      symbol: "lb/ft³",
+      name: "Pounds per Cubic Foot",
+      category: "density",
+      system: "imperial",
+      factor: 16.0185,
+    },
+    {
+      symbol: "lb/gal",
+      name: "Pounds per Gallon",
+      category: "density",
+      system: "imperial",
+      factor: 119.826,
+    },
   ],
 
   viscosity: [
     // Metric
     { symbol: "Pa·s", name: "Pascal Seconds", category: "viscosity", system: "metric", factor: 1 },
     { symbol: "cP", name: "Centipoise", category: "viscosity", system: "metric", factor: 0.001 },
-    { symbol: "cSt", name: "Centistokes", category: "viscosity", system: "metric", factor: 0.000001 },
+    {
+      symbol: "cSt",
+      name: "Centistokes",
+      category: "viscosity",
+      system: "metric",
+      factor: 0.000001,
+    },
     // Imperial
-    { symbol: "lbf·s/ft²", name: "Pound-force Seconds per Square Foot", category: "viscosity", system: "imperial", factor: 47.880 },
+    {
+      symbol: "lbf·s/ft²",
+      name: "Pound-force Seconds per Square Foot",
+      category: "viscosity",
+      system: "imperial",
+      factor: 47.88,
+    },
   ],
 
   energy: [
@@ -158,19 +342,49 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
     { symbol: "J", name: "Joules", category: "energy", system: "metric", factor: 1 },
     { symbol: "kJ", name: "Kilojoules", category: "energy", system: "metric", factor: 1000 },
     { symbol: "MJ", name: "Megajoules", category: "energy", system: "metric", factor: 1000000 },
-    { symbol: "kWh", name: "Kilowatt Hours", category: "energy", system: "metric", factor: 3600000 },
+    {
+      symbol: "kWh",
+      name: "Kilowatt Hours",
+      category: "energy",
+      system: "metric",
+      factor: 3600000,
+    },
     // Imperial
-    { symbol: "BTU", name: "British Thermal Units", category: "energy", system: "imperial", factor: 1055.06 },
+    {
+      symbol: "BTU",
+      name: "British Thermal Units",
+      category: "energy",
+      system: "imperial",
+      factor: 1055.06,
+    },
     { symbol: "cal", name: "Calories", category: "energy", system: "imperial", factor: 4.184 },
   ],
 
   torque: [
     // Metric
     { symbol: "N·m", name: "Newton Meters", category: "torque", system: "metric", factor: 1 },
-    { symbol: "kN·m", name: "Kilonewton Meters", category: "torque", system: "metric", factor: 1000 },
+    {
+      symbol: "kN·m",
+      name: "Kilonewton Meters",
+      category: "torque",
+      system: "metric",
+      factor: 1000,
+    },
     // Imperial
-    { symbol: "lb·ft", name: "Pound Feet", category: "torque", system: "imperial", factor: 1.35582 },
-    { symbol: "lb·in", name: "Pound Inches", category: "torque", system: "imperial", factor: 0.112985 },
+    {
+      symbol: "lb·ft",
+      name: "Pound Feet",
+      category: "torque",
+      system: "imperial",
+      factor: 1.35582,
+    },
+    {
+      symbol: "lb·in",
+      name: "Pound Inches",
+      category: "torque",
+      system: "imperial",
+      factor: 0.112985,
+    },
   ],
 };
 
@@ -179,14 +393,16 @@ export const UNIT_DEFINITIONS: Record<UnitCategory, Unit[]> = {
  */
 export function getUnitsForCategory(category: UnitCategory, system?: UnitSystem): Unit[] {
   const units = UNIT_DEFINITIONS[category];
-  return system ? units.filter(unit => unit.system === system) : units;
+  return system ? units.filter((unit) => unit.system === system) : units;
 }
 
 /**
  * Get all units for a specific system
  */
 export function getUnitsForSystem(system: UnitSystem): Unit[] {
-  return Object.values(UNIT_DEFINITIONS).flat().filter(unit => unit.system === system);
+  return Object.values(UNIT_DEFINITIONS)
+    .flat()
+    .filter((unit) => unit.system === system);
 }
 
 /**
@@ -195,7 +411,7 @@ export function getUnitsForSystem(system: UnitSystem): Unit[] {
 export function findUnitBySymbol(symbol: string): Unit | undefined {
   return Object.values(UNIT_DEFINITIONS)
     .flat()
-    .find(unit => unit.symbol === symbol);
+    .find((unit) => unit.symbol === symbol);
 }
 
 /**
@@ -262,10 +478,10 @@ function convertTemperature(value: number, from: Unit, to: Unit): number {
       kelvinValue = value + 273.15;
       break;
     case "°F":
-      kelvinValue = (value - 32) * 5/9 + 273.15;
+      kelvinValue = ((value - 32) * 5) / 9 + 273.15;
       break;
     case "°R":
-      kelvinValue = value * 5/9;
+      kelvinValue = (value * 5) / 9;
       break;
     case "K":
       kelvinValue = value;
@@ -279,9 +495,9 @@ function convertTemperature(value: number, from: Unit, to: Unit): number {
     case "°C":
       return kelvinValue - 273.15;
     case "°F":
-      return (kelvinValue - 273.15) * 9/5 + 32;
+      return ((kelvinValue - 273.15) * 9) / 5 + 32;
     case "°R":
-      return kelvinValue * 9/5;
+      return (kelvinValue * 9) / 5;
     case "K":
       return kelvinValue;
     default:
@@ -292,18 +508,12 @@ function convertTemperature(value: number, from: Unit, to: Unit): number {
 /**
  * Format a value with its unit
  */
-export function formatValueWithUnit(
-  value: number | string,
-  unit: string,
-  precision = 2
-): string {
+export function formatValueWithUnit(value: number | string, unit: string, precision = 2): string {
   if (typeof value === "string") {
     return `${value} ${unit}`;
   }
 
-  const formattedValue = Number.isInteger(value)
-    ? value.toString()
-    : value.toFixed(precision);
+  const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(precision);
 
   return `${formattedValue} ${unit}`;
 }
@@ -325,8 +535,8 @@ export function parseValueWithUnit(input: string): {
   }
 
   const [, valueStr, unitStr] = match;
-  const value = parseFloat(valueStr);
-  const unit = unitStr.trim();
+  const value = parseFloat(valueStr || "");
+  const unit = unitStr?.trim() || "";
 
   if (isNaN(value)) {
     return { value: null, unit: null, success: false };

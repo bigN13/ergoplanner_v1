@@ -11,6 +11,9 @@ export class AddEdgeCommand extends BaseCommand {
   private edge: Edge;
 
   constructor(edge: Edge, context: ICommandContext) {
+    if (!edge.id) {
+      throw new Error("Edge must have an ID");
+    }
     super("add_edge", `Add edge (${edge.source} → ${edge.target})`, context);
     this.edge = { ...edge };
   }
@@ -19,14 +22,14 @@ export class AddEdgeCommand extends BaseCommand {
     const currentEdges = this.context.getEdges();
 
     // Check if edge already exists
-    if (currentEdges.find(e => e.id === this.edge.id)) {
+    if (currentEdges.find((e) => e.id === this.edge.id)) {
       throw new Error(`Edge with ID ${this.edge.id} already exists`);
     }
 
     // Validate that source and target nodes exist
     const currentNodes = this.context.getNodes();
-    const sourceExists = currentNodes.some(n => n.id === this.edge.source);
-    const targetExists = currentNodes.some(n => n.id === this.edge.target);
+    const sourceExists = currentNodes.some((n) => n.id === this.edge.source);
+    const targetExists = currentNodes.some((n) => n.id === this.edge.target);
 
     if (!sourceExists) {
       throw new Error(`Source node ${this.edge.source} not found`);
@@ -41,11 +44,11 @@ export class AddEdgeCommand extends BaseCommand {
 
   protected doUndo(): void {
     const currentEdges = this.context.getEdges();
-    const filteredEdges = currentEdges.filter(e => e.id !== this.edge.id);
+    const filteredEdges = currentEdges.filter((e) => e.id !== this.edge.id);
     this.context.setEdges(filteredEdges);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       edgeId: this.edge.id,
@@ -75,13 +78,13 @@ export class DeleteEdgeCommand extends BaseCommand {
     const currentEdges = this.context.getEdges();
 
     // Find the edge to delete
-    this.edge = currentEdges.find(e => e.id === this.edgeId) || null;
+    this.edge = currentEdges.find((e) => e.id === this.edgeId) || null;
     if (!this.edge) {
       throw new Error(`Edge with ID ${this.edgeId} not found`);
     }
 
     // Remove edge
-    const filteredEdges = currentEdges.filter(e => e.id !== this.edgeId);
+    const filteredEdges = currentEdges.filter((e) => e.id !== this.edgeId);
     this.context.setEdges(filteredEdges);
 
     // Clear selection if this edge was selected
@@ -100,9 +103,9 @@ export class DeleteEdgeCommand extends BaseCommand {
     // Verify that source and target nodes still exist
     const currentNodes = this.context.getNodes();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const sourceExists = currentNodes.some(n => n.id === this.edge!.source);
+    const sourceExists = currentNodes.some((n) => n.id === this.edge!.source);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const targetExists = currentNodes.some(n => n.id === this.edge!.target);
+    const targetExists = currentNodes.some((n) => n.id === this.edge!.target);
 
     if (!sourceExists || !targetExists) {
       throw new Error("Cannot restore edge: source or target node no longer exists");
@@ -112,13 +115,13 @@ export class DeleteEdgeCommand extends BaseCommand {
     this.context.setEdges([...currentEdges, this.edge]);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       edgeId: this.edgeId,
-      source: this.edge?.source || 'unknown',
-      target: this.edge?.target || 'unknown',
-      edgeType: this.edge?.type || 'unknown',
+      source: this.edge?.source || "unknown",
+      target: this.edge?.target || "unknown",
+      edgeType: this.edge?.type || "unknown",
     };
   }
 }
@@ -139,18 +142,23 @@ export class ModifyEdgeCommand extends BaseCommand {
 
   protected doExecute(): void {
     const currentEdges = this.context.getEdges();
-    const edgeIndex = currentEdges.findIndex(e => e.id === this.edgeId);
+    const edgeIndex = currentEdges.findIndex((e) => e.id === this.edgeId);
 
     if (edgeIndex === -1) {
       throw new Error(`Edge with ID ${this.edgeId} not found`);
     }
 
+    const currentEdge = currentEdges[edgeIndex];
+    if (!currentEdge) {
+      throw new Error(`Edge with ID ${this.edgeId} not found`);
+    }
+
     // Store original edge for undo
-    this.originalEdge = { ...currentEdges[edgeIndex] };
+    this.originalEdge = { ...currentEdge };
 
     // Apply updates
     const updatedEdges = [...currentEdges];
-    updatedEdges[edgeIndex] = { ...currentEdges[edgeIndex], ...this.updates };
+    updatedEdges[edgeIndex] = { ...currentEdge, ...this.updates } as Edge;
 
     this.context.setEdges(updatedEdges);
   }
@@ -161,7 +169,7 @@ export class ModifyEdgeCommand extends BaseCommand {
     }
 
     const currentEdges = this.context.getEdges();
-    const edgeIndex = currentEdges.findIndex(e => e.id === this.edgeId);
+    const edgeIndex = currentEdges.findIndex((e) => e.id === this.edgeId);
 
     if (edgeIndex === -1) {
       throw new Error(`Edge with ID ${this.edgeId} not found for undo`);
@@ -173,17 +181,19 @@ export class ModifyEdgeCommand extends BaseCommand {
     this.context.setEdges(restoredEdges);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       edgeId: this.edgeId,
       updates: this.updates,
-      originalData: this.originalEdge ? {
-        type: this.originalEdge.type,
-        source: this.originalEdge.source,
-        target: this.originalEdge.target,
-        data: this.originalEdge.data,
-      } : null,
+      originalData: this.originalEdge
+        ? {
+            type: this.originalEdge.type,
+            source: this.originalEdge.source,
+            target: this.originalEdge.target,
+            data: this.originalEdge.data,
+          }
+        : null,
     };
   }
 }
@@ -193,13 +203,33 @@ export class ModifyEdgeCommand extends BaseCommand {
  */
 export class ReconnectEdgeCommand extends BaseCommand {
   private edgeId: string;
-  private originalConnection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null };
-  private newConnection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null };
+  private originalConnection: {
+    source: string;
+    target: string;
+    sourceHandle?: string | null;
+    targetHandle?: string | null;
+  };
+  private newConnection: {
+    source: string;
+    target: string;
+    sourceHandle?: string | null;
+    targetHandle?: string | null;
+  };
 
   constructor(
     edgeId: string,
-    originalConnection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null },
-    newConnection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null },
+    originalConnection: {
+      source: string;
+      target: string;
+      sourceHandle?: string | null;
+      targetHandle?: string | null;
+    },
+    newConnection: {
+      source: string;
+      target: string;
+      sourceHandle?: string | null;
+      targetHandle?: string | null;
+    },
     context: ICommandContext
   ) {
     super("modify_edge", `Reconnect edge (${edgeId})`, context);
@@ -216,9 +246,14 @@ export class ReconnectEdgeCommand extends BaseCommand {
     this.reconnectEdge(this.originalConnection);
   }
 
-  private reconnectEdge(connection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null }): void {
+  private reconnectEdge(connection: {
+    source: string;
+    target: string;
+    sourceHandle?: string | null;
+    targetHandle?: string | null;
+  }): void {
     const currentEdges = this.context.getEdges();
-    const edgeIndex = currentEdges.findIndex(e => e.id === this.edgeId);
+    const edgeIndex = currentEdges.findIndex((e) => e.id === this.edgeId);
 
     if (edgeIndex === -1) {
       throw new Error(`Edge with ID ${this.edgeId} not found`);
@@ -226,8 +261,8 @@ export class ReconnectEdgeCommand extends BaseCommand {
 
     // Verify that source and target nodes exist
     const currentNodes = this.context.getNodes();
-    const sourceExists = currentNodes.some(n => n.id === connection.source);
-    const targetExists = currentNodes.some(n => n.id === connection.target);
+    const sourceExists = currentNodes.some((n) => n.id === connection.source);
+    const targetExists = currentNodes.some((n) => n.id === connection.target);
 
     if (!sourceExists) {
       throw new Error(`Source node ${connection.source} not found`);
@@ -237,9 +272,14 @@ export class ReconnectEdgeCommand extends BaseCommand {
       throw new Error(`Target node ${connection.target} not found`);
     }
 
+    const currentEdge = currentEdges[edgeIndex];
+    if (!currentEdge) {
+      throw new Error(`Edge with ID ${this.edgeId} not found`);
+    }
+
     const updatedEdges = [...currentEdges];
     updatedEdges[edgeIndex] = {
-      ...currentEdges[edgeIndex],
+      ...currentEdge,
       source: connection.source,
       target: connection.target,
       sourceHandle: connection.sourceHandle,
@@ -249,7 +289,7 @@ export class ReconnectEdgeCommand extends BaseCommand {
     this.context.setEdges(updatedEdges);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       edgeId: this.edgeId,
@@ -281,8 +321,18 @@ export class EdgeCommandFactory {
 
   static reconnectEdge(
     edgeId: string,
-    originalConnection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null },
-    newConnection: { source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null },
+    originalConnection: {
+      source: string;
+      target: string;
+      sourceHandle?: string | null;
+      targetHandle?: string | null;
+    },
+    newConnection: {
+      source: string;
+      target: string;
+      sourceHandle?: string | null;
+      targetHandle?: string | null;
+    },
     context: ICommandContext
   ): ReconnectEdgeCommand {
     return new ReconnectEdgeCommand(edgeId, originalConnection, newConnection, context);

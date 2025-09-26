@@ -68,9 +68,11 @@ const saveToolPreferences = (preferences: Record<string, unknown>): void => {
   }
 };
 
-export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps): React.ReactElement {
+export default function ToolOptionsBar({
+  className = "",
+}: ToolOptionsBarProps): React.ReactElement {
   const toolState = useDrawingStore((state) => ({
-    activeToolGroup: state.activeToolGroup,
+    activeToolGroup: state.toolState.activeToolGroup,
     activeTool: state.activeTool,
     snapToGrid: state.snapToGrid,
     isGridVisible: state.isGridVisible,
@@ -78,7 +80,8 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
     toggleGrid: state.toggleGrid,
   }));
 
-  const [toolPreferences, setToolPreferences] = useState<Record<string, unknown>>(getToolPreferences);
+  const [toolPreferences, setToolPreferences] =
+    useState<Record<string, unknown>>(getToolPreferences);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Save preferences when they change
@@ -124,7 +127,8 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
             type: "toggle",
             icon: <MousePointer className="h-3 w-3" />,
             value: getPreference("multiSelectMode", false),
-            action: () => updatePreference("multiSelectMode", !getPreference("multiSelectMode", false)),
+            action: () =>
+              updatePreference("multiSelectMode", !getPreference("multiSelectMode", false)),
           },
           {
             id: "selectionFilter",
@@ -362,7 +366,7 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
             onClick={option.action || (() => updatePreference(option.id, !option.value))}
             className={`flex items-center gap-1.5 rounded px-2 py-1 text-xs transition-colors ${
               option.value
-                ? "bg-blue-100 text-blue-700 border border-blue-200"
+                ? "border border-blue-200 bg-blue-100 text-blue-700"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
             title={option.label}
@@ -406,7 +410,7 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
                 className="w-16 sm:w-20"
                 title={option.label}
               />
-              <span className="text-xs text-gray-500 w-8 text-right">{String(option.value)}</span>
+              <span className="w-8 text-right text-xs text-gray-500">{String(option.value)}</span>
             </div>
           </div>
         );
@@ -418,10 +422,10 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
               type="color"
               value={String(option.value)}
               onChange={(e) => updatePreference(option.id, e.target.value)}
-              className="w-6 h-6 rounded border border-gray-300 cursor-pointer"
+              className="h-6 w-6 cursor-pointer rounded border border-gray-300"
               title={option.label}
             />
-            <span className="text-xs text-gray-600 hidden sm:inline">{option.label}</span>
+            <span className="hidden text-xs text-gray-600 sm:inline">{option.label}</span>
           </div>
         );
 
@@ -429,7 +433,7 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
         return (
           <div key={option.id} className="flex items-center gap-1">
             {option.icon && option.icon}
-            <div className="flex rounded border border-gray-200 overflow-hidden">
+            <div className="flex overflow-hidden rounded border border-gray-200">
               {option.options?.map((opt) => (
                 <button
                   key={opt.id}
@@ -473,7 +477,7 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
   return (
     <div className={`border-b border-gray-200 bg-gray-50 ${className}`}>
       <div className="flex items-center justify-between px-4 py-2">
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-wrap items-center gap-3">
           {!isCollapsed && currentOptions.map(renderOption)}
 
           {/* Responsive collapse for mobile */}
@@ -482,7 +486,9 @@ export default function ToolOptionsBar({ className = "" }: ToolOptionsBarProps):
             className="flex items-center gap-1 rounded bg-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-300 sm:hidden"
           >
             <Settings className="h-3 w-3" />
-            <ChevronDown className={`h-3 w-3 transition-transform ${isCollapsed ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${isCollapsed ? "rotate-180" : ""}`}
+            />
           </button>
         </div>
 

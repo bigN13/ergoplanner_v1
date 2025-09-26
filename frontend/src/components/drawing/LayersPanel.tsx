@@ -7,15 +7,8 @@ import { useDrawingStore } from "@/store/drawingStore";
 import type { Layer } from "@/types/drawing";
 
 const LayersPanel: React.FC = () => {
-  const {
-    layers,
-    activeLayerId,
-    setActiveLayer,
-    updateLayer,
-    addLayer,
-    deleteLayer,
-    moveLayer,
-  } = useDrawingStore();
+  const { layers, activeLayerId, setActiveLayer, updateLayer, addLayer, deleteLayer, moveLayer } =
+    useDrawingStore();
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
 
@@ -199,7 +192,9 @@ const LayersPanel: React.FC = () => {
                   className="flex-1"
                   onClick={(e) => e.stopPropagation()}
                 />
-                <span className="w-8 text-xs text-gray-600">{Math.round(layer.opacity * 100)}%</span>
+                <span className="w-8 text-xs text-gray-600">
+                  {Math.round(layer.opacity * 100)}%
+                </span>
               </div>
 
               {/* Layer Controls */}

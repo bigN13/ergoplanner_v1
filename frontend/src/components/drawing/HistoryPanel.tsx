@@ -279,11 +279,11 @@ const HistoryPanel: React.FC = () => {
         </div>
         <div className="mb-1 flex justify-between">
           <span>Can Undo:</span>
-          <span className="font-medium">{hasUndo ? 'Yes' : 'No'}</span>
+          <span className="font-medium">{hasUndo ? "Yes" : "No"}</span>
         </div>
         <div className="mb-1 flex justify-between">
           <span>Can Redo:</span>
-          <span className="font-medium">{hasRedo ? 'Yes' : 'No'}</span>
+          <span className="font-medium">{hasRedo ? "Yes" : "No"}</span>
         </div>
         <div className="mt-2 flex gap-2">
           <button

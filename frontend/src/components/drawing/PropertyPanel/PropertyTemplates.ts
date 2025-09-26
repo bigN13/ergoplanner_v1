@@ -228,6 +228,121 @@ const COMMON_FIELDS = {
   },
 };
 
+// Base instrument template for reuse
+const INSTRUMENT_BASE_TEMPLATE: FormField[] = [
+  COMMON_FIELDS.label,
+  COMMON_FIELDS.description,
+  COMMON_FIELDS.tagNumber,
+  {
+    name: "range",
+    label: "Measurement Range",
+    type: "text",
+    section: "instrumentation",
+    placeholder: "e.g., 0-100",
+    tooltip: "Measurement range",
+  },
+  {
+    name: "unit",
+    label: "Unit",
+    type: "text",
+    section: "instrumentation",
+    placeholder: "e.g., m³/h, bar, °C",
+    tooltip: "Measurement unit",
+  },
+  {
+    name: "accuracy",
+    label: "Accuracy",
+    type: "text",
+    section: "instrumentation",
+    placeholder: "e.g., ±1%",
+    tooltip: "Measurement accuracy",
+  },
+];
+
+/**
+ * Valve template (extracted to avoid circular reference)
+ */
+const VALVE_BASE_TEMPLATE: FormField[] = [
+  COMMON_FIELDS.label,
+  COMMON_FIELDS.description,
+  COMMON_FIELDS.tagNumber,
+  COMMON_FIELDS.service,
+  {
+    name: "valveType",
+    label: "Valve Type",
+    type: "select",
+    section: "basic",
+    required: true,
+    options: [
+      { value: "gate", label: "Gate Valve" },
+      { value: "globe", label: "Globe Valve" },
+      { value: "ball", label: "Ball Valve" },
+      { value: "butterfly", label: "Butterfly Valve" },
+      { value: "check", label: "Check Valve" },
+      { value: "relief", label: "Relief Valve" },
+      { value: "control", label: "Control Valve" },
+    ],
+  },
+  {
+    name: "state",
+    label: "State",
+    type: "select",
+    section: "basic",
+    options: [
+      { value: "open", label: "Open" },
+      { value: "closed", label: "Closed" },
+      { value: "partial", label: "Partial" },
+      { value: "locked_open", label: "Locked Open" },
+      { value: "locked_closed", label: "Locked Closed" },
+    ],
+  },
+  {
+    name: "size",
+    label: "Size",
+    type: "text",
+    section: "dimensional",
+    placeholder: "e.g., DN100",
+    tooltip: "Nominal valve size",
+  },
+  {
+    name: "pressureRating",
+    label: "Pressure Rating",
+    type: "text",
+    section: "process",
+    placeholder: "e.g., PN16",
+    tooltip: "Maximum operating pressure rating",
+  },
+  {
+    name: "actuatorType",
+    label: "Actuator Type",
+    type: "select",
+    section: "construction",
+    options: [
+      { value: "manual", label: "Manual" },
+      { value: "pneumatic", label: "Pneumatic" },
+      { value: "electric", label: "Electric" },
+      { value: "hydraulic", label: "Hydraulic" },
+    ],
+  },
+  {
+    name: "bodyMaterial",
+    label: "Body Material",
+    type: "select",
+    section: "construction",
+    options: COMMON_FIELDS.material.options,
+  },
+  {
+    name: "seatMaterial",
+    label: "Seat Material",
+    type: "text",
+    section: "construction",
+    placeholder: "e.g., PTFE",
+    tooltip: "Valve seat material",
+  },
+  COMMON_FIELDS.temperature,
+  COMMON_FIELDS.pressure,
+];
+
 /**
  * Property templates for each node type
  */
@@ -296,86 +411,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
     COMMON_FIELDS.pressure,
   ],
 
-  valve: [
-    COMMON_FIELDS.label,
-    COMMON_FIELDS.description,
-    COMMON_FIELDS.tagNumber,
-    COMMON_FIELDS.service,
-    {
-      name: "valveType",
-      label: "Valve Type",
-      type: "select",
-      section: "basic",
-      required: true,
-      options: [
-        { value: "gate", label: "Gate Valve" },
-        { value: "globe", label: "Globe Valve" },
-        { value: "ball", label: "Ball Valve" },
-        { value: "butterfly", label: "Butterfly Valve" },
-        { value: "check", label: "Check Valve" },
-        { value: "relief", label: "Relief Valve" },
-        { value: "control", label: "Control Valve" },
-      ],
-    },
-    {
-      name: "state",
-      label: "State",
-      type: "select",
-      section: "basic",
-      options: [
-        { value: "open", label: "Open" },
-        { value: "closed", label: "Closed" },
-        { value: "partial", label: "Partial" },
-        { value: "locked_open", label: "Locked Open" },
-        { value: "locked_closed", label: "Locked Closed" },
-      ],
-    },
-    {
-      name: "size",
-      label: "Size",
-      type: "text",
-      section: "dimensional",
-      placeholder: "e.g., DN100",
-      tooltip: "Nominal valve size",
-    },
-    {
-      name: "pressureRating",
-      label: "Pressure Rating",
-      type: "text",
-      section: "process",
-      placeholder: "e.g., PN16",
-      tooltip: "Maximum operating pressure rating",
-    },
-    {
-      name: "actuatorType",
-      label: "Actuator Type",
-      type: "select",
-      section: "construction",
-      options: [
-        { value: "manual", label: "Manual" },
-        { value: "pneumatic", label: "Pneumatic" },
-        { value: "electric", label: "Electric" },
-        { value: "hydraulic", label: "Hydraulic" },
-      ],
-    },
-    {
-      name: "bodyMaterial",
-      label: "Body Material",
-      type: "select",
-      section: "construction",
-      options: COMMON_FIELDS.material.options,
-    },
-    {
-      name: "seatMaterial",
-      label: "Seat Material",
-      type: "text",
-      section: "construction",
-      placeholder: "e.g., PTFE",
-      tooltip: "Valve seat material",
-    },
-    COMMON_FIELDS.temperature,
-    COMMON_FIELDS.pressure,
-  ],
+  valve: VALVE_BASE_TEMPLATE,
 
   tank: [
     COMMON_FIELDS.label,
@@ -653,9 +689,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
 
   // Additional node types with basic configurations
   flowMeter: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Flow Meter Type",
@@ -674,9 +708,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   pressureGauge: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Pressure Type",
@@ -693,9 +725,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   temperatureSensor: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Sensor Type",
@@ -712,9 +742,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   levelIndicator: [
-    ...PROPERTY_TEMPLATES.instrument.filter(field =>
-      field.name !== "instrumentType"
-    ),
+    ...INSTRUMENT_BASE_TEMPLATE.filter((field) => field.name !== "instrumentType"),
     {
       name: "instrumentType",
       label: "Level Type",
@@ -732,7 +760,7 @@ export const PROPERTY_TEMPLATES: Record<NodeType, FormField[]> = {
   ],
 
   controlValve: [
-    ...PROPERTY_TEMPLATES.valve,
+    ...VALVE_BASE_TEMPLATE,
     {
       name: "cvValue",
       label: "Cv Value",
@@ -922,19 +950,26 @@ export function getFormFieldsForNodeType(nodeType: string): FormField[] {
  * Group form fields by section
  */
 export function groupFieldsBySection(fields: FormField[]): Record<string, FormField[]> {
-  return fields.reduce((acc, field) => {
-    if (!acc[field.section]) {
-      acc[field.section] = [];
-    }
-    acc[field.section].push(field);
-    return acc;
-  }, {} as Record<string, FormField[]>);
+  return fields.reduce(
+    (acc, field) => {
+      const section = acc[field.section];
+      if (!section) {
+        acc[field.section] = [];
+      }
+      const sectionFields = acc[field.section];
+      if (sectionFields) {
+        sectionFields.push(field);
+      }
+      return acc;
+    },
+    {} as Record<string, FormField[]>
+  );
 }
 
 /**
  * Get sections that have fields
  */
 export function getSectionsWithFields(fields: FormField[]): PropertySection[] {
-  const usedSections = new Set(fields.map(f => f.section));
-  return DEFAULT_SECTIONS.filter(section => usedSections.has(section.id));
+  const usedSections = new Set(fields.map((f) => f.section));
+  return DEFAULT_SECTIONS.filter((section) => usedSections.has(section.id));
 }

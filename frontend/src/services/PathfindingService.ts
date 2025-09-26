@@ -62,7 +62,7 @@ export class PathfindingService {
           path: [],
           distance: 0,
           success: false,
-          message: "Invalid start or goal position"
+          message: "Invalid start or goal position",
         };
       }
 
@@ -73,7 +73,7 @@ export class PathfindingService {
           return {
             path: directPath,
             distance: this.calculateDistance(start, goal),
-            success: true
+            success: true,
           };
         }
       }
@@ -86,7 +86,7 @@ export class PathfindingService {
           path: [],
           distance: 0,
           success: false,
-          message: "No path found between start and goal"
+          message: "No path found between start and goal",
         };
       }
 
@@ -96,15 +96,14 @@ export class PathfindingService {
       return {
         path: optimizedPath,
         distance,
-        success: true
+        success: true,
       };
-
     } catch (error) {
       return {
         path: [],
         distance: 0,
         success: false,
-        message: `Pathfinding error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `Pathfinding error: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   }
@@ -112,11 +111,7 @@ export class PathfindingService {
   /**
    * A* search algorithm implementation
    */
-  private aStarSearch(
-    start: XYPosition,
-    goal: XYPosition,
-    obstacles: Node[]
-  ): XYPosition[] {
+  private aStarSearch(start: XYPosition, goal: XYPosition, obstacles: Node[]): XYPosition[] {
     const openList: PathfindingNode[] = [];
     const closedList: Set<string> = new Set();
 
@@ -126,7 +121,7 @@ export class PathfindingService {
       y: Math.round(start.y / this.gridSize) * this.gridSize,
       g: 0,
       h: this.calculateHeuristic(start, goal),
-      f: 0
+      f: 0,
     };
     startNode.f = startNode.g + startNode.h;
 
@@ -134,9 +129,7 @@ export class PathfindingService {
 
     while (openList.length > 0) {
       // Find node with lowest f cost
-      const currentNode = openList.reduce((min, node) =>
-        node.f < min.f ? node : min
-      );
+      const currentNode = openList.reduce((min, node) => (node.f < min.f ? node : min));
 
       // Remove current node from open list
       const currentIndex = openList.indexOf(currentNode);
@@ -165,7 +158,7 @@ export class PathfindingService {
         const tentativeG = currentNode.g + this.calculateMovementCost(currentNode, neighbor);
 
         // Check if this path to neighbor is better
-        const existingInOpen = openList.find(n => n.x === neighbor.x && n.y === neighbor.y);
+        const existingInOpen = openList.find((n) => n.x === neighbor.x && n.y === neighbor.y);
 
         if (!existingInOpen || tentativeG < existingInOpen.g) {
           neighbor.parent = currentNode;
@@ -191,11 +184,20 @@ export class PathfindingService {
     const neighbors: PathfindingNode[] = [];
     const directions = this.allowDiagonal
       ? [
-          { dx: -1, dy: 0 }, { dx: 1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
-          { dx: -1, dy: -1 }, { dx: 1, dy: -1 }, { dx: -1, dy: 1 }, { dx: 1, dy: 1 }
+          { dx: -1, dy: 0 },
+          { dx: 1, dy: 0 },
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: 1 },
+          { dx: -1, dy: -1 },
+          { dx: 1, dy: -1 },
+          { dx: -1, dy: 1 },
+          { dx: 1, dy: 1 },
         ]
       : [
-          { dx: -1, dy: 0 }, { dx: 1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 }
+          { dx: -1, dy: 0 },
+          { dx: 1, dy: 0 },
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: 1 },
         ];
 
     for (const { dx, dy } of directions) {
@@ -207,7 +209,7 @@ export class PathfindingService {
         y: newY,
         g: 0,
         h: 0,
-        f: 0
+        f: 0,
       });
     }
 
@@ -270,9 +272,7 @@ export class PathfindingService {
    * Check if current node is at goal position
    */
   private isAtGoal(node: PathfindingNode, goal: XYPosition): boolean {
-    const distance = Math.sqrt(
-      Math.pow(node.x - goal.x, 2) + Math.pow(node.y - goal.y, 2)
-    );
+    const distance = Math.sqrt(Math.pow(node.x - goal.x, 2) + Math.pow(node.y - goal.y, 2));
     return distance <= this.gridSize;
   }
 
@@ -324,9 +324,7 @@ export class PathfindingService {
    */
   private areCollinear(p1: XYPosition, p2: XYPosition, p3: XYPosition): boolean {
     const tolerance = 1; // Allow small deviations
-    const area = Math.abs(
-      (p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y)
-    );
+    const area = Math.abs((p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y));
     return area <= tolerance;
   }
 
@@ -357,7 +355,7 @@ export class PathfindingService {
       const t = i / steps;
       const point = {
         x: start.x + (end.x - start.x) * t,
-        y: start.y + (end.y - start.y) * t
+        y: start.y + (end.y - start.y) * t,
       };
 
       if (this.isBlocked(point, obstacles)) {
@@ -424,7 +422,7 @@ export class PathfindingService {
       obstacleMargin: this.obstacleMargin,
       routingMode: this.routingMode,
       allowDiagonal: this.allowDiagonal,
-      weight: this.weight
+      weight: this.weight,
     };
   }
 }

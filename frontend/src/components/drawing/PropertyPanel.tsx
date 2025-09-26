@@ -1,11 +1,21 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, ChevronDown, ChevronUp, Settings, Info, Ruler, Activity, Zap, Gauge, Wrench } from "lucide-react";
+import {
+  X,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Info,
+  Ruler,
+  Activity,
+  Zap,
+  Gauge,
+  Wrench,
+} from "lucide-react";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import type { Node, Edge } from "reactflow";
-
 
 import { useDrawingStore } from "@/store/drawingStore";
 import { PROPERTY_SCHEMAS, type NodeType } from "@/types/propertySchemas";
@@ -15,7 +25,7 @@ import {
   getFormFieldsForNodeType,
   groupFieldsBySection,
   getSectionsWithFields,
-  type FormField
+  type FormField,
 } from "./PropertyPanel/PropertyTemplates";
 
 interface PropertyPanelProps {
@@ -42,7 +52,7 @@ export default function PropertyPanel({
   selectedNode: propSelectedNode,
   selectedNodes: propSelectedNodes,
   selectedEdge: propSelectedEdge,
-  onClose
+  onClose,
 }: PropertyPanelProps = {}): React.ReactElement | null {
   const {
     updateNode,
@@ -54,22 +64,35 @@ export default function PropertyPanel({
     nodes,
     edges,
     setSelectedNode,
-    setSelectedEdge
+    setSelectedEdge,
   } = useDrawingStore();
 
   // Use props if provided, otherwise get from store
-  const selectedNode = propSelectedNode ?? (selectedNodeId ? nodes.find(n => n.id === selectedNodeId) || null : null);
-  const selectedNodes = useMemo(() =>
-    propSelectedNodes ?? (selectedNodeId ? [nodes.find(n => n.id === selectedNodeId)].filter(Boolean) : []),
-    [propSelectedNodes, selectedNodeId, nodes]
-  );
-  const selectedEdge = propSelectedEdge ?? (selectedEdgeId ? edges.find(e => e.id === selectedEdgeId) || null : null);
+  const selectedNode =
+    propSelectedNode ??
+    (selectedNodeId ? nodes.find((n) => n.id === selectedNodeId) || null : null);
+  const selectedNodes = useMemo(() => {
+    if (propSelectedNodes) return propSelectedNodes;
+    if (selectedNodeId) {
+      const node = nodes.find((n) => n.id === selectedNodeId);
+      return node ? [node] : [];
+    }
+    return [];
+  }, [propSelectedNodes, selectedNodeId, nodes]);
+  const selectedEdge =
+    propSelectedEdge ??
+    (selectedEdgeId ? edges.find((e) => e.id === selectedEdgeId) || null : null);
 
   // Default close handler
-  const handleClose = useMemo(() => onClose ?? (() => {
-    setSelectedNode(null);
-    setSelectedEdge(null);
-  }), [onClose, setSelectedNode, setSelectedEdge]);
+  const handleClose = useMemo(
+    () =>
+      onClose ??
+      (() => {
+        setSelectedNode(null);
+        setSelectedEdge(null);
+      }),
+    [onClose, setSelectedNode, setSelectedEdge]
+  );
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(["basic", "dimensional", "process", "info"])
   );
@@ -80,7 +103,7 @@ export default function PropertyPanel({
   const primaryNode = selectedNode || (selectedNodes.length > 0 ? selectedNodes[0] : null);
 
   // Get node type and form configuration
-  const nodeType = primaryNode?.type as NodeType || "instrument";
+  const nodeType = (primaryNode?.type as NodeType) || "instrument";
   const formFields = getFormFieldsForNodeType(nodeType);
   const fieldsBySection = groupFieldsBySection(formFields);
   const availableSections = getSectionsWithFields(formFields);
@@ -95,7 +118,13 @@ export default function PropertyPanel({
     mode: "onChange",
   });
 
-  const { handleSubmit, reset, watch, setValue, formState: { errors: formErrors, isDirty } } = methods;
+  const {
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors: formErrors, isDirty },
+  } = methods;
 
   // Reset form when selection changes
   useEffect(() => {
@@ -110,7 +139,7 @@ export default function PropertyPanel({
   const formValues = watch();
 
   const toggleSection = useCallback((section: string): void => {
-    setExpandedSections(prev => {
+    setExpandedSections((prev) => {
       const newExpanded = new Set(prev);
       if (newExpanded.has(section)) {
         newExpanded.delete(section);
@@ -122,41 +151,47 @@ export default function PropertyPanel({
   }, []);
 
   // Handle property changes with command pattern integration
-  const handlePropertyChange = useCallback((fieldName: string, value: unknown): void => {
-    setValue(fieldName, value, { shouldValidate: true, shouldDirty: true });
+  const handlePropertyChange = useCallback(
+    (fieldName: string, value: unknown): void => {
+      setValue(fieldName, value, { shouldValidate: true, shouldDirty: true });
 
-    // Apply changes immediately for real-time updates
-    if (isMultiSelect) {
-      // Update all selected nodes
-      selectedNodes.forEach(node => {
-        const updatedData = { ...node.data, [fieldName]: value };
-        updateNode(node.id, { data: updatedData });
-      });
-    } else if (primaryNode) {
-      const updatedData = { ...primaryNode.data, [fieldName]: value };
-      updateNode(primaryNode.id, { data: updatedData });
-    } else if (selectedEdge) {
-      const updatedData = { ...selectedEdge.data, [fieldName]: value };
-      updateEdge(selectedEdge.id, { data: updatedData });
-    }
-  }, [setValue, isMultiSelect, selectedNodes, primaryNode, selectedEdge, updateNode, updateEdge]);
-
-  // Handle position changes with command pattern
-  const handlePositionChange = useCallback((axis: "x" | "y", value: string): void => {
-    const numValue = parseFloat(value);
-    if (!isNaN(numValue)) {
+      // Apply changes immediately for real-time updates
       if (isMultiSelect) {
-        // Update all selected nodes' positions
-        selectedNodes.forEach(node => {
-          const position = { ...node.position, [axis]: numValue };
-          updateNode(node.id, { position });
+        // Update all selected nodes
+        selectedNodes.forEach((node) => {
+          const updatedData = { ...node.data, [fieldName]: value };
+          updateNode(node.id, { data: updatedData });
         });
       } else if (primaryNode) {
-        const position = { ...primaryNode.position, [axis]: numValue };
-        updateNode(primaryNode.id, { position });
+        const updatedData = { ...primaryNode.data, [fieldName]: value };
+        updateNode(primaryNode.id, { data: updatedData });
+      } else if (selectedEdge) {
+        const updatedData = { ...selectedEdge.data, [fieldName]: value };
+        updateEdge(selectedEdge.id, { data: updatedData });
       }
-    }
-  }, [isMultiSelect, selectedNodes, primaryNode, updateNode]);
+    },
+    [setValue, isMultiSelect, selectedNodes, primaryNode, selectedEdge, updateNode, updateEdge]
+  );
+
+  // Handle position changes with command pattern
+  const handlePositionChange = useCallback(
+    (axis: "x" | "y", value: string): void => {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        if (isMultiSelect) {
+          // Update all selected nodes' positions
+          selectedNodes.forEach((node) => {
+            const position = { ...node.position, [axis]: numValue };
+            updateNode(node.id, { position });
+          });
+        } else if (primaryNode) {
+          const position = { ...primaryNode.position, [axis]: numValue };
+          updateNode(primaryNode.id, { position });
+        }
+      }
+    },
+    [isMultiSelect, selectedNodes, primaryNode, updateNode]
+  );
 
   // Handle deletion with confirmation
   const handleDelete = useCallback((): void => {
@@ -168,7 +203,7 @@ export default function PropertyPanel({
     // eslint-disable-next-line no-alert
     if (confirm(confirmMessage)) {
       if (isMultiSelect) {
-        selectedNodes.forEach(node => deleteNode(node.id));
+        selectedNodes.forEach((node) => deleteNode(node.id));
       } else if (primaryNode) {
         deleteNode(primaryNode.id);
       } else if (selectedEdge) {
@@ -176,7 +211,15 @@ export default function PropertyPanel({
       }
       handleClose();
     }
-  }, [isMultiSelect, selectedNodes, primaryNode, selectedEdge, deleteNode, deleteEdge, handleClose]);
+  }, [
+    isMultiSelect,
+    selectedNodes,
+    primaryNode,
+    selectedEdge,
+    deleteNode,
+    deleteEdge,
+    handleClose,
+  ]);
 
   // Submit handler for form validation
   const onSubmit = useCallback((_data: Record<string, unknown>) => {
@@ -185,22 +228,29 @@ export default function PropertyPanel({
   }, []);
 
   // Render form field with error handling
-  const renderFormField = useCallback((field: FormField) => {
-    const fieldValue = formValues[field.name];
-    const fieldError = formErrors[field.name]?.message;
+  const renderFormField = useCallback(
+    (field: FormField) => {
+      const fieldValue = formValues[field.name];
+      const fieldErrorObj = formErrors[field.name];
+      const fieldError: string | undefined =
+        typeof fieldErrorObj === "object" && fieldErrorObj !== null && "message" in fieldErrorObj
+          ? String(fieldErrorObj.message)
+          : undefined;
 
-    return (
-      <DynamicFormField
-        key={field.name}
-        field={field}
-        value={fieldValue}
-        onChange={handlePropertyChange}
-        error={fieldError}
-        disabled={false}
-        unitSystem={unitSystem}
-      />
-    );
-  }, [formValues, formErrors, handlePropertyChange, unitSystem]);
+      return (
+        <DynamicFormField
+          key={field.name}
+          field={field}
+          value={fieldValue}
+          onChange={handlePropertyChange}
+          error={fieldError}
+          disabled={false}
+          unitSystem={unitSystem}
+        />
+      );
+    },
+    [formValues, formErrors, handlePropertyChange, unitSystem]
+  );
 
   // Render property sections dynamically
   const renderPropertySections = useMemo(() => {
@@ -211,12 +261,12 @@ export default function PropertyPanel({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Multi-selection info */}
           {isMultiSelect && (
-            <div className="mb-4 rounded bg-blue-50 border border-blue-200 p-3">
+            <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
               <div className="flex items-center gap-2 text-sm text-blue-800">
                 <Info className="h-4 w-4" />
                 <span>{selectedNodes.length} elements selected</span>
               </div>
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="mt-1 text-xs text-blue-600">
                 Changes will be applied to all selected elements
               </p>
             </div>
@@ -287,12 +337,12 @@ export default function PropertyPanel({
 
           {/* Unit System Selector */}
           <div className="mb-4">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Unit System</label>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Unit System</label>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setUnitSystem("metric")}
-                className={`px-3 py-1 text-xs rounded ${
+                className={`rounded px-3 py-1 text-xs ${
                   unitSystem === "metric"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -303,7 +353,7 @@ export default function PropertyPanel({
               <button
                 type="button"
                 onClick={() => setUnitSystem("imperial")}
-                className={`px-3 py-1 text-xs rounded ${
+                className={`rounded px-3 py-1 text-xs ${
                   unitSystem === "imperial"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -315,41 +365,57 @@ export default function PropertyPanel({
           </div>
 
           {/* Dynamic Property Sections */}
-          {primaryNode && availableSections.map(section => {
-            const sectionFields = fieldsBySection[section.id];
-            if (!sectionFields || sectionFields.length === 0) return null;
+          {primaryNode &&
+            availableSections.map((section) => {
+              const sectionFields = fieldsBySection[section.id];
+              if (!sectionFields || sectionFields.length === 0) return null;
 
-            const IconComponent = SECTION_ICONS[section.id as keyof typeof SECTION_ICONS] || Settings;
+              const IconComponent =
+                SECTION_ICONS[section.id as keyof typeof SECTION_ICONS] || Settings;
 
-            return (
-              <div key={section.id} className="mb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection(section.id)}
-                  className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                >
-                  <div className="flex items-center gap-2">
-                    <IconComponent className="h-4 w-4" />
-                    <span>{section.label}</span>
-                  </div>
-                  {expandedSections.has(section.id) ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
+              return (
+                <div key={section.id} className="mb-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.id)}
+                    className="flex w-full items-center justify-between rounded bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4" />
+                      <span>{section.label}</span>
+                    </div>
+                    {expandedSections.has(section.id) ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
+                  {expandedSections.has(section.id) && (
+                    <div className="mt-2 space-y-3 px-3">{sectionFields.map(renderFormField)}</div>
                   )}
-                </button>
-                {expandedSections.has(section.id) && (
-                  <div className="mt-2 space-y-3 px-3">
-                    {sectionFields.map(renderFormField)}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
         </form>
       </FormProvider>
     );
-  }, [primaryNode, selectedEdge, isMultiSelect, selectedNodes, expandedSections, availableSections, fieldsBySection, methods, handleSubmit, onSubmit, toggleSection, unitSystem, renderFormField, handlePositionChange, nodeType]);
+  }, [
+    primaryNode,
+    selectedEdge,
+    isMultiSelect,
+    selectedNodes,
+    expandedSections,
+    availableSections,
+    fieldsBySection,
+    methods,
+    handleSubmit,
+    onSubmit,
+    toggleSection,
+    unitSystem,
+    renderFormField,
+    handlePositionChange,
+    nodeType,
+  ]);
 
   // Render edge properties with similar structure
   const renderEdgeProperties = useMemo(() => {
@@ -440,12 +506,14 @@ export default function PropertyPanel({
       : "Delete Edge";
 
   return (
-    <div className="flex h-full w-80 flex-col border-l border-gray-200 bg-white" role="complementary" aria-label="Properties Panel">
+    <div
+      className="flex h-full w-80 flex-col border-l border-gray-200 bg-white"
+      role="complementary"
+      aria-label="Properties Panel"
+    >
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-gray-700">
-          {title}
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
         <button
           onClick={handleClose}
           className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
@@ -462,10 +530,10 @@ export default function PropertyPanel({
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 p-4 space-y-2">
+      <div className="space-y-2 border-t border-gray-200 p-4">
         {/* Form validation status */}
         {isDirty && (
-          <div className="text-xs text-blue-600 flex items-center gap-1">
+          <div className="flex items-center gap-1 text-xs text-blue-600">
             <Info className="h-3 w-3" />
             Changes are saved automatically
           </div>
@@ -474,7 +542,7 @@ export default function PropertyPanel({
         {/* Delete button */}
         <button
           onClick={handleDelete}
-          className="w-full rounded bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className="w-full rounded bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
         >
           {deleteButtonText}
         </button>

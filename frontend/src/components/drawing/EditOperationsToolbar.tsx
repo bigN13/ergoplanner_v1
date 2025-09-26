@@ -150,33 +150,29 @@ export default function EditOperationsToolbar({
   useHotkeys("ctrl+v, cmd+v", handlePaste, [handlePaste]);
 
   // Undo/Redo dropdown items
-  const undoDropdownItems: DropdownItem[] = historyItems
-    .slice(0, 10)
-    .map((item, index) => ({
-      id: `undo-${index}`,
-      label: item.action || `Action ${index + 1}`,
-      onClick: () => {
-        // Undo multiple times to reach this point
-        for (let i = 0; i <= index; i++) {
-          undo();
-        }
-        setShowUndoDropdown(false);
-      },
-    }));
+  const undoDropdownItems: DropdownItem[] = historyItems.slice(0, 10).map((item, index) => ({
+    id: `undo-${index}`,
+    label: item.action || `Action ${index + 1}`,
+    onClick: () => {
+      // Undo multiple times to reach this point
+      for (let i = 0; i <= index; i++) {
+        undo();
+      }
+      setShowUndoDropdown(false);
+    },
+  }));
 
-  const redoDropdownItems: DropdownItem[] = historyItems
-    .slice(0, 10)
-    .map((item, index) => ({
-      id: `redo-${index}`,
-      label: item.action || `Action ${index + 1}`,
-      onClick: () => {
-        // Redo multiple times to reach this point
-        for (let i = 0; i <= index; i++) {
-          redo();
-        }
-        setShowRedoDropdown(false);
-      },
-    }));
+  const redoDropdownItems: DropdownItem[] = historyItems.slice(0, 10).map((item, index) => ({
+    id: `redo-${index}`,
+    label: item.action || `Action ${index + 1}`,
+    onClick: () => {
+      // Redo multiple times to reach this point
+      for (let i = 0; i <= index; i++) {
+        redo();
+      }
+      setShowRedoDropdown(false);
+    },
+  }));
 
   // Paste special dropdown items
   const pasteDropdownItems: DropdownItem[] = [
@@ -277,31 +273,33 @@ export default function EditOperationsToolbar({
   ];
 
   // Render dropdown menu
-  const renderDropdown = (items: DropdownItem[], show: boolean, onClose: () => void): React.ReactElement | null => {
+  const renderDropdown = (
+    items: DropdownItem[],
+    show: boolean,
+    onClose: () => void
+  ): React.ReactElement | null => {
     if (!show) return null;
 
     return (
-      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[200px]">
+      <div className="absolute top-full left-0 z-50 mt-1 min-w-[200px] rounded-md border border-gray-200 bg-white shadow-lg">
         {items.map((item) => {
           if (item.divider) {
-            return <div key={item.id} className="border-t border-gray-200 my-1" />;
+            return <div key={item.id} className="my-1 border-t border-gray-200" />;
           }
 
           const Icon = item.icon;
           return (
             <button
               key={item.id}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
               onClick={() => {
                 item.onClick();
                 onClose();
               }}
             >
-              {Icon && <Icon className="w-4 h-4" />}
+              {Icon && <Icon className="h-4 w-4" />}
               <span className="flex-1 text-left">{item.label}</span>
-              {item.shortcut && (
-                <span className="text-xs text-gray-400 ml-2">{item.shortcut}</span>
-              )}
+              {item.shortcut && <span className="ml-2 text-xs text-gray-400">{item.shortcut}</span>}
             </button>
           );
         })}
@@ -317,37 +315,29 @@ export default function EditOperationsToolbar({
     const isPasteButton = button.id === "paste";
 
     return (
-      <div key={button.id} className="relative group">
+      <div key={button.id} className="group relative">
         <div className="flex items-center">
           <button
-            className={`
-              flex items-center justify-center p-2 rounded-l transition-all
-              ${button.disabled
-                ? "opacity-50 cursor-not-allowed bg-gray-50"
+            className={`flex items-center justify-center rounded-l p-2 transition-all ${
+              button.disabled
+                ? "cursor-not-allowed bg-gray-50 opacity-50"
                 : "hover:bg-gray-100 active:bg-gray-200"
-              }
-              ${button.active ? "bg-blue-100 text-blue-600" : ""}
-              ${orientation === "vertical" ? "w-full" : ""}
-            `}
+            } ${button.active ? "bg-blue-100 text-blue-600" : ""} ${orientation === "vertical" ? "w-full" : ""} `}
             onClick={button.onClick}
             disabled={button.disabled}
             title={`${button.label}${button.shortcut ? ` (${button.shortcut})` : ""}`}
           >
-            <Icon className="w-4 h-4" />
-            {orientation === "vertical" && (
-              <span className="ml-2 text-sm">{button.label}</span>
-            )}
+            <Icon className="h-4 w-4" />
+            {orientation === "vertical" && <span className="ml-2 text-sm">{button.label}</span>}
           </button>
 
           {button.dropdown && (
             <button
-              className={`
-                px-1 py-2 border-l border-gray-200 rounded-r transition-all
-                ${button.disabled
-                  ? "opacity-50 cursor-not-allowed bg-gray-50"
+              className={`rounded-r border-l border-gray-200 px-1 py-2 transition-all ${
+                button.disabled
+                  ? "cursor-not-allowed bg-gray-50 opacity-50"
                   : "hover:bg-gray-100 active:bg-gray-200"
-                }
-              `}
+              } `}
               onClick={() => {
                 if (isUndoButton) setShowUndoDropdown(!showUndoDropdown);
                 if (isRedoButton) setShowRedoDropdown(!showRedoDropdown);
@@ -355,18 +345,16 @@ export default function EditOperationsToolbar({
               }}
               disabled={button.disabled}
             >
-              <ChevronDown className="w-3 h-3" />
+              <ChevronDown className="h-3 w-3" />
             </button>
           )}
         </div>
 
         {/* Tooltip */}
         {!button.disabled && button.shortcut && orientation === "horizontal" && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
             {button.label}
-            {button.shortcut && (
-              <span className="ml-1 text-gray-300">({button.shortcut})</span>
-            )}
+            {button.shortcut && <span className="ml-1 text-gray-300">({button.shortcut})</span>}
           </div>
         )}
 
@@ -376,9 +364,7 @@ export default function EditOperationsToolbar({
         {isRedoButton &&
           renderDropdown(redoDropdownItems, showRedoDropdown, () => setShowRedoDropdown(false))}
         {isPasteButton &&
-          renderDropdown(pasteDropdownItems, showPasteDropdown, () =>
-            setShowPasteDropdown(false)
-          )}
+          renderDropdown(pasteDropdownItems, showPasteDropdown, () => setShowPasteDropdown(false))}
       </div>
     );
   };
@@ -392,9 +378,7 @@ export default function EditOperationsToolbar({
     <div className={`${containerClass} ${className}`}>
       {/* Undo/Redo Section */}
       <div
-        className={`flex ${
-          orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"
-        }`}
+        className={`flex ${orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"}`}
       >
         {buttons.slice(0, 2).map(renderButton)}
       </div>
@@ -403,16 +387,14 @@ export default function EditOperationsToolbar({
       <div
         className={`${
           orientation === "horizontal"
-            ? "w-px h-6 bg-gray-300 mx-1"
-            : "h-px w-full bg-gray-300 my-1"
+            ? "mx-1 h-6 w-px bg-gray-300"
+            : "my-1 h-px w-full bg-gray-300"
         }`}
       />
 
       {/* Cut/Copy/Paste Section */}
       <div
-        className={`flex ${
-          orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"
-        }`}
+        className={`flex ${orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"}`}
       >
         {buttons.slice(2, 5).map(renderButton)}
       </div>
@@ -421,16 +403,14 @@ export default function EditOperationsToolbar({
       <div
         className={`${
           orientation === "horizontal"
-            ? "w-px h-6 bg-gray-300 mx-1"
-            : "h-px w-full bg-gray-300 my-1"
+            ? "mx-1 h-6 w-px bg-gray-300"
+            : "my-1 h-px w-full bg-gray-300"
         }`}
       />
 
       {/* Format Painter Section */}
       <div
-        className={`flex ${
-          orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"
-        }`}
+        className={`flex ${orientation === "horizontal" ? "items-center gap-1" : "flex-col gap-1"}`}
       >
         {buttons.slice(5).map(renderButton)}
       </div>
@@ -438,10 +418,10 @@ export default function EditOperationsToolbar({
       {/* Additional Info */}
       {orientation === "vertical" && (
         <>
-          <div className="h-px w-full bg-gray-300 my-1" />
-          <div className="text-xs text-gray-500 p-2">
-            <div className="flex items-center gap-1 mb-1">
-              <Info className="w-3 h-3" />
+          <div className="my-1 h-px w-full bg-gray-300" />
+          <div className="p-2 text-xs text-gray-500">
+            <div className="mb-1 flex items-center gap-1">
+              <Info className="h-3 w-3" />
               <span>Edit Operations</span>
             </div>
             <div className="text-[10px] leading-relaxed">

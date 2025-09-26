@@ -117,7 +117,7 @@ export default function QuickActionsPanel({
     const groups = new Map<string, QuickAction[]>();
 
     filteredActions.forEach((action) => {
-      const {category} = action;
+      const { category } = action;
       if (!groups.has(category)) {
         groups.set(category, []);
       }
@@ -131,32 +131,38 @@ export default function QuickActionsPanel({
   }, [filteredActions]);
 
   // Handle drag start
-  const handleDragStart = useCallback((e: React.MouseEvent) => {
-    if (!canDrag) return;
+  const handleDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      if (!canDrag) return;
 
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
-    });
-  }, [canDrag, position]);
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y,
+      });
+    },
+    [canDrag, position]
+  );
 
   // Handle drag
-  const handleDrag = useCallback((e: MouseEvent) => {
-    if (!isDragging) return;
+  const handleDrag = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
 
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
 
-    // Keep panel within viewport
-    const maxX = window.innerWidth - (panelRef.current?.offsetWidth || 300);
-    const maxY = window.innerHeight - (panelRef.current?.offsetHeight || 400);
+      // Keep panel within viewport
+      const maxX = window.innerWidth - (panelRef.current?.offsetWidth || 300);
+      const maxY = window.innerHeight - (panelRef.current?.offsetHeight || 400);
 
-    setPosition({
-      x: Math.max(0, Math.min(newX, maxX)),
-      y: Math.max(0, Math.min(newY, maxY)),
-    });
-  }, [isDragging, dragStart]);
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY)),
+      });
+    },
+    [isDragging, dragStart]
+  );
 
   // Handle drag end
   const handleDragEnd = useCallback(() => {
@@ -226,36 +232,29 @@ export default function QuickActionsPanel({
     return (
       <div
         key={action.id}
-        className={`
-          group relative flex items-center gap-2 px-3 py-2 rounded-lg
-          transition-all duration-200 cursor-pointer select-none
-          ${canExecute
-            ? "hover:bg-blue-50 active:bg-blue-100"
-            : "opacity-50 cursor-not-allowed"
-          }
-        `}
+        className={`group relative flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 select-none ${
+          canExecute ? "hover:bg-blue-50 active:bg-blue-100" : "cursor-not-allowed opacity-50"
+        } `}
         onClick={() => canExecute && action.execute()}
       >
-        <Icon className="w-4 h-4 text-gray-600" />
+        <Icon className="h-4 w-4 text-gray-600" />
         <span className="text-sm text-gray-700">{action.label}</span>
 
         {action.shortcut && (
-          <span className="ml-auto text-xs text-gray-400">
-            {action.shortcut}
-          </span>
+          <span className="ml-auto text-xs text-gray-400">{action.shortcut}</span>
         )}
 
         <button
-          className="absolute right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute right-1 opacity-0 transition-opacity group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
             togglePin(action.id);
           }}
         >
           {isPinned ? (
-            <Unplug className="w-3 h-3 text-blue-500" />
+            <Unplug className="h-3 w-3 text-blue-500" />
           ) : (
-            <Pin className="w-3 h-3 text-gray-400 hover:text-blue-500" />
+            <Pin className="h-3 w-3 text-gray-400 hover:text-blue-500" />
           )}
         </button>
       </div>
@@ -273,19 +272,14 @@ export default function QuickActionsPanel({
     return (
       <div
         key={suggestion.actionId}
-        className={`
-          flex items-center gap-2 px-3 py-2 rounded-lg
-          bg-gradient-to-r from-blue-50 to-transparent
-          border border-blue-200 cursor-pointer
-          ${canExecute ? "hover:from-blue-100" : "opacity-50 cursor-not-allowed"}
-        `}
+        className={`flex cursor-pointer items-center gap-2 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-transparent px-3 py-2 ${canExecute ? "hover:from-blue-100" : "cursor-not-allowed opacity-50"} `}
         onClick={() => canExecute && action.execute()}
       >
-        <Sparkles className="w-4 h-4 text-blue-500" />
-        <Icon className="w-4 h-4 text-gray-600" />
+        <Sparkles className="h-4 w-4 text-blue-500" />
+        <Icon className="h-4 w-4 text-gray-600" />
         <div className="flex-1">
           <span className="text-sm text-gray-700">{action.label}</span>
-          <span className="text-xs text-gray-500 block">{suggestion.reason}</span>
+          <span className="block text-xs text-gray-500">{suggestion.reason}</span>
         </div>
       </div>
     );
@@ -296,7 +290,7 @@ export default function QuickActionsPanel({
   return (
     <div
       ref={panelRef}
-      className="fixed bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden"
+      className="fixed overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl"
       style={{
         left: position.x,
         top: position.y,
@@ -307,34 +301,31 @@ export default function QuickActionsPanel({
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b cursor-move"
+        className="flex cursor-move items-center justify-between border-b bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3"
         onMouseDown={handleDragStart}
       >
         <div className="flex items-center gap-2">
-          <Command className="w-4 h-4 text-gray-600" />
-          <span className="font-medium text-sm">Quick Actions</span>
-          <span className="text-xs text-gray-500 px-2 py-0.5 bg-white rounded">
+          <Command className="h-4 w-4 text-gray-600" />
+          <span className="text-sm font-medium">Quick Actions</span>
+          <span className="rounded bg-white px-2 py-0.5 text-xs text-gray-500">
             {getContextLabel(context)}
           </span>
         </div>
         {onClose && (
-          <button
-            className="p-1 hover:bg-gray-200 rounded"
-            onClick={onClose}
-          >
-            <X className="w-4 h-4 text-gray-600" />
+          <button className="rounded p-1 hover:bg-gray-200" onClick={onClose}>
+            <X className="h-4 w-4 text-gray-600" />
           </button>
         )}
       </div>
 
       {/* Search */}
-      <div className="px-3 py-2 border-b">
+      <div className="border-b px-3 py-2">
         <div className="relative">
-          <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-400" />
+          <Search className="absolute top-2.5 left-2 h-4 w-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search actions..."
-            className="w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border py-2 pr-3 pl-8 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -345,27 +336,21 @@ export default function QuickActionsPanel({
       <div className="overflow-y-auto" style={{ maxHeight: 500 }}>
         {/* Smart Suggestions */}
         {showSuggestions && suggestions.length > 0 && !searchQuery && (
-          <div className="px-3 py-2 space-y-1">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 uppercase">
-                Suggested
-              </span>
-              <TrendingUp className="w-3 h-3 text-blue-500" />
+          <div className="space-y-1 px-3 py-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-500 uppercase">Suggested</span>
+              <TrendingUp className="h-3 w-3 text-blue-500" />
             </div>
-            {suggestions.map((suggestion) =>
-              renderSuggestion(suggestion)
-            )}
+            {suggestions.map((suggestion) => renderSuggestion(suggestion))}
           </div>
         )}
 
         {/* Pinned Actions */}
         {pinnedActionsList.length > 0 && !searchQuery && (
-          <div className="px-3 py-2 space-y-1 border-t">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 uppercase">
-                Pinned
-              </span>
-              <Pin className="w-3 h-3 text-gray-400" />
+          <div className="space-y-1 border-t px-3 py-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-500 uppercase">Pinned</span>
+              <Pin className="h-3 w-3 text-gray-400" />
             </div>
             {pinnedActionsList.map((action) => renderActionButton(action, true))}
           </div>
@@ -373,37 +358,35 @@ export default function QuickActionsPanel({
 
         {/* Frequently Used */}
         {frequentActions.length > 0 && !searchQuery && (
-          <div className="px-3 py-2 space-y-1 border-t">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 uppercase">
-                Frequently Used
-              </span>
-              <Clock className="w-3 h-3 text-gray-400" />
+          <div className="space-y-1 border-t px-3 py-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-500 uppercase">Frequently Used</span>
+              <Clock className="h-3 w-3 text-gray-400" />
             </div>
             {frequentActions.slice(0, 3).map((action) => renderActionButton(action))}
           </div>
         )}
 
         {/* All Actions by Category */}
-        <div className="px-3 py-2 space-y-2 border-t">
+        <div className="space-y-2 border-t px-3 py-2">
           {Array.from(groupedActions.entries()).map(([category, actions]) => (
             <div key={category} className="space-y-1">
               <button
-                className="flex items-center justify-between w-full text-left hover:bg-gray-50 rounded px-2 py-1"
+                className="flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-gray-50"
                 onClick={() => toggleCategory(category)}
               >
                 <span className="text-xs font-medium text-gray-500 uppercase">
                   {getCategoryLabel(category)}
                 </span>
                 {expandedCategories.has(category) ? (
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                  <ChevronDown className="h-3 w-3 text-gray-400" />
                 ) : (
-                  <ChevronRight className="w-3 h-3 text-gray-400" />
+                  <ChevronRight className="h-3 w-3 text-gray-400" />
                 )}
               </button>
 
               {expandedCategories.has(category) && (
-                <div className="space-y-0.5 ml-2">
+                <div className="ml-2 space-y-0.5">
                   {actions.map((action) => renderActionButton(action))}
                 </div>
               )}
@@ -413,23 +396,21 @@ export default function QuickActionsPanel({
 
         {/* Macros */}
         {macros.length > 0 && (
-          <div className="px-3 py-2 space-y-1 border-t">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 uppercase">
-                Macros
-              </span>
-              <Workflow className="w-3 h-3 text-purple-500" />
+          <div className="space-y-1 border-t px-3 py-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-500 uppercase">Macros</span>
+              <Workflow className="h-3 w-3 text-purple-500" />
             </div>
             {macros.map((macro) => (
               <div
                 key={macro.id}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-purple-50 cursor-pointer"
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 hover:bg-purple-50"
                 onClick={() => executeMacro(macro)}
               >
-                <Workflow className="w-4 h-4 text-purple-500" />
+                <Workflow className="h-4 w-4 text-purple-500" />
                 <div className="flex-1">
                   <span className="text-sm text-gray-700">{macro.name}</span>
-                  <span className="text-xs text-gray-500 block">
+                  <span className="block text-xs text-gray-500">
                     {macro.actions.length} actions
                   </span>
                 </div>
@@ -438,7 +419,7 @@ export default function QuickActionsPanel({
 
             {actionHistory.length >= 2 && (
               <button
-                className="w-full text-xs text-purple-600 hover:text-purple-700 py-1"
+                className="w-full py-1 text-xs text-purple-600 hover:text-purple-700"
                 onClick={() => createMacroFromHistory(3)}
               >
                 Create macro from recent actions
@@ -449,9 +430,9 @@ export default function QuickActionsPanel({
       </div>
 
       {/* Footer with tips */}
-      <div className="px-3 py-2 bg-gray-50 border-t">
+      <div className="border-t bg-gray-50 px-3 py-2">
         <div className="flex items-center gap-1 text-xs text-gray-500">
-          <Command className="w-3 h-3" />
+          <Command className="h-3 w-3" />
           <span>Tip: Use keyboard shortcuts for faster access</span>
         </div>
       </div>

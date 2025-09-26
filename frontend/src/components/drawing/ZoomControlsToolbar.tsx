@@ -28,8 +28,8 @@ interface ZoomControlsToolbarProps {
 }
 
 export default function ZoomControlsToolbar({
-  className = ""
-}: ZoomControlsToolbarProps): JSX.Element {
+  className = "",
+}: ZoomControlsToolbarProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [customZoomInput, setCustomZoomInput] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -55,18 +55,21 @@ export default function ZoomControlsToolbar({
   }, [currentZoom, isEditing]);
 
   // Set specific zoom level with smooth animation
-  const setZoomLevel = useCallback((percentage: number): void => {
-    const clampedZoom = Math.min(5000, Math.max(10, percentage));
-    const viewport = getViewport();
-    setViewport(
-      {
-        x: viewport.x,
-        y: viewport.y,
-        zoom: clampedZoom / 100,
-      },
-      { duration: 200 }
-    );
-  }, [getViewport, setViewport]);
+  const setZoomLevel = useCallback(
+    (percentage: number): void => {
+      const clampedZoom = Math.min(5000, Math.max(10, percentage));
+      const viewport = getViewport();
+      setViewport(
+        {
+          x: viewport.x,
+          y: viewport.y,
+          zoom: clampedZoom / 100,
+        },
+        { duration: 200 }
+      );
+    },
+    [getViewport, setViewport]
+  );
 
   // Handle zoom increment (+ button)
   const handleZoomIn = useCallback((): void => {
@@ -93,75 +96,80 @@ export default function ZoomControlsToolbar({
   }, [customZoomInput, currentZoom, setZoomLevel]);
 
   // Handle preset selection
-  const handlePresetSelect = useCallback((percentage: number): void => {
-    setZoomLevel(percentage);
-    setIsDropdownOpen(false);
-  }, [setZoomLevel]);
+  const handlePresetSelect = useCallback(
+    (percentage: number): void => {
+      setZoomLevel(percentage);
+      setIsDropdownOpen(false);
+    },
+    [setZoomLevel]
+  );
 
   // Handle special actions
-  const handleSpecialAction = useCallback((actionId: string): void => {
-    switch (actionId) {
-      case "fit-screen":
-        fitView({ padding: 0.1, duration: 200 });
-        break;
-      case "fit-selection": {
-        const selectedNodes = getNodes().filter((node) => node.selected);
-        if (selectedNodes.length > 0) {
-          // Calculate bounds of selected nodes
-          let minX = Infinity;
-          let minY = Infinity;
-          let maxX = -Infinity;
-          let maxY = -Infinity;
+  const handleSpecialAction = useCallback(
+    (actionId: string): void => {
+      switch (actionId) {
+        case "fit-screen":
+          fitView({ padding: 0.1, duration: 200 });
+          break;
+        case "fit-selection": {
+          const selectedNodes = getNodes().filter((node) => node.selected);
+          if (selectedNodes.length > 0) {
+            // Calculate bounds of selected nodes
+            let minX = Infinity;
+            let minY = Infinity;
+            let maxX = -Infinity;
+            let maxY = -Infinity;
 
-          selectedNodes.forEach((node) => {
-            const nodeX = node.position.x;
-            const nodeY = node.position.y;
-            const nodeWidth = node.width || 100;
-            const nodeHeight = node.height || 100;
+            selectedNodes.forEach((node) => {
+              const nodeX = node.position.x;
+              const nodeY = node.position.y;
+              const nodeWidth = node.width || 100;
+              const nodeHeight = node.height || 100;
 
-            minX = Math.min(minX, nodeX);
-            minY = Math.min(minY, nodeY);
-            maxX = Math.max(maxX, nodeX + nodeWidth);
-            maxY = Math.max(maxY, nodeY + nodeHeight);
-          });
+              minX = Math.min(minX, nodeX);
+              minY = Math.min(minY, nodeY);
+              maxX = Math.max(maxX, nodeX + nodeWidth);
+              maxY = Math.max(maxY, nodeY + nodeHeight);
+            });
 
-          const bounds = {
-            x: minX,
-            y: minY,
-            width: maxX - minX,
-            height: maxY - minY,
-          };
+            const bounds = {
+              x: minX,
+              y: minY,
+              width: maxX - minX,
+              height: maxY - minY,
+            };
 
-          // Use fitBounds equivalent with setViewport
-          const padding = 0.2;
-          const _viewport = getViewport();
-          const containerWidth = window.innerWidth * 0.7; // Approximate canvas width
-          const containerHeight = window.innerHeight * 0.7; // Approximate canvas height
+            // Use fitBounds equivalent with setViewport
+            const padding = 0.2;
+            const containerWidth = window.innerWidth * 0.7; // Approximate canvas width
+            const containerHeight = window.innerHeight * 0.7; // Approximate canvas height
 
-          const scaleX = containerWidth / (bounds.width * (1 + padding));
-          const scaleY = containerHeight / (bounds.height * (1 + padding));
-          const scale = Math.min(scaleX, scaleY, 5000 / 100); // Max zoom 5000%
+            const scaleX = containerWidth / (bounds.width * (1 + padding));
+            const scaleY = containerHeight / (bounds.height * (1 + padding));
+            const scale = Math.min(scaleX, scaleY, 5000 / 100); // Max zoom 5000%
 
-          const centerX = bounds.x + bounds.width / 2;
-          const centerY = bounds.y + bounds.height / 2;
+            const centerX = bounds.x + bounds.width / 2;
+            const centerY = bounds.y + bounds.height / 2;
 
-          setViewport(
-            {
-              x: containerWidth / 2 - centerX * scale,
-              y: containerHeight / 2 - centerY * scale,
-              zoom: scale,
-            },
-            { duration: 200 }
-          );
+            setViewport(
+              {
+                x: containerWidth / 2 - centerX * scale,
+                y: containerHeight / 2 - centerY * scale,
+                zoom: scale,
+              },
+              { duration: 200 }
+            );
+          }
+          break;
         }
-        break;
+        case "actual-size":
+          setZoomLevel(100);
+          break;
       }
-      case "actual-size":
-        setZoomLevel(100);
-        break;
-    }
-    setIsDropdownOpen(false);
-  }, [fitView, getNodes, getViewport, setViewport, setZoomLevel]);
+      setIsDropdownOpen(false);
+    },
+    [fitView, getNodes, setViewport, setZoomLevel]
+  );
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -205,21 +213,23 @@ export default function ZoomControlsToolbar({
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
+
+    return undefined;
   }, [isDropdownOpen]);
 
   // Check if current zoom matches any preset
   const currentPreset = ZOOM_PRESETS.find((preset) => preset.value === currentZoom);
 
   return (
-    <div className={`flex items-center space-x-1 pr-2 border-r border-gray-300 ${className}`}>
+    <div className={`flex items-center space-x-1 border-r border-gray-300 pr-2 ${className}`}>
       {/* Zoom Out Button */}
       <button
         onClick={handleZoomOut}
         disabled={currentZoom <= 10}
-        className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded p-1.5 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
         title="Zoom Out (Ctrl+-)"
       >
-        <Minus className="w-4 h-4" />
+        <Minus className="h-4 w-4" />
       </button>
 
       {/* Editable Zoom Percentage Field */}
@@ -239,7 +249,7 @@ export default function ZoomControlsToolbar({
                 setIsEditing(false);
               }
             }}
-            className="w-14 px-1 py-0.5 text-sm text-center border border-blue-500 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-14 rounded border border-blue-500 px-1 py-0.5 text-center text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
             min="10"
             max="5000"
             autoFocus
@@ -248,13 +258,13 @@ export default function ZoomControlsToolbar({
         ) : (
           <button
             onClick={(): void => setIsEditing(true)}
-            className="w-14 px-1 py-0.5 text-sm text-center border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-14 rounded border border-gray-300 px-1 py-0.5 text-center text-sm hover:bg-gray-50 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             title="Click to edit zoom level"
           >
             {currentZoom}
           </button>
         )}
-        <span className="absolute -right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 pointer-events-none">
+        <span className="pointer-events-none absolute top-1/2 -right-2 -translate-y-1/2 transform text-sm text-gray-500">
           %
         </span>
       </div>
@@ -263,38 +273,38 @@ export default function ZoomControlsToolbar({
       <button
         onClick={handleZoomIn}
         disabled={currentZoom >= 5000}
-        className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded p-1.5 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
         title="Zoom In (Ctrl++)"
       >
-        <Plus className="w-4 h-4" />
+        <Plus className="h-4 w-4" />
       </button>
 
       {/* Zoom Presets Dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={(): void => setIsDropdownOpen(!isDropdownOpen)}
-          className="p-1.5 hover:bg-gray-100 rounded flex items-center"
+          className="flex items-center rounded p-1.5 hover:bg-gray-100"
           title="Zoom presets and special actions"
         >
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className="h-4 w-4" />
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
+          <div className="absolute top-full right-0 z-50 mt-1 min-w-[160px] rounded-md border border-gray-200 bg-white shadow-lg">
             {/* Zoom Presets */}
             <div className="py-1">
-              <div className="px-3 py-1 text-xs font-medium text-gray-500 border-b border-gray-100">
+              <div className="border-b border-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
                 Zoom Level
               </div>
               {ZOOM_PRESETS.map((preset) => (
                 <button
                   key={preset.value}
                   onClick={(): void => handlePresetSelect(preset.value)}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 flex items-center justify-between"
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100"
                 >
                   <span>{preset.label}</span>
                   {currentPreset?.value === preset.value && (
-                    <Check className="w-3 h-3 text-blue-500" />
+                    <Check className="h-3 w-3 text-blue-500" />
                   )}
                 </button>
               ))}
@@ -305,14 +315,14 @@ export default function ZoomControlsToolbar({
 
             {/* Special Actions */}
             <div className="py-1">
-              <div className="px-3 py-1 text-xs font-medium text-gray-500 border-b border-gray-100">
+              <div className="border-b border-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
                 Actions
               </div>
               {SPECIAL_ACTIONS.map((action) => (
                 <button
                   key={action.id}
                   onClick={(): void => handleSpecialAction(action.id)}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100"
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
                 >
                   {action.label}
                 </button>

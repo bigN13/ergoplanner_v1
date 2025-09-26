@@ -158,7 +158,8 @@ export default function SmartRoutingPanel({
                 className="w-full"
               />
               <span className="text-xs text-gray-500">
-                {options.weight}x {options.weight < 1 ? "(Shorter)" : options.weight > 1 ? "(Faster)" : "(Balanced)"}
+                {options.weight}x{" "}
+                {options.weight < 1 ? "(Shorter)" : options.weight > 1 ? "(Faster)" : "(Balanced)"}
               </span>
             </div>
 
@@ -201,7 +202,7 @@ export default function SmartRoutingPanel({
 
         {/* Status Information */}
         <div className="mt-4 rounded bg-blue-50 p-2 text-xs text-blue-700">
-          <div className="font-medium mb-1">Current Configuration:</div>
+          <div className="mb-1 font-medium">Current Configuration:</div>
           <div>Mode: {options.routingMode}</div>
           <div>Grid: {options.gridSize}px</div>
           <div>Margin: {options.obstacleMargin}px</div>

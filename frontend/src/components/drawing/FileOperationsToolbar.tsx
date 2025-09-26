@@ -64,16 +64,10 @@ export default function FileOperationsToolbar(): React.ReactElement {
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
-      if (
-        templatesMenuRef.current &&
-        !templatesMenuRef.current.contains(event.target as Node)
-      ) {
+      if (templatesMenuRef.current && !templatesMenuRef.current.contains(event.target as Node)) {
         setShowTemplatesMenu(false);
       }
-      if (
-        recentMenuRef.current &&
-        !recentMenuRef.current.contains(event.target as Node)
-      ) {
+      if (recentMenuRef.current && !recentMenuRef.current.contains(event.target as Node)) {
         setShowRecentMenu(false);
       }
     };
@@ -130,7 +124,7 @@ export default function FileOperationsToolbar(): React.ReactElement {
   return (
     <>
       {/* Toolbar Section */}
-      <div className="flex items-center gap-1 px-2 border-r border-gray-200">
+      <div className="flex items-center gap-1 border-r border-gray-200 px-2">
         {/* New Button with Template Dropdown */}
         <div className="relative" ref={templatesMenuRef}>
           <button
@@ -140,12 +134,12 @@ export default function FileOperationsToolbar(): React.ReactElement {
               setShowTemplatesMenu(!showTemplatesMenu);
             }}
             title="New Drawing (Ctrl+N)"
-            className="flex items-center gap-1 px-2 py-1.5 text-sm rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-1 rounded px-2 py-1.5 text-sm transition-colors hover:bg-gray-100"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="h-4 w-4" />
             {!isMobile && <span>New</span>}
             <ChevronDown
-              className="w-3 h-3 text-gray-500 cursor-pointer"
+              className="h-3 w-3 cursor-pointer text-gray-500"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowTemplatesMenu(!showTemplatesMenu);
@@ -155,7 +149,7 @@ export default function FileOperationsToolbar(): React.ReactElement {
 
           {/* Templates Dropdown Menu */}
           {showTemplatesMenu && (
-            <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <div className="absolute top-full left-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white shadow-lg">
               <div className="py-1">
                 {templates.map((template) => (
                   <button
@@ -164,7 +158,7 @@ export default function FileOperationsToolbar(): React.ReactElement {
                       handleNew(template.id);
                       setShowTemplatesMenu(false);
                     }}
-                    className="flex flex-col items-start w-full px-3 py-2 text-left hover:bg-gray-100 transition-colors"
+                    className="flex w-full flex-col items-start px-3 py-2 text-left transition-colors hover:bg-gray-100"
                   >
                     <span className="text-sm font-medium">{template.name}</span>
                     {template.description && (
@@ -182,13 +176,13 @@ export default function FileOperationsToolbar(): React.ReactElement {
           <button
             onClick={() => handleOpen()}
             title="Open File (Ctrl+O)"
-            className="flex items-center gap-1 px-2 py-1.5 text-sm rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-1 rounded px-2 py-1.5 text-sm transition-colors hover:bg-gray-100"
           >
-            <FolderOpen className="w-4 h-4" />
+            <FolderOpen className="h-4 w-4" />
             {!isMobile && <span>Open</span>}
             {recentFiles.length > 0 && (
               <ChevronDown
-                className="w-3 h-3 text-gray-500 cursor-pointer"
+                className="h-3 w-3 cursor-pointer text-gray-500"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowRecentMenu(!showRecentMenu);
@@ -199,8 +193,8 @@ export default function FileOperationsToolbar(): React.ReactElement {
 
           {/* Recent Files Dropdown Menu */}
           {showRecentMenu && recentFiles.length > 0 && (
-            <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
-              <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
+            <div className="absolute top-full left-0 z-50 mt-1 max-h-96 w-72 overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg">
+              <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
                 <span className="text-sm font-medium">Recent Files</span>
                 <button
                   onClick={clearRecentFiles}
@@ -217,10 +211,10 @@ export default function FileOperationsToolbar(): React.ReactElement {
                       handleOpenRecent(file);
                       setShowRecentMenu(false);
                     }}
-                    className="flex items-start justify-between w-full px-3 py-2 text-left hover:bg-gray-100 transition-colors"
+                    className="flex w-full items-start justify-between px-3 py-2 text-left transition-colors hover:bg-gray-100"
                   >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{file.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{file.name}</p>
                       <p className="text-xs text-gray-500">
                         {formatRelativeTime(file.lastOpened)}
                         {file.size && ` • ${formatFileSize(file.size)}`}
@@ -237,12 +231,12 @@ export default function FileOperationsToolbar(): React.ReactElement {
         <button
           onClick={handleSave}
           title="Save (Ctrl+S)"
-          className="flex items-center gap-1 px-2 py-1.5 text-sm rounded hover:bg-gray-100 transition-colors relative"
+          className="relative flex items-center gap-1 rounded px-2 py-1.5 text-sm transition-colors hover:bg-gray-100"
         >
-          <Save className="w-4 h-4" />
+          <Save className="h-4 w-4" />
           {!isMobile && <span>Save</span>}
           {isDirty && (
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full" />
+            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-orange-500" />
           )}
         </button>
 
@@ -250,9 +244,9 @@ export default function FileOperationsToolbar(): React.ReactElement {
         <button
           onClick={handleSaveAs}
           title="Save As (Ctrl+Shift+S)"
-          className="flex items-center gap-1 px-2 py-1.5 text-sm rounded hover:bg-gray-100 transition-colors"
+          className="flex items-center gap-1 rounded px-2 py-1.5 text-sm transition-colors hover:bg-gray-100"
         >
-          <Download className="w-4 h-4" />
+          <Download className="h-4 w-4" />
           {!isMobile && <span>Save As</span>}
         </button>
 
@@ -262,7 +256,7 @@ export default function FileOperationsToolbar(): React.ReactElement {
             <div className="flex items-center gap-1">
               {autoSaveEnabled ? (
                 <>
-                  <Clock className="w-3 h-3" />
+                  <Clock className="h-3 w-3" />
                   <span>Autosave: On</span>
                 </>
               ) : (
@@ -270,9 +264,7 @@ export default function FileOperationsToolbar(): React.ReactElement {
               )}
             </div>
             {lastSaveTime && (
-              <span className="text-gray-400">
-                Last saved: {formatRelativeTime(lastSaveTime)}
-              </span>
+              <span className="text-gray-400">Last saved: {formatRelativeTime(lastSaveTime)}</span>
             )}
           </div>
         )}
@@ -280,22 +272,22 @@ export default function FileOperationsToolbar(): React.ReactElement {
 
       {/* Unsaved Changes Dialog */}
       {showUnsavedChangesDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
-            <div className="flex items-start gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-yellow-500 flex-shrink-0 mt-1" />
+        <div className="bg-opacity-50 fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+          <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-start gap-3">
+              <AlertTriangle className="mt-1 h-6 w-6 flex-shrink-0 text-yellow-500" />
               <div>
-                <h3 className="text-lg font-semibold mb-1">Unsaved Changes</h3>
+                <h3 className="mb-1 text-lg font-semibold">Unsaved Changes</h3>
                 <p className="text-sm text-gray-600">
-                  You have unsaved changes in &quot;{drawingName || "Untitled Drawing"}&quot;.
-                  Do you want to save them before continuing?
+                  You have unsaved changes in &quot;{drawingName || "Untitled Drawing"}&quot;. Do
+                  you want to save them before continuing?
                 </p>
               </div>
             </div>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => handleUnsavedChangesResponse(false)}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-sm text-gray-600 transition-colors hover:text-gray-800"
               >
                 Don&apos;t Save
               </button>
@@ -305,13 +297,13 @@ export default function FileOperationsToolbar(): React.ReactElement {
                   setShowTemplatesMenu(false);
                   setShowRecentMenu(false);
                 }}
-                className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                className="rounded border border-gray-300 px-4 py-2 text-sm transition-colors hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleUnsavedChangesResponse(true)}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="rounded bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
               >
                 Save
               </button>

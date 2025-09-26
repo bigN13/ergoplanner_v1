@@ -11,7 +11,10 @@ export class AddNodeCommand extends BaseCommand {
   private node: Node;
 
   constructor(node: Node, context: ICommandContext) {
-    super("add_node", `Add ${node.type || 'node'} (${node.id})`, context);
+    if (!node.id) {
+      throw new Error("Node must have an ID");
+    }
+    super("add_node", `Add ${node.type || "node"} (${node.id})`, context);
     this.node = { ...node };
   }
 
@@ -19,7 +22,7 @@ export class AddNodeCommand extends BaseCommand {
     const currentNodes = this.context.getNodes();
 
     // Check if node already exists
-    if (currentNodes.find(n => n.id === this.node.id)) {
+    if (currentNodes.find((n) => n.id === this.node.id)) {
       throw new Error(`Node with ID ${this.node.id} already exists`);
     }
 
@@ -28,11 +31,11 @@ export class AddNodeCommand extends BaseCommand {
 
   protected doUndo(): void {
     const currentNodes = this.context.getNodes();
-    const filteredNodes = currentNodes.filter(n => n.id !== this.node.id);
+    const filteredNodes = currentNodes.filter((n) => n.id !== this.node.id);
     this.context.setNodes(filteredNodes);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       nodeId: this.node.id,
@@ -61,20 +64,20 @@ export class DeleteNodeCommand extends BaseCommand {
     const currentEdges = this.context.getEdges();
 
     // Find the node to delete
-    this.node = currentNodes.find(n => n.id === this.nodeId) || null;
+    this.node = currentNodes.find((n) => n.id === this.nodeId) || null;
     if (!this.node) {
       throw new Error(`Node with ID ${this.nodeId} not found`);
     }
 
     // Store connected edges for undo
     this.connectedEdges = currentEdges
-      .filter(e => e.source === this.nodeId || e.target === this.nodeId)
-      .map(e => ({ id: e.id, source: e.source, target: e.target }));
+      .filter((e) => e.source === this.nodeId || e.target === this.nodeId)
+      .map((e) => ({ id: e.id, source: e.source, target: e.target }));
 
     // Remove node and connected edges
-    const filteredNodes = currentNodes.filter(n => n.id !== this.nodeId);
-    const filteredEdges = currentEdges.filter(e =>
-      e.source !== this.nodeId && e.target !== this.nodeId
+    const filteredNodes = currentNodes.filter((n) => n.id !== this.nodeId);
+    const filteredEdges = currentEdges.filter(
+      (e) => e.source !== this.nodeId && e.target !== this.nodeId
     );
 
     this.context.setNodes(filteredNodes);
@@ -98,9 +101,9 @@ export class DeleteNodeCommand extends BaseCommand {
     this.context.setNodes([...currentNodes, this.node]);
 
     // Restore connected edges (if they still make sense)
-    const availableNodes = new Set([...currentNodes.map(n => n.id), this.node.id]);
-    const restorableEdges = this.connectedEdges.filter(edge =>
-      availableNodes.has(edge.source) && availableNodes.has(edge.target)
+    const availableNodes = new Set([...currentNodes.map((n) => n.id), this.node.id]);
+    const restorableEdges = this.connectedEdges.filter(
+      (edge) => availableNodes.has(edge.source) && availableNodes.has(edge.target)
     );
 
     // Note: We can't fully restore edges without their complete data
@@ -111,11 +114,11 @@ export class DeleteNodeCommand extends BaseCommand {
     this.context.setEdges(currentEdges);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       nodeId: this.nodeId,
-      nodeType: this.node?.type || 'unknown',
+      nodeType: this.node?.type || "unknown",
       connectedEdgesCount: this.connectedEdges.length,
       connectedEdges: this.connectedEdges,
     };
@@ -138,18 +141,23 @@ export class ModifyNodeCommand extends BaseCommand {
 
   protected doExecute(): void {
     const currentNodes = this.context.getNodes();
-    const nodeIndex = currentNodes.findIndex(n => n.id === this.nodeId);
+    const nodeIndex = currentNodes.findIndex((n) => n.id === this.nodeId);
 
     if (nodeIndex === -1) {
       throw new Error(`Node with ID ${this.nodeId} not found`);
     }
 
+    const currentNode = currentNodes[nodeIndex];
+    if (!currentNode) {
+      throw new Error(`Node with ID ${this.nodeId} not found`);
+    }
+
     // Store original node for undo
-    this.originalNode = { ...currentNodes[nodeIndex] };
+    this.originalNode = { ...currentNode };
 
     // Apply updates
     const updatedNodes = [...currentNodes];
-    updatedNodes[nodeIndex] = { ...currentNodes[nodeIndex], ...this.updates };
+    updatedNodes[nodeIndex] = { ...currentNode, ...this.updates } as Node;
 
     this.context.setNodes(updatedNodes);
   }
@@ -160,7 +168,7 @@ export class ModifyNodeCommand extends BaseCommand {
     }
 
     const currentNodes = this.context.getNodes();
-    const nodeIndex = currentNodes.findIndex(n => n.id === this.nodeId);
+    const nodeIndex = currentNodes.findIndex((n) => n.id === this.nodeId);
 
     if (nodeIndex === -1) {
       throw new Error(`Node with ID ${this.nodeId} not found for undo`);
@@ -172,16 +180,18 @@ export class ModifyNodeCommand extends BaseCommand {
     this.context.setNodes(restoredNodes);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       nodeId: this.nodeId,
       updates: this.updates,
-      originalData: this.originalNode ? {
-        type: this.originalNode.type,
-        position: this.originalNode.position,
-        data: this.originalNode.data,
-      } : null,
+      originalData: this.originalNode
+        ? {
+            type: this.originalNode.type,
+            position: this.originalNode.position,
+            data: this.originalNode.data,
+          }
+        : null,
     };
   }
 }
@@ -216,22 +226,27 @@ export class MoveNodeCommand extends BaseCommand {
 
   private moveNodeToPosition(position: { x: number; y: number }): void {
     const currentNodes = this.context.getNodes();
-    const nodeIndex = currentNodes.findIndex(n => n.id === this.nodeId);
+    const nodeIndex = currentNodes.findIndex((n) => n.id === this.nodeId);
 
     if (nodeIndex === -1) {
       throw new Error(`Node with ID ${this.nodeId} not found`);
     }
 
+    const currentNode = currentNodes[nodeIndex];
+    if (!currentNode) {
+      throw new Error(`Node with ID ${this.nodeId} not found`);
+    }
+
     const updatedNodes = [...currentNodes];
     updatedNodes[nodeIndex] = {
-      ...currentNodes[nodeIndex],
-      position: { ...position }
+      ...currentNode,
+      position: { ...position },
     };
 
     this.context.setNodes(updatedNodes);
   }
 
-  public getDetails(): Record<string, unknown> {
+  public override getDetails(): Record<string, unknown> {
     return {
       ...super.getDetails(),
       nodeId: this.nodeId,
@@ -239,7 +254,7 @@ export class MoveNodeCommand extends BaseCommand {
       to: this.toPosition,
       distance: Math.sqrt(
         Math.pow(this.toPosition.x - this.fromPosition.x, 2) +
-        Math.pow(this.toPosition.y - this.fromPosition.y, 2)
+          Math.pow(this.toPosition.y - this.fromPosition.y, 2)
       ).toFixed(2),
     };
   }

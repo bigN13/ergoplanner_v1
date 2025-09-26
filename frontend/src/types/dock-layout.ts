@@ -3,7 +3,7 @@ import type { TabData as RcDockTabData } from "rc-dock";
 import type React from "react";
 
 // Extended TabData to allow string content (panel component keys)
-export interface TabData extends Omit<RcDockTabData, 'content'> {
+export interface TabData extends Omit<RcDockTabData, "content"> {
   content?: string | React.ReactElement | ((tab: TabData) => React.ReactElement);
 }
 
@@ -18,7 +18,7 @@ export interface DockTab {
 
 // Custom layout types that use string identifiers
 export interface DockBox {
-  mode?: 'horizontal' | 'vertical' | 'float';
+  mode?: "horizontal" | "vertical" | "float";
   size?: number;
   children?: (DockBox | DockPanel)[];
   tabs?: DockTab[];

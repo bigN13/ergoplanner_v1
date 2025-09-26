@@ -85,15 +85,13 @@ export default function Toolbar({
       return;
     }
 
-    const _drawingList = savedDrawings
-      .map((d: Record<string, unknown>) => `${d.name} (${new Date(d.savedAt as string).toLocaleString()})`)
-      .join("\n");
-
     // TODO: Replace with proper selection modal
-    const selected = "sample-drawing"; // prompt(`Select a drawing to load:\n\n${drawingList}\n\nEnter drawing name:`);
+    const selected = "sample-drawing"; // prompt(`Select a drawing to load:\n\nEnter drawing name:`);
 
     if (selected) {
-      const drawing = savedDrawings.find((d: Record<string, unknown>) => d.name === selected.split(" (")[0]);
+      const drawing = savedDrawings.find(
+        (d: Record<string, unknown>) => d.name === selected.split(" (")[0]
+      );
       if (drawing) {
         loadDrawing(drawing.id as string);
         // TODO: Replace with proper notification modal
