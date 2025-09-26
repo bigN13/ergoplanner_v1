@@ -40,7 +40,7 @@ export interface SmartRoutingHook {
 export function useSmartRouting(
   initialOptions: Partial<SmartRoutingOptions> = {}
 ): SmartRoutingHook {
-  const { getNodes, getEdges } = useReactFlow();
+  const { getNodes } = useReactFlow();
   const { addEdge } = useDrawingStore();
 
   const [options, setOptions] = useState<SmartRoutingOptions>({
@@ -57,7 +57,7 @@ export function useSmartRouting(
    * Simple pathfinding implementation
    */
   const findPath = useCallback(
-    (start: XYPosition, end: XYPosition, obstacles: Node[]): RouteResult => {
+    (start: XYPosition, end: XYPosition, _obstacles: Node[]): RouteResult => {
       // For now, return a simple orthogonal path
       const path: XYPosition[] = [];
 

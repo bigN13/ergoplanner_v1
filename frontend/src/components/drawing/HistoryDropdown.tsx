@@ -26,7 +26,7 @@ interface HistoryDropdownProps {
 }
 
 // Helper function to get the appropriate icon component for a command type
-const getIconComponent = (iconName: string, className = "h-3 w-3") => {
+const getIconComponent = (iconName: string, className = "h-3 w-3"): React.ReactElement => {
   const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     plus: Plus,
     "trash-2": Trash2,
@@ -85,7 +85,7 @@ export default function HistoryDropdown({
   onJumpToIndex,
   disabled = false,
   isUndo = true,
-}: HistoryDropdownProps) {
+}: HistoryDropdownProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -99,7 +99,7 @@ export default function HistoryDropdown({
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setHoveredIndex(null);
@@ -112,7 +112,7 @@ export default function HistoryDropdown({
     }
   }, [isOpen]);
 
-  const handleEntryClick = (entry: HistoryEntry, entryIndex: number) => {
+  const handleEntryClick = (entry: HistoryEntry, entryIndex: number): void => {
     const targetIndex = isUndo
       ? currentIndex - entryIndex - 1
       : currentIndex + entryIndex + 1;
@@ -122,8 +122,8 @@ export default function HistoryDropdown({
     setHoveredIndex(null);
   };
 
-  const getPreviewText = () => {
-    if (!hasEntries) return "No actions to " + (isUndo ? "undo" : "redo");
+  const getPreviewText = (): string => {
+    if (!hasEntries) return `No actions to ${isUndo ? "undo" : "redo"}`;
 
     const count = hoveredIndex !== null ? hoveredIndex + 1 : 1;
     const action = isUndo ? "Undo" : "Redo";
@@ -177,7 +177,7 @@ export default function HistoryDropdown({
           {/* History entries */}
           <div className="py-1">
             {relevantEntries.map((entry, index) => {
-              const isHovered = hoveredIndex === index;
+              const _isHovered = hoveredIndex === index;
               const willBeAffected = hoveredIndex !== null && index <= hoveredIndex;
 
               return (
