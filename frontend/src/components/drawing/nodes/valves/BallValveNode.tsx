@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import type { NodeProps } from 'reactflow';
-import BaseSymbolNode, { BaseSymbolData } from '../BaseSymbolNode';
+
+import type { BaseSymbolData } from '../BaseSymbolNode';
+import BaseSymbolNode from '../BaseSymbolNode';
 
 export interface BallValveData extends BaseSymbolData {
   symbolType: 'valve';
@@ -109,7 +111,7 @@ const BallValveNode = memo<NodeProps<BallValveData>>(({
   };
 
   // Custom SVG content for ball valve
-  const renderValveContent = () => {
+  const renderValveContent = (): React.JSX.Element => {
     const position = data.position || 'closed';
     const positionPercent = data.positionPercent || (position === 'open' ? 100 : position === 'closed' ? 0 : 50);
     const isActuated = data.actuated || false;

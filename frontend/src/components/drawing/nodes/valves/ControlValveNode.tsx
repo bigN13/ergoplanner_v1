@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import type { NodeProps } from 'reactflow';
-import BaseSymbolNode, { BaseSymbolData } from '../BaseSymbolNode';
+
+import type { BaseSymbolData } from '../BaseSymbolNode';
+import BaseSymbolNode from '../BaseSymbolNode';
 
 export interface ControlValveData extends BaseSymbolData {
   symbolType: 'valve';
@@ -150,7 +152,7 @@ const ControlValveNode = memo<NodeProps<ControlValveData>>(({
   };
 
   // Custom SVG content for control valve
-  const renderControlValveContent = () => {
+  const renderControlValveContent = (): React.JSX.Element => {
     const position = data.position || 0;
     const bodyStyle = data.bodyStyle || 'globe';
 

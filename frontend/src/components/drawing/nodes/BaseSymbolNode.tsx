@@ -1,6 +1,7 @@
 import React, { memo, useMemo, useRef } from 'react';
 import { Handle, Position, useViewport } from 'reactflow';
-import { PIDNodeData } from '../../../types/drawing';
+
+import type { PIDNodeData } from '../../../types/drawing';
 
 // Connection point interface matching backend domain model
 interface ConnectionPoint {

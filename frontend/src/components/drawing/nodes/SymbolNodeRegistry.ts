@@ -1,21 +1,20 @@
-import React from 'react';
-import { NodeTypes } from 'reactflow';
-import { BaseSymbolData } from './BaseSymbolNode';
+import type React from 'react';
+import type { NodeTypes, NodeProps } from 'reactflow';
 
-// Enhanced symbol components
+import type { BaseSymbolData } from './BaseSymbolNode';
+import CheckValveNode from './CheckValveNode';
+import CompressorNode from './CompressorNode';
+import FlowMeterNode from './FlowMeterNode';
+import HeatExchangerNode from './HeatExchangerNode';
+import PipeNode from './PipeNode';
+import PressureGaugeNode from './PressureGaugeNode';
+import PumpNode from './PumpNode';
 import { CentrifugalPumpNode, PositiveDisplacementPumpNode, ReciprocatingPumpNode } from './pumps';
-import { GateValveNode, BallValveNode, ControlValveNode } from './valves';
+import TankNode from './TankNode';
+import ValveNode from './ValveNode';
+import { BallValveNode, ControlValveNode, GateValveNode } from './valves';
 
 // Legacy components
-import PumpNode from './PumpNode';
-import ValveNode from './ValveNode';
-import TankNode from './TankNode';
-import PipeNode from './PipeNode';
-import FlowMeterNode from './FlowMeterNode';
-import PressureGaugeNode from './PressureGaugeNode';
-import CheckValveNode from './CheckValveNode';
-import HeatExchangerNode from './HeatExchangerNode';
-import CompressorNode from './CompressorNode';
 
 // Symbol node factory configuration
 export interface SymbolNodeConfig {
@@ -23,7 +22,8 @@ export interface SymbolNodeConfig {
   name: string;
   category: string;
   description: string;
-  component: React.ComponentType<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: React.ComponentType<NodeProps<any>>; // Using any for backward compatibility with legacy components
   defaultData: Partial<BaseSymbolData>;
   tags: string[];
   standards: string[];
@@ -524,11 +524,25 @@ export function createSymbolNode(
   nodeId: string,
   position: { x: number; y: number },
   customData?: Partial<BaseSymbolData>
-) {
+): { id: string; type: string; position: { x: number; y: number }; data: BaseSymbolData } {
   const config = getSymbolNodeConfig(nodeId);
   if (!config) {
     throw new Error(`Unknown symbol node type: ${nodeId}`);
   }
+
+  // Ensure dimensions are always defined
+  const dimensions = config.defaultData.dimensions || {
+    width: 60,
+    height: 60,
+    originX: 30,
+    originY: 30,
+    scale: 1.0,
+    minScale: 0.5,
+    maxScale: 3.0,
+    rotation: 0,
+    canFlipHorizontal: true,
+    canFlipVertical: false
+  };
 
   return {
     id: `${nodeId}-${Date.now()}`,
@@ -536,8 +550,9 @@ export function createSymbolNode(
     position,
     data: {
       ...config.defaultData,
+      dimensions,
       ...customData
-    }
+    } as BaseSymbolData
   };
 }
 

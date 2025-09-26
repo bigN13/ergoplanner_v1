@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import type { NodeProps } from 'reactflow';
-import BaseSymbolNode, { BaseSymbolData } from '../BaseSymbolNode';
+
+import type { BaseSymbolData } from '../BaseSymbolNode';
+import BaseSymbolNode from '../BaseSymbolNode';
 
 export interface CentrifugalPumpData extends BaseSymbolData {
   symbolType: 'pump';
@@ -93,7 +95,7 @@ const CentrifugalPumpNode = memo<NodeProps<CentrifugalPumpData>>(({
   };
 
   // Custom SVG content for centrifugal pump
-  const renderPumpContent = () => (
+  const renderPumpContent = (): React.JSX.Element => (
     <div className="flex h-full w-full items-center justify-center">
       <svg
         width="100%"

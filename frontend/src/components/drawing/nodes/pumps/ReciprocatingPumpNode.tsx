@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import type { NodeProps } from 'reactflow';
-import BaseSymbolNode, { BaseSymbolData } from '../BaseSymbolNode';
+
+import type { BaseSymbolData } from '../BaseSymbolNode';
+import BaseSymbolNode from '../BaseSymbolNode';
 
 export interface ReciprocatingPumpData extends BaseSymbolData {
   symbolType: 'pump';
@@ -124,7 +126,7 @@ const ReciprocatingPumpNode = memo<NodeProps<ReciprocatingPumpData>>(({
   };
 
   // Custom SVG content based on pump type
-  const renderPumpContent = () => {
+  const renderPumpContent = (): React.JSX.Element => {
     const pumpType = data.type || 'piston';
     const cylinders = data.cylinders || 1;
     const isDouble = data.acting === 'double';
