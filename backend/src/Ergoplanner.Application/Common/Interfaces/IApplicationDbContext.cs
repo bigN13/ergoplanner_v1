@@ -26,6 +26,21 @@ public interface IApplicationDbContext
     DbSet<PropertyTemplate> PropertyTemplates { get; }
 
     /// <summary>
+    /// Drawings in the system
+    /// </summary>
+    DbSet<Drawing> Drawings { get; }
+
+    /// <summary>
+    /// Layers in drawings
+    /// </summary>
+    DbSet<Layer> Layers { get; }
+
+    /// <summary>
+    /// Layer element associations
+    /// </summary>
+    DbSet<LayerElement> LayerElements { get; }
+
+    /// <summary>
     /// Save changes to the database
     /// </summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

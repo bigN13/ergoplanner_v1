@@ -22,6 +22,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<SymbolCategory> SymbolCategories => Set<SymbolCategory>();
     public DbSet<SymbolMetadata> SymbolMetadata => Set<SymbolMetadata>();
     public DbSet<PropertyTemplate> PropertyTemplates => Set<PropertyTemplate>();
+    public DbSet<Drawing> Drawings => Set<Drawing>();
+    public DbSet<Layer> Layers => Set<Layer>();
+    public DbSet<LayerElement> LayerElements => Set<LayerElement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
