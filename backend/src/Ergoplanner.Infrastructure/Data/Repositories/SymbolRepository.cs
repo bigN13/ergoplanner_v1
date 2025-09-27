@@ -46,7 +46,7 @@ public class SymbolRepository : ISymbolRepository
     {
         return await _context.Symbols
             .Include(s => s.Category)
-            .Where(s => s.Category != null && s.Category.Code == categoryCode)
+            .Where(s => s.Category != null && s.Category.Name == categoryCode)
             .OrderBy(s => s.Name)
             .AsNoTracking()
             .ToListAsync(cancellationToken);

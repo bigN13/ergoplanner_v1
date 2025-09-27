@@ -13,7 +13,7 @@ import { useDragPreviewStore, useDragPreviewActions } from "@/store/dragPreviewS
  * - ReactFlow integration
  * - Multi-selection support
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const useDragPreview = (): any => {
   const reactFlowInstance = useReactFlow();
   const previewState = useDragPreviewStore();
@@ -168,7 +168,7 @@ export const useDragPreview = (): any => {
       try {
         // Use project method if available, otherwise manual calculation
         if ("project" in reactFlowInstance) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           return (reactFlowInstance as any).project(flowPosition);
         }
 
@@ -248,7 +248,7 @@ export const useDragPreview = (): any => {
   const getPerformanceMetrics = useCallback(() => {
     return {
       ...performanceMetricsRef.current,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       cacheSize: (window as any).__dragPreviewCacheSize || 0, // Will be set by DragPreviewManager
     };
   }, []);

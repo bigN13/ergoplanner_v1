@@ -215,7 +215,7 @@ export const useDragPreviewMultiSelection = (): Node[] | undefined =>
   useDragPreviewStore((state) => state.multiSelection);
 
 // Action hooks
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const useDragPreviewActions = (): any =>
   useDragPreviewStore((state) => ({
     setPreviewElement: state.setPreviewElement,

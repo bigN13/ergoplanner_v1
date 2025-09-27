@@ -853,7 +853,7 @@
         "description": "Create a comprehensive drawing tools toolbar section with selection, text, shapes, connector, and freehand tools that integrate seamlessly with ReactFlow's node and edge system for P&ID diagram creation",
         "details": "Implement PrimaryDrawingToolsToolbar component at frontend/src/components/drawing/PrimaryDrawingToolsToolbar.tsx that provides essential drawing tools matching draw.io's functionality and integrating with the existing ReactFlow-based drawing system.\n\n**Component Structure:**\n\n1. **Selection Tool (Mouse Pointer Icon):**\n   - Create SelectionTool component with multi-select support using ReactFlow's SelectionMode.Partial\n   - Implement marquee selection by holding shift/ctrl and dragging\n   - Add lasso selection mode for irregular shapes\n   - Integrate with drawingStore's setSelectedNode/setSelectedEdge methods\n   - Support additive selection (Ctrl+Click) and subtractive selection (Alt+Click)\n   - Display selection count in status bar when multiple items selected\n\n2. **Text Tool (T Icon):**\n   - Implement TextTool that creates text nodes in ReactFlow\n   - Create TextNode component extending ReactFlow's Node type with contentEditable div\n   - Support inline editing by double-clicking text nodes\n   - Add text formatting options: font family, size, color, bold, italic, underline\n   - Implement auto-resize based on text content\n   - Store text data in node.data.text field with formatting metadata\n\n3. **Shapes Dropdown (Rectangle, Rounded Rectangle, Ellipse, Rhombus):**\n   - Create ShapesTool dropdown with shape selection menu\n   - Implement shape node types: RectangleNode, RoundedRectangleNode, EllipseNode, RhombusNode\n   - Each shape should extend ReactFlow Node with SVG rendering\n   - Support drag-to-create from toolbar or click-and-drag on canvas\n   - Add shape-specific properties: corner radius for rounded rectangle, aspect ratio lock\n   - Integrate with existing PIDNodeData type structure\n\n4. **Connector Tool with Intelligent Routing:**\n   - Implement ConnectorTool for creating edges between nodes\n   - Support three routing modes: straight, orthogonal (manhattan), curved (bezier)\n   - Create custom edge types: StraightPipeEdge, OrthogonalPipeEdge, CurvedPipeEdge\n   - Implement intelligent routing that avoids node overlaps using pathfinding\n   - Add connection validation using existing ConnectionValidation interface\n   - Support edge labels and flow direction indicators\n   - Integrate with PIDEdgeData for pipe specifications\n\n5. **Freehand Drawing Tool (Pencil Icon):**\n   - Create FreehandTool for drawing custom paths\n   - Implement path smoothing using Catmull-Rom spline algorithm\n   - Convert freehand paths to SVG path nodes in ReactFlow\n   - Support pressure sensitivity if available (PointerEvent.pressure)\n   - Add stroke options: width, color, opacity, line style (solid/dashed/dotted)\n   - Implement path simplification to reduce points while maintaining shape\n\n**Integration Requirements:**\n\n1. **Tool State Management:**\n   - Add currentTool state to drawingStore: 'select' | 'text' | 'rectangle' | 'rounded-rectangle' | 'ellipse' | 'rhombus' | 'connector' | 'freehand'\n   - Implement tool activation/deactivation logic\n   - Add keyboard shortcuts: V (select), T (text), R (rectangle), C (connector), P (pencil)\n\n2. **Canvas Interaction:**\n   - Override DrawingCanvas mouse events based on active tool\n   - Implement tool-specific cursor styles\n   - Add visual feedback during shape/connector creation\n   - Support tool cancellation with Escape key\n\n3. **Node Type Registration:**\n   - Register new node types in DrawingCanvas nodeTypes object\n   - Ensure all custom nodes support selection, deletion, and property editing\n   - Implement consistent styling with existing P&ID nodes\n\n4. **Toolbar Integration:**\n   - Replace/enhance the existing tool buttons in DrawioLayout.tsx (lines 262-273)\n   - Create tool groups with visual separators\n   - Add tool state indicators (active/inactive)\n   - Implement tooltips showing tool name and shortcut\n\n**Technical Implementation Details:**\n\n```typescript\n// frontend/src/components/drawing/PrimaryDrawingToolsToolbar.tsx\ninterface PrimaryDrawingToolsToolbarProps {\n  activeTool: string;\n  onToolChange: (tool: string) => void;\n  connectorMode: 'straight' | 'orthogonal' | 'curved';\n  onConnectorModeChange: (mode: 'straight' | 'orthogonal' | 'curved') => void;\n}\n\n// Tool button structure\nconst toolButtons = [\n  { id: 'select', icon: MousePointer, label: 'Selection Tool', shortcut: 'V' },\n  { id: 'text', icon: Type, label: 'Text Tool', shortcut: 'T' },\n  // Shapes dropdown\n  {\n    id: 'shapes',\n    label: 'Shapes',\n    children: [\n      { id: 'rectangle', icon: Square, label: 'Rectangle', shortcut: 'R' },\n      { id: 'rounded-rectangle', icon: RoundedSquare, label: 'Rounded Rectangle' },\n      { id: 'ellipse', icon: Circle, label: 'Ellipse', shortcut: 'E' },\n      { id: 'rhombus', icon: Diamond, label: 'Rhombus' }\n    ]\n  },\n  { id: 'connector', icon: Share2, label: 'Connector Tool', shortcut: 'C' },\n  { id: 'freehand', icon: Pencil, label: 'Freehand Drawing', shortcut: 'P' }\n];\n```\n\n**Path Smoothing Algorithm Example:**\n```typescript\nfunction smoothPath(points: Point[], smoothingFactor = 0.3): string {\n  if (points.length < 3) return pointsToPath(points);\n  \n  const smoothed: Point[] = [points[0]];\n  \n  for (let i = 1; i < points.length - 1; i++) {\n    const prev = points[i - 1];\n    const curr = points[i];\n    const next = points[i + 1];\n    \n    smoothed.push({\n      x: curr.x + (prev.x + next.x - 2 * curr.x) * smoothingFactor,\n      y: curr.y + (prev.y + next.y - 2 * curr.y) * smoothingFactor\n    });\n  }\n  \n  smoothed.push(points[points.length - 1]);\n  return catmullRomToPath(smoothed);\n}\n```",
         "testStrategy": "Unit tests for PrimaryDrawingToolsToolbar component verifying tool button rendering, active state management, dropdown menu functionality for shapes, keyboard shortcut registration. Integration tests ensuring proper tool activation updates drawingStore.currentTool, canvas cursor changes based on active tool, tool-specific event handlers are attached/detached. Test multi-select functionality with shift/ctrl modifiers, text node creation and editing, shape node creation with proper ReactFlow integration. Validate connector tool's routing algorithms produce valid paths, connection validation works correctly. Test freehand drawing path smoothing and simplification. E2E tests for complete drawing workflows using each tool, tool switching via keyboard shortcuts, creating complex diagrams with mixed node types. Performance tests ensuring smooth freehand drawing at 60fps, efficient multi-select with 100+ nodes, fast connector routing calculation.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           37,
           38,
@@ -868,7 +868,7 @@
         "description": "Create Insert menu dropdown, Arrange menu, and Format dropdown tools that integrate with ReactFlow nodes and provide comprehensive drawing manipulation capabilities matching draw.io's secondary toolbar functionality",
         "details": "Implement SecondaryToolsToolbar component at frontend/src/components/drawing/SecondaryToolsToolbar.tsx that provides advanced insertion, arrangement, and formatting tools fully integrated with the ReactFlow-based drawing system.\n\n**Component Architecture:**\n\n1. **Insert Menu Dropdown (Plus Icon):**\n   - Create InsertMenu component with dropdown supporting:\n     - Images: Upload via file picker, paste from clipboard, drag-drop support\n     - Tables: ReactFlow custom node with configurable rows/columns\n     - Links: URL/email/anchor links attached to nodes\n     - Equations: LaTeX/MathML support using KaTeX renderer\n     - Diagrams from Templates: Pre-built P&ID templates\n     - External Content: Embed URLs, iframe content\n   - Integration points:\n     - Use drawingStore.addNode() for inserting custom nodes\n     - Create ImageNode, TableNode, EquationNode custom ReactFlow nodes\n     - Store in frontend/src/components/drawing/nodes/\n\n2. **Arrange Menu (Grid Icon):**\n   - Create ArrangeMenu component with operations:\n     - Alignment: Left, Center, Right, Top, Middle, Bottom\n     - Distribution: Horizontal/Vertical spacing equalization\n     - Order Controls: Bring to Front, Send to Back, Move Forward/Backward\n     - Group/Ungroup: Combine multiple nodes into groups\n     - Lock/Unlock: Prevent/allow node modifications\n     - Rotation Presets: 90°, 180°, 270°, custom angle input\n     - Flip Operations: Horizontal/Vertical flip\n   - Implementation:\n     - Extend drawingStore with arrangeNodes(), groupNodes(), lockNodes()\n     - Use ReactFlow's node.style.zIndex for ordering\n     - Store group metadata in node.data.group\n     - Implement transform calculations for rotation/flip\n\n3. **Format Dropdown (Paintbrush Icon):**\n   - Create FormatMenu component with features:\n     - Style Copy/Apply: Extract and apply node styles\n     - Themes: Predefined style sets (Engineering, Modern, Classic)\n     - Style Panel Access: Quick link to PropertyPanel\n     - Format Painter: Click to copy, click to apply styles\n     - Clear Formatting: Reset to default styles\n   - State Management:\n     - Add formatPainterState to drawingStore\n     - Store copiedStyles object with node formatting\n     - Implement applyFormatting() action\n\n**Technical Implementation:**\n\n```typescript\n// SecondaryToolsToolbar.tsx structure\ninterface SecondaryToolsState {\n  activeMenu: 'insert' | 'arrange' | 'format' | null;\n  formatPainterActive: boolean;\n  copiedFormat: NodeFormatting | null;\n  selectedNodes: string[];\n}\n\n// Custom node types for Insert menu\nconst nodeTypes = {\n  image: ImageNode,\n  table: TableNode,\n  equation: EquationNode,\n  external: ExternalContentNode,\n};\n\n// Arrange operations\nconst arrangeOperations = {\n  alignLeft: (nodes: Node[]) => {...},\n  distributeHorizontal: (nodes: Node[]) => {...},\n  groupNodes: (nodes: Node[]) => {...},\n  rotateNodes: (nodes: Node[], angle: number) => {...},\n};\n```\n\n**Integration Requirements:**\n\n1. Insert into DrawioLayout.tsx after PrimaryDrawingToolsToolbar\n2. Add keyboard shortcuts:\n   - Ctrl+Shift+I: Open Insert menu\n   - Ctrl+G: Group selected\n   - Ctrl+Shift+G: Ungroup\n   - Ctrl+Shift+C: Copy formatting\n   - Ctrl+Shift+V: Paste formatting\n3. Update drawingStore.ts with new actions:\n   - insertContent(type, data)\n   - arrangeNodes(operation, nodeIds)\n   - applyFormatting(nodeIds, format)\n4. Create new custom nodes in frontend/src/components/drawing/nodes/:\n   - ImageNode.tsx (with resize handles)\n   - TableNode.tsx (with cell editing)\n   - EquationNode.tsx (with LaTeX rendering)\n   - ExternalContentNode.tsx (with iframe)\n\n**UI/UX Requirements:**\n\n- Match draw.io's dropdown menu styling with hover effects\n- Show previews for templates and themes\n- Implement drag cursors for arrangement operations\n- Visual feedback for format painter (cursor change, highlight)\n- Support multi-select for batch operations\n- Undo/redo support for all operations\n- Responsive dropdown positioning to avoid viewport overflow",
         "testStrategy": "Unit tests for SecondaryToolsToolbar verifying dropdown menu rendering, keyboard shortcut registration, format painter state management. Integration tests ensuring proper node insertion with unique IDs, arrangement calculations maintaining relative positions, format copying preserving all style properties. Test custom node components for proper ReactFlow integration, data persistence, and event handling. E2E tests for complete workflows: insert image and resize, create and edit table, group/ungroup operations, format painter across multiple nodes. Performance tests ensuring smooth operation with 100+ nodes during arrangement operations. Accessibility tests for keyboard navigation through dropdown menus.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           37,
           38,
@@ -884,7 +884,7 @@
         "description": "Create comprehensive view controls toolbar section with grid management, guides system, page view options, and layers panel toggle, integrating with ReactFlow canvas and existing drawing store",
         "details": "Implement ViewControlsToolbar component at frontend/src/components/drawing/ViewControlsToolbar.tsx that provides complete view management matching draw.io's view controls functionality. This toolbar section should be inserted into DrawioLayout.tsx to replace the basic grid toggle (lines 245-259).\n\n**Component Architecture:**\n\n1. **Grid Controls Section:**\n   - Create GridControlsDropdown component with toggle button showing current state\n   - Implement grid size selector (5px to 50px range) with preset options (10, 15, 20, 25)\n   - Add grid style selector dropdown with options:\n     - Dots (BackgroundVariant.Dots)\n     - Lines (BackgroundVariant.Lines)\n     - Crosses (BackgroundVariant.Cross)\n   - Store grid configuration in drawingStore with new fields:\n     ```typescript\n     gridStyle: 'dots' | 'lines' | 'crosses'\n     gridColor: string  // Default: '#e0e0e0'\n     gridOpacity: number  // Default: 0.5\n     ```\n   - Update DrawingCanvas.tsx Background component to use these settings\n\n2. **Guides & Rulers Section:**\n   - Create GuidesControlDropdown with main toggle button\n   - Implement ruler display along canvas edges (top and left)\n   - Add guide lines system:\n     - Drag from rulers to create horizontal/vertical guides\n     - Store guides in drawingStore as arrays of positions\n     - Double-click guide to remove\n   - Implement snap-to-guide functionality:\n     - Detect when dragged nodes are within 5px of guide\n     - Show visual snap indicator line\n     - Temporarily override node position to align\n   - Add smart guides for alignment:\n     - Detect alignment with other nodes (center, edges)\n     - Show temporary dashed lines during drag\n     - Display distance measurements between elements\n\n3. **Page View Options:**\n   - Create PageViewDropdown with current view indicator\n   - Implement view modes:\n     - Single Page: Show one page boundary\n     - Multiple Pages: Show grid of page boundaries\n     - Continuous: No page boundaries (infinite canvas)\n     - Fit to Window: Auto-zoom to fit content\n   - Add page size configuration:\n     - A4, A3, Letter, Legal, Custom sizes\n     - Portrait/Landscape orientation toggle\n   - Store settings in drawingStore:\n     ```typescript\n     pageView: 'single' | 'multiple' | 'continuous' | 'fit'\n     pageSize: { width: number; height: number; name: string }\n     pageOrientation: 'portrait' | 'landscape'\n     showPageBreaks: boolean\n     ```\n\n4. **Layers Panel Toggle:**\n   - Create layers visibility toggle button with icon badge showing layer count\n   - Connect to existing LayersPanel visibility state\n   - Add quick layer actions dropdown:\n     - Show/Hide all layers\n     - Lock/Unlock all layers\n     - Merge visible layers\n     - Flatten to single layer\n   - Sync with rightActiveTab in DrawioLayout when toggled\n\n**Implementation Details:**\n\n1. **Smart Guides System:**\n   ```typescript\n   interface SmartGuide {\n     type: 'horizontal' | 'vertical'\n     position: number\n     temporary: boolean\n     source?: string  // Node ID that triggered the guide\n   }\n   \n   const detectAlignments = (draggedNode: Node, otherNodes: Node[]) => {\n     const guides: SmartGuide[] = []\n     // Check center alignments\n     // Check edge alignments\n     // Calculate and show distances\n     return guides\n   }\n   ```\n\n2. **Ruler Component:**\n   ```tsx\n   const Ruler = ({ orientation, zoom, offset }) => {\n     // Render ruler with tick marks\n     // Handle drag to create guides\n     // Update measurements based on zoom\n   }\n   ```\n\n3. **Grid Style Integration:**\n   - Modify DrawingCanvas to accept grid style from store\n   - Create custom Background component if needed for 'crosses' style\n   - Implement grid opacity and color controls\n\n4. **Keyboard Shortcuts:**\n   - Ctrl+G: Toggle grid\n   - Ctrl+Shift+G: Toggle guides\n   - Ctrl+L: Toggle layers panel\n   - Ctrl+R: Toggle rulers\n\n5. **Visual Feedback:**\n   - Highlight active view mode in dropdown\n   - Show grid preview in style selector\n   - Display guide positions in ruler\n   - Animate panel transitions\n\n**Integration Points:**\n\n1. Update DrawioLayout.tsx to use ViewControlsToolbar\n2. Extend drawingStore with new view-related state\n3. Modify DrawingCanvas Background component configuration\n4. Add ruler overlay components to canvas wrapper\n5. Implement guide rendering layer above ReactFlow",
         "testStrategy": "Unit tests for ViewControlsToolbar verifying dropdown rendering, state toggle functionality, keyboard shortcut registration. Integration tests ensuring grid style changes update ReactFlow Background component, guide creation/deletion works correctly, snap-to-guide calculations are accurate, page view changes affect canvas rendering. Performance tests confirming smooth dragging with guides active (60fps with 20+ guides), ruler rendering doesn't impact zoom/pan performance. Visual regression tests for grid styles, ruler measurements at different zoom levels, guide alignment indicators",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           37,
           38,
@@ -901,7 +901,7 @@
         "description": "Create a centralized toolbar state manager handling tool activation/deactivation, contextual availability based on selection, history integration for undo/redo, tool state persistence, keyboard shortcut management, and toolbar configuration across all toolbar sections",
         "details": "Implement a comprehensive ToolbarStateManager at frontend/src/store/toolbarStateManager.ts that provides centralized state management for all toolbar sections and tools. This system will coordinate between FileOperationsToolbar, EditOperationsToolbar, ZoomControlsToolbar, PrimaryDrawingToolsToolbar, SecondaryToolsToolbar, and ViewControlsToolbar components.\n\n**Core Implementation:**\n\n1. **Create ToolbarStateManager Store (Zustand):**\n```typescript\n// frontend/src/store/toolbarStateManager.ts\ninterface ToolbarState {\n  // Active Tool Management\n  activeTool: string;\n  previousTool: string | null;\n  toolHistory: string[];\n  \n  // Tool Availability States\n  toolStates: Map<string, ToolState>;\n  \n  // Contextual Availability\n  contextualRules: Map<string, ContextRule[]>;\n  selectedElements: { nodes: string[]; edges: string[] };\n  \n  // Keyboard Shortcuts\n  shortcuts: Map<string, ShortcutConfig>;\n  activeShortcuts: Set<string>;\n  \n  // Toolbar Configuration\n  toolbarConfig: ToolbarConfiguration;\n  customToolbars: CustomToolbar[];\n  \n  // Tool Groups\n  toolGroups: Map<string, ToolGroup>;\n  collapsedGroups: Set<string>;\n}\n```\n\n2. **Tool State Interface:**\n```typescript\ninterface ToolState {\n  id: string;\n  enabled: boolean;\n  visible: boolean;\n  active: boolean;\n  badge?: string | number;\n  tooltip?: string;\n  customClass?: string;\n  metadata?: Record<string, any>;\n}\n```\n\n3. **Contextual Rules System:**\n```typescript\ninterface ContextRule {\n  toolId: string;\n  condition: (context: SelectionContext) => boolean;\n  action: 'enable' | 'disable' | 'hide' | 'show';\n  priority: number;\n}\n\ninterface SelectionContext {\n  selectedNodes: PIDNode[];\n  selectedEdges: PIDEdge[];\n  clipboard: Clipboard;\n  canUndo: boolean;\n  canRedo: boolean;\n  historyLength: number;\n}\n```\n\n4. **Keyboard Shortcut Management:**\n   - Integrate with existing react-hotkeys-hook library\n   - Create ShortcutManager class for registration/deregistration\n   - Handle shortcut conflicts and priority\n   - Support custom shortcut mappings\n   - Implement shortcut groups (global, drawing, edit modes)\n\n5. **History Integration:**\n   - Connect to existing drawingStore undo/redo system\n   - Update tool states based on history availability\n   - Maintain tool activation history for quick switching\n   - Implement tool-specific history (e.g., format painter history)\n\n6. **Tool Persistence:**\n   - Save toolbar configurations to localStorage\n   - Persist user preferences (collapsed panels, custom layouts)\n   - Implement profile system for different workflows\n   - Export/import toolbar configurations\n\n7. **State Synchronization:**\n   - Create useToolbarSync hook for components\n   - Implement event bus for cross-toolbar communication\n   - Handle tool activation conflicts\n   - Manage exclusive tool groups (e.g., selection vs drawing tools)\n\n8. **Advanced Features:**\n   - Tool grouping and categorization\n   - Dynamic toolbar loading based on user role/permissions\n   - Tool usage analytics and frequently used tools\n   - Quick access toolbar customization\n   - Toolbar themes and layouts\n\n9. **Integration Points:**\n   - Connect with enhanced-drawing-store.ts for activeTool synchronization\n   - Update DrawioLayout.tsx to use centralized state\n   - Modify AdvancedToolbar.tsx to consume toolbar state\n   - Ensure all future toolbar sections use this system\n\n10. **Performance Optimizations:**\n    - Use React.memo for toolbar components\n    - Implement selective re-rendering based on tool state changes\n    - Lazy load toolbar sections\n    - Virtualize long tool lists",
         "testStrategy": "Unit tests for ToolbarStateManager store verifying state updates, contextual rule evaluation, shortcut registration/conflict resolution. Integration tests ensuring proper synchronization between toolbar sections, history state updates trigger correct tool availability changes, persistence works across sessions. Component tests for toolbar sections consuming the state correctly. Performance tests ensuring state updates don't cause unnecessary re-renders. E2E tests for complete toolbar workflows including tool switching, keyboard shortcuts, and state persistence.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           37,
           38,
@@ -980,8 +980,64 @@
         "dependencies": [
           44
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create DropZoneManager Context and Provider",
+            "description": "Implement a React Context system to manage drop zones across the application with centralized state and detection logic",
+            "dependencies": [],
+            "details": "Create DropZoneContext in frontend/src/contexts/DropZoneContext.tsx with provider component. Define DropZone interface with properties: id, elementRef, isActive, canAcceptType, bounds. Implement registration/unregistration methods for drop zones. Create useDropZone hook for components to register themselves as drop zones. Integrate Intersection Observer API for efficient drop zone detection based on element visibility and overlap. Store active zones map in context state with methods to update zone status.",
+            "status": "done",
+            "testStrategy": "Unit test drop zone registration and unregistration. Test Intersection Observer callbacks trigger correctly. Verify context provider properly manages multiple drop zones. Test cleanup on component unmount."
+          },
+          {
+            "id": 2,
+            "title": "Implement Visual Feedback Layers and State Machine",
+            "description": "Create visual feedback system with overlays for valid/invalid drop zones and implement feedback state machine",
+            "dependencies": [
+              "45.1"
+            ],
+            "details": "Create DropZoneFeedback component in frontend/src/components/drawing/feedback/DropZoneFeedback.tsx. Implement CSS overlays with rgba(0,255,0,0.1) for valid zones and rgba(255,0,0,0.1) for invalid zones. Create feedback state machine with states: idle, hovering, valid_drop, invalid_drop using finite state pattern. Add CSS cursor changes (not-allowed for invalid, copy/move for valid). Implement transition animations using CSS transitions (200ms ease). Create useDropFeedback hook to manage feedback state transitions. Add visual indicators for different node types compatibility.",
+            "status": "done",
+            "testStrategy": "Visual regression tests for different feedback states. Test state machine transitions with various drag events. Verify overlay colors and opacity values. Test cursor changes based on zone validity."
+          },
+          {
+            "id": 3,
+            "title": "Build SmartGuides Component with Alignment Detection",
+            "description": "Create SVG-based smart guides system for showing alignment lines and distance measurements during drag operations",
+            "dependencies": [
+              "45.1"
+            ],
+            "details": "Create SmartGuides component in frontend/src/components/drawing/guides/SmartGuides.tsx using SVG overlay. Implement alignment detection algorithm for center, edge, and distribution alignment. Calculate distances between dragged element and nearby nodes using getBoundingClientRect. Render SVG lines for vertical/horizontal alignment guides with dashed stroke pattern. Create distance indicators showing pixel measurements as text labels positioned at midpoints. Implement threshold detection (within 5px) for guide activation. Add guide colors: blue for center alignment, green for edge alignment. Store guide positions in Zustand store slice.",
+            "status": "done",
+            "testStrategy": "Test alignment detection algorithms with various node positions. Verify SVG rendering for different guide types. Test distance calculations are accurate. Test performance with 50+ nodes on canvas."
+          },
+          {
+            "id": 4,
+            "title": "Create GridOverlay Component with Snap Settings",
+            "description": "Implement dynamic grid overlay that activates during drag operations with configurable snap settings",
+            "dependencies": [
+              "45.1"
+            ],
+            "details": "Create GridOverlay component in frontend/src/components/drawing/grid/GridOverlay.tsx. Implement grid rendering using Canvas 2D API for performance. Add snap settings (5px, 10px, 20px) configurable via toolbar or property panel. Use CSS custom properties for grid colors (--grid-color, --grid-opacity). Implement grid activation logic triggered by drag events. Add visual snap indicator when element snaps to grid. Create useGridSnap hook for snap calculations. Store grid visibility and snap settings in Zustand store. Optimize rendering with requestAnimationFrame for smooth updates.",
+            "status": "done",
+            "testStrategy": "Test grid rendering at different zoom levels. Verify snap calculations for various grid sizes. Test performance with grid active during drag. Test grid visibility toggle functionality."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Haptic Feedback and Animation Transitions",
+            "description": "Add haptic feedback for touch devices and smooth animation transitions for all visual feedback elements",
+            "dependencies": [
+              "45.2",
+              "45.3",
+              "45.4"
+            ],
+            "details": "Implement haptic feedback using Vibration API with feature detection for support. Add vibration patterns: short (10ms) for hover, medium (20ms) for valid drop, long (50ms) for invalid. Create useHapticFeedback hook with fallback for non-supporting devices. Install and configure framer-motion for smooth transitions (as react-spring not in project). Implement fade-in/out animations for overlays (200ms duration). Add spring animations for guide appearance/disappearance. Create smooth transitions for grid visibility changes. Integrate all feedback systems with DrawingCanvas drop handlers.",
+            "status": "done",
+            "testStrategy": "Test Vibration API feature detection and fallback. Test animation performance with multiple feedback elements. Verify transitions are smooth at 60fps. Test touch device interactions with haptic feedback."
+          }
+        ]
       },
       {
         "id": 46,
@@ -1206,8 +1262,65 @@
         "dependencies": [
           56
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create MediatR Commands for Symbol Management",
+            "description": "Implement UpdateSymbolCommand, DeleteSymbolCommand, and ImportSymbolsCommand following CQRS pattern with FluentValidation",
+            "dependencies": [],
+            "details": "Create UpdateSymbolCommand.cs in Symbols/Commands folder with properties for updating symbols, including version tracking. Implement DeleteSymbolCommand.cs for soft-delete operations with deleted-by tracking. Create ImportSymbolsCommand.cs with bulk import logic, duplicate detection, and transaction support. Add corresponding validators extending AbstractValidator for each command with comprehensive business rule validation. Include command handlers implementing IRequestHandler with proper error handling and unit of work pattern integration.",
+            "status": "done",
+            "testStrategy": "Unit test each command handler with Moq for repository and service dependencies. Test validation rules with valid and invalid inputs. Verify transaction rollback on import failures. Test concurrent update scenarios with version conflicts."
+          },
+          {
+            "id": 2,
+            "title": "Implement MediatR Queries for Symbol Retrieval",
+            "description": "Create query classes for symbol search, retrieval by ID, category, and standard with pagination and fuzzy matching support",
+            "dependencies": [],
+            "details": "Implement GetSymbolByIdQuery.cs with caching logic using IRedisCacheService. Create SearchSymbolsQuery.cs using PostgreSQL pg_trgm extension for fuzzy matching with configurable similarity threshold. Build GetSymbolsByCategoryQuery.cs and GetSymbolsByStandardQuery.cs with specification pattern from Common/Specifications. Implement GetPagedSymbolsQuery.cs with OData-compatible sorting and filtering. Add query handlers that leverage ISymbolRepository and integrate Redis caching with proper cache key generation and expiry strategies.",
+            "status": "done",
+            "testStrategy": "Unit test query handlers with mocked repositories returning test data. Test cache hit/miss scenarios with Redis mock. Verify fuzzy search accuracy with sample data. Test pagination logic with various page sizes. Integration test with PostgreSQL test container for pg_trgm functionality."
+          },
+          {
+            "id": 3,
+            "title": "Build Standard Conversion Service with Strategy Pattern",
+            "description": "Implement symbol standard conversion service supporting ISA-5.1, PIP, ISO-14617, and UK Water standards using strategy pattern",
+            "dependencies": [
+              "57.1",
+              "57.2"
+            ],
+            "details": "Create IStandardConversionStrategy interface with ConvertSymbol method. Implement concrete strategies: ISA51ConversionStrategy, PIPConversionStrategy, ISO14617ConversionStrategy, UKWaterConversionStrategy. Build StandardConversionService implementing conversion orchestration with strategy selection based on source/target standards. Create SymbolMappingRepository for storing conversion mappings with confidence scores. Implement conversion validation to ensure symbol integrity post-conversion. Add ConvertSymbolStandardCommand and GetStandardEquivalentsQuery with proper error handling for unsupported conversions.",
+            "status": "done",
+            "testStrategy": "Unit test each conversion strategy with known symbol mappings. Test bi-directional conversions for accuracy. Verify confidence score calculations. Test fallback behavior for unmapped symbols. Integration test with real standard specifications."
+          },
+          {
+            "id": 4,
+            "title": "Implement Symbol Validation Service with FluentValidation",
+            "description": "Create comprehensive symbol validation service with custom validators for symbol data, connections, and standard compliance",
+            "dependencies": [
+              "57.1",
+              "57.2"
+            ],
+            "details": "Create SymbolValidator extending AbstractValidator<Symbol> with rules for code format, SVG content validation, connection point validation, and dimension constraints. Implement custom validation rules: UniqueCodeValidator, ValidSvgContentValidator, ConnectionCompatibilityValidator. Build ValidateSymbolCommand with validation result aggregation. Create standard-specific validators inheriting from base validator: ISA51SymbolValidator, UKWaterSymbolValidator with standard-specific rules. Integrate validation into CreateSymbolCommand and UpdateSymbolCommand pipelines using ValidationBehaviour.",
+            "status": "done",
+            "testStrategy": "Unit test each validation rule with boundary cases. Test composite validation with multiple rule violations. Verify standard-specific validation rules. Test custom validator logic with edge cases. Performance test validation of complex symbols with many connection points."
+          },
+          {
+            "id": 5,
+            "title": "Configure Redis Caching Layer for Symbol Operations",
+            "description": "Implement comprehensive Redis caching strategy for symbol library with cache warming, invalidation, and monitoring",
+            "dependencies": [
+              "57.1",
+              "57.2",
+              "57.3",
+              "57.4"
+            ],
+            "details": "Extend RedisCacheService with symbol-specific methods: GetSymbolAsync, SetSymbolAsync with sliding expiration. Implement cache key generation strategy with pattern: 'symbol:{id}', 'symbol:search:{term}', 'symbol:category:{id}'. Create CacheInvalidationService with methods to invalidate related caches on symbol updates. Implement PreloadFrequentSymbolsCommand to warm cache with most-used symbols based on usage statistics. Add cache metrics tracking with hit/miss ratios. Configure Redis connection multiplexer with retry policies and circuit breaker pattern. Integrate caching into all query handlers with cache-aside pattern.",
+            "status": "done",
+            "testStrategy": "Unit test cache service with Redis mock verifying key patterns. Test cache invalidation cascades. Performance test with 10,000+ cached symbols. Test cache warming logic with usage statistics. Verify Redis connection resilience with connection failure scenarios."
+          }
+        ]
       },
       {
         "id": 58,
@@ -1356,7 +1469,7 @@
         "dependencies": [
           67
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1868,7 +1981,7 @@
         "testStrategy": "Unit tests for domain entities using xUnit, validate entity creation, property validation, and business rules. Test symbol standard enumeration and conversion mapping logic. Verify compliance tracking features work correctly for each water company.",
         "priority": "high",
         "dependencies": [],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2006,7 +2119,7 @@
         "testStrategy": "Unit tests for ConnectionPointManager service validating point creation, position calculations, and metadata persistence. Integration tests for node components ensuring handles render at correct positions. E2E tests for visual connection point indicators on symbol hover. Test connection point data persistence in node state",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2084,7 +2197,7 @@
         "testStrategy": "Unit tests for property schema validation. Test auto-increment tag number generation. Verify calculated properties update correctly. Test property inheritance from templates. Integration tests for PropertyPanel form generation",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2128,11 +2241,943 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 126,
+        "title": "Refactor Dockable Layout System Implementation",
+        "description": "Upgrade and optimize the existing rc-dock implementation to support full dockable panel architecture with enhanced flexibility and persistence",
+        "details": "The current implementation uses rc-dock v4.0.0-alpha.2. Refactor the docking system to support: 1) Dynamic panel management with drag-and-drop rearrangement 2) Panel state persistence using localStorage/IndexedDB 3) Layout presets for different engineering workflows (P&ID design, review, collaboration modes) 4) Floating panel support with window management 5) Tab grouping and splitting functionality. Implementation: Create a DockingLayoutProvider context using React Context API, implement layout serialization/deserialization using rc-dock's saveLayout/loadLayout APIs, create custom DockPanel components wrapping rc-dock's DockLayout with proper TypeScript types, implement panel factory pattern for dynamic panel creation, add keyboard shortcuts for panel management (Ctrl+Shift+D for dock, Ctrl+W to close panel). Use Zustand for layout state management integrated with existing drawingStore.",
+        "testStrategy": "Unit tests for layout persistence logic, integration tests for panel drag-drop operations, E2E tests verifying layout presets switching, performance tests ensuring 60fps during panel rearrangement, visual regression tests for panel rendering across different layouts",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 127,
+        "title": "Implement Advanced Symbol Connection Validation System",
+        "description": "Create intelligent connection validation engine that enforces P&ID engineering rules and standards for symbol interconnections",
+        "details": "Build upon existing ReactFlow connection system to add engineering-specific validation. Implementation: 1) Create ConnectionValidator service using strategy pattern for different validation rules 2) Implement connection point types (inlet/outlet, electrical, instrumentation, process flow) with TypeScript enums 3) Add material compatibility checks (validate pipe materials, pressure ratings, temperature limits) 4) Implement size compatibility validation using nominal pipe size (NPS) standards 5) Add flow direction enforcement with visual indicators 6) Create validation rules engine supporting ISA-5.1, ISO 14617, and UK water standards. Use the existing ConnectionPointManager service as foundation, extend Node data structure with connectionPoints array containing type, direction, size, material properties. Implement visual feedback using ReactFlow's custom edge rendering with error states shown in red, warnings in yellow.",
+        "testStrategy": "Unit tests for each validation rule, integration tests for complex multi-connection scenarios, property-based testing for connection compatibility matrix, E2E tests validating user workflow with invalid connections, performance tests ensuring validation doesn't impact 60fps target",
+        "priority": "high",
+        "dependencies": [
+          126
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 128,
+        "title": "Develop Real-time BoQ Synchronization Engine",
+        "description": "Implement bidirectional synchronization between P&ID drawings and Bill of Quantities with conflict resolution and real-time updates",
+        "details": "Create real-time BoQ sync using SignalR integration. Implementation: 1) Extend existing BoQPanel component with real-time sync capabilities 2) Implement BoQSyncService using CQRS pattern with MediatR on backend 3) Create conflict resolution algorithm using operational transformation (OT) or CRDT approach 4) Add optimistic updates with rollback capability 5) Implement quantity aggregation engine that calculates from symbol properties 6) Add change tracking with audit trail. Frontend: Use @tanstack/react-query for data synchronization with optimistic updates, implement custom useBoQSync hook with SignalR integration. Backend: Create BoQHub using SignalR, implement IBoQSyncService with Entity Framework change tracking, add BoQAggregateRoot domain entity following DDD principles. Use Redis for caching aggregated quantities, implement event sourcing for BoQ changes.",
+        "testStrategy": "Integration tests for SignalR real-time updates, unit tests for conflict resolution algorithms, E2E tests simulating concurrent user edits, performance tests with 1000+ BoQ items, stress tests for synchronization under network latency",
+        "priority": "high",
+        "dependencies": [
+          127
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 129,
+        "title": "Build Multi-format Import/Export System",
+        "description": "Implement comprehensive import/export functionality supporting CAD formats, images, and data interchange formats",
+        "details": "Enhance ExportImportPanel with multi-format support. Implementation: 1) DWG/DXF import using dxf-parser library (already installed), implement custom DXF to ReactFlow node converter 2) SVG export using react-flow-renderer's toSvg utility with custom styling 3) PDF export using @react-pdf/renderer with vector graphics preservation 4) PNG export using html-to-image library for high-resolution outputs 5) JSON/XML export with complete data model serialization 6) Implement symbol mapping engine for CAD imports using pattern matching. Create FileFormatService with factory pattern for different formats, implement progressive loading for large files using Web Workers, add format validation and error recovery. For DWG support, use server-side conversion with LibreDWG or ODA File Converter. Implement batch export functionality with queue management.",
+        "testStrategy": "Unit tests for each format converter, integration tests for round-trip import/export, visual regression tests for exported outputs, performance tests with large files (>10MB), compatibility tests with AutoCAD, Visio exports",
+        "priority": "medium",
+        "dependencies": [
+          128
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 130,
+        "title": "Implement Git-style Version Control System",
+        "description": "Create comprehensive version control system with branching, merging, and diff visualization for P&ID drawings",
+        "details": "Build Git-like version control for drawings. Implementation: 1) Create DrawingVersion domain entity with immutable snapshots 2) Implement Merkle tree structure for efficient diff calculation 3) Build visual diff viewer showing added/removed/modified symbols 4) Implement three-way merge algorithm for branch merging 5) Add conflict resolution UI with side-by-side comparison 6) Create version graph visualization using vis-network or D3.js. Backend: Implement Event Sourcing pattern with EventStore, create DrawingVersionAggregate with commands (CreateSnapshot, CreateBranch, MergeBranch), use PostgreSQL's JSONB for storing drawing snapshots with compression. Frontend: Create VersionControlPanel component with timeline view, implement useVersionControl hook for version operations, add visual diff rendering using ReactFlow with overlay layers. Implement optimized storage using delta compression.",
+        "testStrategy": "Unit tests for diff and merge algorithms, integration tests for branching workflows, E2E tests for typical version control scenarios, performance tests with 100+ versions, stress tests for concurrent version operations",
+        "priority": "medium",
+        "dependencies": [
+          129
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 131,
+        "title": "Create AI-Powered P&ID Generation Service",
+        "description": "Implement natural language to P&ID generation using ML models with iterative refinement capabilities",
+        "details": "Build AI generation using fine-tuned language models. Implementation: 1) Create prompt engineering pipeline for P&ID descriptions 2) Implement few-shot learning with engineering examples 3) Use OpenAI GPT-4 or Claude API for natural language understanding 4) Build symbol layout engine using force-directed graph algorithms 5) Implement iterative refinement with user feedback loop 6) Create domain-specific language (DSL) for P&ID descriptions. Backend ML Service: Use ML.NET for custom model training on P&ID patterns, implement ONNX runtime for inference, create LayoutOptimizer using genetic algorithms or simulated annealing. Frontend: Build AIGenerationPanel with prompt interface, implement streaming generation with progress indicators, add refinement UI with drag-to-correct functionality. Use prompt templates for common scenarios (water treatment, HVAC, chemical process). Implement context injection with industry standards.",
+        "testStrategy": "Evaluation tests with expert-annotated P&IDs, A/B testing for layout quality, unit tests for prompt processing, integration tests for end-to-end generation, performance tests targeting <5s generation time",
+        "priority": "medium",
+        "dependencies": [
+          130
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 132,
+        "title": "Develop Real-time Collaborative Editing System",
+        "description": "Implement WebSocket-based real-time collaboration with operational transformation for concurrent P&ID editing",
+        "details": "Build real-time collaboration using SignalR and Operational Transformation. Implementation: 1) Create collaboration session management with room-based architecture 2) Implement cursor tracking and presence awareness using SignalR 3) Build operation transformation (OT) engine for concurrent edits 4) Add user awareness features (colored cursors, selection highlights, avatars) 5) Implement permission system with view/edit/admin roles 6) Add voice/video integration using WebRTC. Backend: Create CollaborationHub with SignalR, implement OT server using ShareJS or Yjs algorithms, use Redis for session state and presence tracking. Frontend: Implement useCollaboration hook with WebSocket management, create PresenceOverlay component showing active users, add CollaborationToolbar with user list and permissions. Use y-reactflow adapter for Yjs integration with ReactFlow. Implement conflict-free replicated data types (CRDTs) for robust synchronization.",
+        "testStrategy": "Integration tests for concurrent editing scenarios, latency tests for real-time updates, stress tests with 10+ concurrent users, E2E tests for collaboration workflows, network resilience tests with disconnection handling",
+        "priority": "high",
+        "dependencies": [
+          131
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 133,
+        "title": "Implement Advanced Performance Optimization System",
+        "description": "Optimize rendering and interaction performance for large P&ID diagrams with 1000+ elements",
+        "details": "Implement comprehensive performance optimizations. Implementation: 1) Virtual rendering with viewport culling using react-window principles 2) Level-of-detail (LOD) rendering with simplified symbols at low zoom 3) Web Worker offloading for heavy computations (validation, routing) 4) Implement RequestIdleCallback for non-critical updates 5) Add progressive rendering with priority queue 6) Optimize React re-renders using memo and useMemo strategically. Specific optimizations: Implement spatial indexing using R-tree (rbush library) for efficient hit detection, use OffscreenCanvas for symbol pre-rendering, implement dirty rectangle rendering for partial canvas updates, add WebGL rendering layer using PixiJS for complex diagrams, create render batching system for bulk updates. Memory optimization: Implement symbol instance pooling, use WeakMap for metadata storage, add garbage collection triggers for unused resources.",
+        "testStrategy": "Performance benchmarks with 100, 500, 1000, 5000 elements, FPS monitoring during interactions, memory profiling for leak detection, stress tests with rapid user interactions, comparative benchmarks against draw.io",
+        "priority": "high",
+        "dependencies": [
+          132
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 134,
+        "title": "Build Comprehensive Mobile and Touch Support",
+        "description": "Implement responsive design and touch-optimized interactions for mobile and tablet devices",
+        "details": "Create mobile-first responsive implementation. Implementation: 1) Touch gesture support using Hammer.js or native Pointer Events 2) Responsive panel layouts using CSS Grid and container queries 3) Touch-optimized UI controls with larger hit targets (minimum 44px) 4) Implement pinch-to-zoom and two-finger pan gestures 5) Add haptic feedback using Vibration API 6) Create mobile-specific toolbar with gesture shortcuts. Specific features: Implement touch-and-hold context menus, add gesture recognition for common actions (swipe to delete, pinch to group), create simplified mobile UI mode with essential tools only, implement orientation handling with layout adaptation, add PWA support with offline capabilities using service workers. Stylus support: Detect stylus input using PointerEvent.pointerType, implement pressure sensitivity for line thickness, add palm rejection using touch-action CSS.",
+        "testStrategy": "Mobile device testing on iOS/Android, touch gesture testing on various screen sizes, responsive design testing with different viewports, PWA functionality tests, performance tests on mid-range mobile devices",
+        "priority": "low",
+        "dependencies": [
+          133
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 135,
+        "title": "Create Production-Ready Testing and Documentation Suite",
+        "description": "Implement comprehensive testing framework and documentation system for production deployment",
+        "details": "Build complete testing and documentation infrastructure. Testing Implementation: 1) Unit tests with Vitest achieving >80% coverage 2) Integration tests using React Testing Library 3) E2E tests with Playwright covering critical user journeys 4) Visual regression tests using Percy or Chromatic 5) Performance tests using Lighthouse CI 6) Load testing using K6 or Artillery. Documentation: Create Storybook for component library, implement JSDoc/TSDoc for all public APIs, build interactive API playground using Swagger/OpenAPI, create video tutorials using Loom or CloudApp integration, implement in-app help system with tooltips and guided tours using Shepherd.js. Quality Gates: Set up pre-commit hooks with Husky, implement GitHub Actions for CI/CD, add SonarQube for code quality analysis, create automated dependency updates with Dependabot.",
+        "testStrategy": "Meta-testing for test reliability, documentation coverage analysis, accessibility testing with axe-core, security testing with OWASP ZAP, cross-browser testing using BrowserStack, internationalization testing for multi-language support",
+        "priority": "medium",
+        "dependencies": [
+          134
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 136,
+        "title": "Implement Symbol Metadata and Property Management System",
+        "description": "Create a comprehensive metadata and property management system for engineering symbols supporting all technical properties, process data, and standards compliance tracking",
+        "details": "Build the core symbol metadata management infrastructure using Entity Framework Core with PostgreSQL/JSON columns. Implement the ISymbolMetadata interface with properties for identification (tagNumber, name, description), technical specs (size, rating, material), process data (service, designPressure, designTemperature, flowRate), and standards (ISA/PIP/ISO/DIN/BS). Create a PropertyManager service in frontend/src/services/PropertyManager.ts that syncs with backend APIs. Use PostgreSQL JSONB columns for flexible metadata storage with GIN indexes for performance. Implement property inheritance patterns for symbol families. Add validation rules using FluentValidation for property constraints. Create property templates for common equipment types. Use Redis caching (StackExchange.Redis 2.8+) for frequently accessed metadata with 15-minute TTL. Implement audit trail for property changes using EF Core interceptors.",
+        "testStrategy": "Unit tests for property validation rules, integration tests for metadata CRUD operations, performance tests for property queries with 10000+ symbols, test property inheritance chains, verify JSON serialization/deserialization, test Redis cache invalidation patterns",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 137,
+        "title": "Develop Connection Point System with Intelligent Validation",
+        "description": "Implement a sophisticated connection point system supporting auto-snap, validation, multi-connection manifolds, and directional flow indicators",
+        "details": "Enhance the existing ConnectionPoint value object in backend with advanced validation logic. Implement ConnectionPointManager service using spatial indexing with R-tree (NetTopologySuite 2.5+) for efficient proximity detection. Create connection validation engine supporting type compatibility (process/utility/instrument/electrical), size matching with tolerance ranges, pressure/temperature rating validation, and material compatibility checks. Implement auto-snap algorithm using k-d tree for nearest neighbor search within 10px threshold. Support multi-connection manifolds using graph data structures (QuikGraph library). Add flow direction indicators with automatic arrow generation based on connection angles. Create visual feedback system showing valid/invalid connections during drag operations using React Spring for smooth animations. Implement connection strength calculation for stress analysis. Store connection rules in PostgreSQL with caching layer.",
+        "testStrategy": "Test auto-snap accuracy within 10px tolerance, validate connection compatibility rules across all symbol types, performance test with 500+ simultaneous connections, test manifold connections with up to 10 branches, verify flow direction calculations, stress test spatial indexing performance",
+        "priority": "high",
+        "dependencies": [
+          136
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 138,
+        "title": "Build Comprehensive Process Equipment Symbol Library",
+        "description": "Create 150+ process equipment symbols including vessels, pumps, compressors, and heat exchangers with full parametric generation",
+        "details": "Implement ParametricSymbolGenerator service using SVG.js 3.2+ for dynamic symbol creation. Create base classes for each equipment category: VesselSymbolBase (40+ variants including horizontal/vertical vessels, storage tanks, spherical vessels), PumpSymbolBase (35+ variants - centrifugal, positive displacement, reciprocating), CompressorSymbolBase (20+ variants), HeatExchangerSymbolBase (40+ variants including TEMA types). Use React memo and useMemo for optimized rendering. Implement LOD (Level of Detail) system switching between simplified/detailed representations based on zoom level using IntersectionObserver API. Create symbol variations using parametric equations for curves and shapes. Store SVG definitions in PostgreSQL with path optimization using SVGO. Implement symbol thumbnail generation using sharp library. Add support for internal components (baffles, agitators) as child symbols. Use Web Workers for heavy SVG calculations.",
+        "testStrategy": "Visual regression testing using Percy/Chromatic, validate SVG path accuracy, test parametric generation with edge cases, performance test rendering 1000+ symbols at 60fps, verify LOD switching at different zoom levels, test symbol scaling and rotation accuracy",
+        "priority": "high",
+        "dependencies": [
+          136,
+          137
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 139,
+        "title": "Implement Piping Components and Valve Systems",
+        "description": "Develop complete piping component library with 125+ symbols including valves, fittings, flanges, and supports with intelligent routing",
+        "details": "Create valve symbol components (60+ variants) using parametric generation: gate, globe, ball, butterfly, check, control, plug, diaphragm, safety relief, three-way, four-way valves. Implement intelligent valve actuator system (manual, pneumatic, electric, hydraulic) as decorators. Build fitting library (30+ variants) with elbows, tees, reducers using Bezier curves for smooth transitions. Create flange system (15+ variants) with automatic bolt pattern generation. Implement pipe routing algorithm using A* pathfinding (PathfindingService.ts) with obstacle avoidance. Add pipe specification system (schedule, material, insulation) stored as metadata. Create dynamic pipe thickness calculation based on pressure rating. Implement pipe support symbols (20+ variants) with spring hanger calculations. Use React Flow's edge system for pipe connections with custom edge renderers. Add heat tracing and insulation indicators as path decorators.",
+        "testStrategy": "Test valve state transitions (open/closed/throttled), validate pipe routing around obstacles, test fitting angle calculations, verify flange bolt patterns, performance test with 500+ piping components, test pipe specification inheritance",
+        "priority": "high",
+        "dependencies": [
+          137,
+          138
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 140,
+        "title": "Create ISA-5.1 Compliant Instrumentation Symbol System",
+        "description": "Build complete instrumentation library with 85+ symbols following ISA-5.1-2022 standard including transmitters, controllers, and indicators",
+        "details": "Implement ISA-5.1 tag number generation system (XX-YYYY format) with automatic sequencing. Create instrument bubble symbols with variable shapes (circle, square, hexagon, diamond) based on function. Build primary element library (40+ variants): orifice plates, venturi meters, flow nozzles, pitot tubes, thermowells, pressure sensors, level instruments, analytical instruments. Implement control element symbols (30+ variants): control valves with actuators, transmitters (FT, PT, LT, TT), controllers (FIC, PIC, LIC, TIC), indicators, recorders, I/P converters, computing relays. Create instrument line styles (solid, dashed, dotted) for different signal types (pneumatic, electric, capillary). Add balloon callouts for instrument details using Floating UI library. Implement loop sheet integration storing instrument data in normalized tables. Create instrument index generation with Excel/CSV export using ExcelJS. Support multi-variable instruments with composite bubbles.",
+        "testStrategy": "Validate ISA-5.1 compliance using standard test cases, test tag number generation uniqueness, verify instrument bubble rendering at all scales, test loop sheet data integrity, validate signal line connections, test instrument index export formats",
+        "priority": "high",
+        "dependencies": [
+          136,
+          137
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 141,
+        "title": "Develop UK Water Industry Standard Symbols",
+        "description": "Create 200+ UK water company specific symbols for Thames Water, Severn Trent, Welsh Water, United Utilities, and Northumbrian Water",
+        "details": "Implement water treatment process symbols: clarifiers with mechanisms (rake, suction, chain-and-flight), rapid gravity filters with backwash systems, GAC/sand/multimedia filters, chlorine contact tanks with baffles, UV disinfection units with lamp configurations, ozone generators and contactors. Create pumping station components: wet well/dry well configurations, submersible/vertical turbine pumps, variable speed drives, surge vessels. Build distribution system symbols: PRV stations, flow meters (electromagnetic, ultrasonic), sampling points, analyzer shelters, chlorination injection points, reservoir level controls. Implement SCADA/telemetry symbols: RTUs, radio masts, HMI screens, control panels. Create sludge treatment symbols: digesters (anaerobic/aerobic), dewatering equipment (centrifuge, belt press), thickeners. Store company-specific variations in separate namespaces. Implement symbol mapping between different water company standards using conversion matrices.",
+        "testStrategy": "Validate against actual water company P&ID standards, test symbol conversion between standards, verify water-specific process logic, test SCADA symbol interactions, validate treatment process symbol sequences",
+        "priority": "medium",
+        "dependencies": [
+          138,
+          139,
+          140
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 142,
+        "title": "Build Symbol Search, Discovery and Organization System",
+        "description": "Implement advanced search capabilities with full-text search, visual similarity matching, smart categories, and AI-powered recommendations",
+        "details": "Implement full-text search using PostgreSQL tsvector with weighted ranking (name: A, description: B, tags: C). Create visual similarity search using perceptual hashing (pHash) stored as PostgreSQL cube data type for efficient similarity queries. Build faceted search interface with React InstantSearch components supporting filters by category, standard, size range, pressure rating, material. Implement smart categories using ML.NET clustering (K-means) based on usage patterns. Create favorites system with user preferences stored in PostgreSQL with Redis caching. Build recent items tracking using Redis sorted sets with TTL. Implement AI-powered recommendations using collaborative filtering (symbols frequently used together). Add search analytics tracking using Application Insights. Create search suggestions using PostgreSQL trigram similarity (pg_trgm extension). Implement search result ranking using TF-IDF scoring. Support Boolean search operators (AND, OR, NOT). Add search history with autocomplete.",
+        "testStrategy": "Test search relevance using NDCG metrics, validate visual similarity accuracy, test faceted filter combinations, verify recommendation quality, load test with 10000+ concurrent searches, test search suggestion accuracy",
+        "priority": "medium",
+        "dependencies": [
+          138,
+          139,
+          140,
+          141
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 143,
+        "title": "Implement Symbol Transformation and Behavior System",
+        "description": "Create intelligent symbol behaviors including rotation, flipping, resizing, status indication, live data display, and conditional formatting",
+        "details": "Implement rotation system with 15-degree increments using CSS transforms with GPU acceleration. Create text auto-orientation keeping labels readable at any rotation angle using canvas measureText API. Build intelligent flipping system preserving connection points and text readability. Implement aspect-ratio locked resizing with proportional scaling using ResizeObserver API. Create LOD system with three detail levels: simplified (zoom < 0.5), standard (0.5-2.0), detailed (> 2.0). Add status indication system (running/stopped/standby/alarm) using CSS animations and state machines (XState library). Implement live data binding displaying process values from SignalR hub with 1-second update rate. Create conditional formatting engine with rule-based visual alerts (color changes, blinking, badges) based on threshold values. Build property inheritance system for symbol families using prototype chain pattern. Implement undo/redo system for transformations using Command pattern with immutable state.",
+        "testStrategy": "Test rotation accuracy at all angles, verify text readability after transformations, test LOD transitions smoothness, validate live data update latency < 100ms, test conditional formatting rule evaluation, verify undo/redo state consistency",
+        "priority": "medium",
+        "dependencies": [
+          136,
+          137
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 144,
+        "title": "Create Symbol Import/Export and CAD Integration System",
+        "description": "Develop comprehensive import/export functionality supporting DWG/DXF formats, symbol packages, and cross-system compatibility",
+        "details": "Implement DWG/DXF parser using dxf-parser and writer using dxf-writer libraries for AutoCAD integration. Create symbol mapping engine translating between CAD blocks and ReactFlow nodes using mapping tables stored in PostgreSQL. Build layer preservation system maintaining CAD layer organization in ReactFlow groups. Implement property mapping between CAD attributes and symbol metadata using XSLT transformations. Create symbol package format (.espkg) as ZIP archives containing symbols.json manifest, SVG files, metadata, and thumbnails. Build import wizard with conflict resolution (skip, replace, rename) and preview. Implement bulk export with selective symbol inclusion. Add version control for symbol libraries using semantic versioning with migration scripts. Create symbol sharing system with organization/team libraries stored in Azure Blob Storage. Implement symbol validation ensuring imported symbols meet quality standards (valid SVG, required metadata). Support batch conversion between standards using parallel processing.",
+        "testStrategy": "Test DWG/DXF round-trip accuracy, validate CAD attribute preservation, test symbol package integrity, verify cross-system compatibility, test large file imports (>100MB), validate version migration paths",
+        "priority": "low",
+        "dependencies": [
+          138,
+          139,
+          140,
+          141
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 145,
+        "title": "Develop Performance Optimization and Rendering System",
+        "description": "Optimize rendering performance for 1000+ symbols maintaining 60fps with progressive loading, virtualization, and GPU acceleration",
+        "details": "Implement virtual scrolling for symbol library using react-window with fixed-size grid. Create progressive symbol loading with intersection observer loading symbols in viewport + 200px buffer. Build WebGL-accelerated rendering for complex symbols using Pixi.js as ReactFlow custom renderer. Implement symbol instancing for repeated symbols sharing geometry reducing memory usage by 70%. Create dirty rectangle optimization only re-rendering changed regions. Add request animation frame batching for smooth 60fps updates. Implement Web Worker offloading for SVG path calculations and collision detection. Create memory pooling for symbol instances reusing objects to reduce GC pressure. Build level-of-detail (LOD) system with automatic quality adjustment based on performance metrics. Implement texture atlasing for symbol thumbnails reducing draw calls. Add lazy compilation for complex symbols using dynamic imports. Create performance monitoring dashboard using Performance API tracking FPS, memory usage, render time. Implement adaptive quality settings automatically adjusting based on device capabilities.",
+        "testStrategy": "Load test with 1000+ symbols measuring FPS stability, memory profiling for leak detection, test virtualization with rapid scrolling, benchmark WebGL vs SVG rendering, validate LOD transitions, stress test with continuous updates",
+        "priority": "high",
+        "dependencies": [
+          138,
+          139,
+          140
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 146,
+        "title": "Create PropertyManager service for centralized property management",
+        "description": "Implement a comprehensive PropertyManager service that handles property validation, calculation, templates, and metadata management across the property panel system",
+        "details": "Create PropertyManager.ts at frontend/src/services/ that provides centralized management for all property operations. Implement property validation using Zod schemas, property calculation engine using engineering formulas, property templates system with default values per equipment type, metadata system for property display configuration, tag number generation and management with auto-incrementing sequences, bulk property operations with transaction support, and property history tracking for undo/redo. Use React 19.1.0's features, TypeScript 5.x strict mode, and integrate with existing Zustand store pattern. The service should handle cross-field validations, unit conversions between metric/imperial, and calculated properties like Reynolds number, pressure drop, and flow velocity. Reference existing propertySchemas.ts and integrate with the current PropertyPanel.tsx component.",
+        "testStrategy": "Unit tests for all calculation formulas, validation rules, and tag number generation. Integration tests for bulk operations and template application. Test property persistence, undo/redo functionality, and cross-field validations. Verify metric/imperial conversions are accurate to engineering standards.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 147,
+        "title": "Implement property field components with validation and unit conversion",
+        "description": "Create a comprehensive set of form field components that handle different property types with real-time validation, unit conversion, and calculated field updates",
+        "details": "Develop DynamicFormField.tsx and supporting field components in frontend/src/components/drawing/PropertyPanel/FormFields/. Implement field types: TextInput (with pattern validation), NumberInput (with range and precision), UnitInput (with automatic conversion), Dropdown (with searchable options), Checkbox, RadioGroup, DatePicker (using date-fns v4.1.0), ColorPicker (using react-colorful v5.6.1), FormulaEditor (with syntax highlighting), and TableEditor (for multi-row data). Each field should support: real-time validation with error messages, unit conversion between metric/imperial systems, dependency tracking for calculated fields, disabled/readonly states, placeholder and helper text, and accessibility with proper ARIA labels. Use react-hook-form v7.63.0 for form management and @hookform/resolvers v5.2.2 for Zod integration. Ensure all fields follow the FieldConfiguration interface pattern and integrate with PropertyManager service.",
+        "testStrategy": "Component tests for each field type using React Testing Library. Test validation rules, unit conversions, and error states. Verify accessibility with screen reader testing. Test cross-field dependencies and calculated field updates. Performance tests for large forms with many fields.",
+        "priority": "high",
+        "dependencies": [
+          146
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 148,
+        "title": "Build property template system with industry standards",
+        "description": "Implement a comprehensive template management system with pre-built templates for standard equipment following ISA and industry specifications",
+        "details": "Create PropertyTemplates.ts in frontend/src/components/drawing/PropertyPanel/ with template definitions for standard equipment. Implement templates for: pumps (centrifugal, positive displacement, vacuum), valves (gate, globe, ball, butterfly, check), vessels (horizontal, vertical, storage tanks), heat exchangers (shell-tube, plate, air-cooled), instruments (pressure, temperature, flow, level transmitters), and piping (various schedules and materials). Each template should include: default property values per equipment type, locked properties that cannot be edited, required fields validation, calculated properties formulas, industry standard compliance (ISA-5.1, ISO 14617), and material compatibility rules. Build TemplateManager component for UI with template selection dropdown, preview of template properties, batch application to multiple elements, custom template creation and saving, and organization-wide template sharing. Store templates in localStorage with JSON export/import capability.",
+        "testStrategy": "Unit tests for template validation and property application. Integration tests for batch template application. Test template persistence and import/export. Verify industry standard compliance for default values.",
+        "priority": "medium",
+        "dependencies": [
+          146,
+          147
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 149,
+        "title": "Implement advanced calculation engine for engineering properties",
+        "description": "Build a comprehensive calculation engine that handles complex engineering formulas, unit conversions, and cross-property dependencies in real-time",
+        "details": "Develop CalculationEngine.ts in frontend/src/services/ with support for engineering calculations. Implement formulas for: fluid dynamics (Reynolds number, pressure drop, flow velocity, Bernoulli equation), heat transfer (heat duty, LMTD, overall heat transfer coefficient), pump calculations (NPSH available/required, pump power, efficiency), valve sizing (Cv/Kv calculations, pressure recovery), material properties (density at temperature, viscosity corrections), and pipe sizing (velocity limits, erosional velocity). Build dependency graph for automatic recalculation when input properties change. Implement unit conversion system supporting: SI units, Imperial units, custom unit definitions, and automatic conversion in calculations. Add formula editor with: syntax highlighting for variables and functions, autocomplete for available properties, validation of formula syntax, preview of calculated results, and error handling for division by zero or invalid inputs. Integrate with PropertyManager to trigger calculations on property changes.",
+        "testStrategy": "Extensive unit tests for all engineering formulas with known test cases. Test unit conversion accuracy to 6 decimal places. Integration tests for dependency tracking and recalculation. Performance tests for complex calculation graphs with 50+ properties.",
+        "priority": "high",
+        "dependencies": [
+          146
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 150,
+        "title": "Create bulk editing interface with conflict resolution",
+        "description": "Implement comprehensive bulk editing capabilities with intelligent conflict resolution for multi-element selection",
+        "details": "Enhance PropertyPanel.tsx with BulkEditingPanel component for multi-selection scenarios. Implement features: smart property display showing only common properties across selected elements, mixed value indication with placeholder text like '<mixed>', conflict resolution UI with options to keep existing, apply to all, or apply conditionally, batch operations including find/replace, increment/decrement, apply formulas, and clear values. Add pattern-based selection with filters by type, property value, regex patterns, and spatial proximity. Implement transaction system for atomic bulk updates with rollback on validation failure. Create BulkEditDialog component with: preview of changes before applying, validation summary showing errors/warnings, progress bar for large operations, and undo capability for entire batch. Use React 19.1.0's concurrent features for non-blocking updates on large selections.",
+        "testStrategy": "Integration tests for bulk operations on 100+ elements. Test conflict resolution logic with various scenarios. Performance tests ensuring UI remains responsive during bulk updates. Test transaction rollback on validation failures.",
+        "priority": "medium",
+        "dependencies": [
+          147,
+          149
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 151,
+        "title": "Develop real-time validation system with visual feedback",
+        "description": "Build a comprehensive validation framework with immediate visual feedback, cross-field dependencies, and industry standard compliance checking",
+        "details": "Create ValidationEngine.ts in frontend/src/services/ implementing multi-level validation. Build validation rules: required field checking, range validation (min/max), pattern matching with regex, custom validation functions, cross-field dependencies (e.g., operating pressure < design pressure), and industry standard compliance (ASME, API, ISO). Implement visual feedback system with: color-coded field borders (red for error, yellow for warning, blue for info), inline error messages with icons, validation summary panel, and real-time validation as user types. Add engineering constraint checking for: material compatibility (temperature/pressure ratings), flow regime validation (laminar/turbulent), safety factor compliance, and design code requirements. Create ValidationRuleBuilder for declarative rule definition using Zod v4.1.11 schemas. Implement async validation for complex checks with loading states. Add validation presets for different industries (oil & gas, water treatment, chemical processing).",
+        "testStrategy": "Unit tests for all validation rules and constraint checks. Test async validation with mocked delays. Integration tests for cross-field validation scenarios. Test visual feedback rendering and accessibility of error messages.",
+        "priority": "high",
+        "dependencies": [
+          146,
+          147
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 152,
+        "title": "Build property search and filtering system",
+        "description": "Implement advanced search and filtering capabilities within the property panel to quickly locate and modify specific properties",
+        "details": "Create PropertySearch.tsx component in frontend/src/components/drawing/PropertyPanel/ with advanced search features. Implement search capabilities: fuzzy search for property names and values, regex pattern matching, search history with recent searches, saved search queries, and search across multiple selected elements. Add filtering options: filter by property category (basic, process, mechanical, electrical), value ranges for numeric properties, property state (filled, empty, calculated, validated), and modification status (recently changed, user-modified, template-applied). Build search results UI with: highlighted matching terms, grouped results by category, quick actions (edit, clear, copy), and keyboard navigation through results. Implement search indexing for performance using a client-side search index. Add export of search results to CSV/JSON format.",
+        "testStrategy": "Unit tests for search algorithms and filtering logic. Performance tests with 1000+ properties. Test fuzzy search accuracy and regex pattern matching. Verify keyboard navigation and accessibility.",
+        "priority": "medium",
+        "dependencies": [
+          147
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 153,
+        "title": "Implement property panel docking and layout system",
+        "description": "Create a flexible docking system for the property panel with resizable, collapsible, and auto-hide capabilities",
+        "details": "Enhance PropertyPanel with advanced layout features using react-resizable v3.0.5 and custom docking logic. Implement docking positions: left, right, bottom, floating window, and minimized to icon. Add resize functionality with: drag handles for panel resizing, minimum/maximum width constraints (200px min, 600px max), responsive breakpoints for mobile/tablet, and remembering size preferences in localStorage. Create auto-hide behavior with: hover to show when minimized, pin/unpin toggle, slide-in animation, and keyboard shortcut (Ctrl+P) to toggle. Build tabbed interface for multiple property panels when editing different element types simultaneously. Implement panel state persistence saving position, size, pinned state, and expanded sections to localStorage. Add panel animations using CSS transitions for smooth show/hide effects. Support multiple monitor setups with boundary detection.",
+        "testStrategy": "Integration tests for docking positions and resize behavior. Test responsive breakpoints on different screen sizes. Verify state persistence across page refreshes. Test keyboard shortcuts and accessibility features.",
+        "priority": "medium",
+        "dependencies": [
+          147
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 154,
+        "title": "Create property history and audit trail system",
+        "description": "Implement comprehensive property change tracking with history visualization and audit trail capabilities",
+        "details": "Build PropertyHistory.ts service in frontend/src/services/ for tracking all property changes. Implement history tracking: capture property changes with timestamp and user (when available), store old/new values for each change, group related changes into transactions, and limit history to last 100 changes per element. Create PropertyHistoryPanel component with: timeline view of property changes, diff view showing before/after values, filter by date range or property name, and restore to previous value functionality. Add audit trail features: change attribution (manual, calculated, template-applied), bulk change tracking with affected elements list, export history to JSON/CSV, and change statistics dashboard. Implement history optimization using circular buffer for memory efficiency, compression of repeated values, and periodic cleanup of old entries. Integrate with undo/redo system for property-specific rollback.",
+        "testStrategy": "Unit tests for history tracking and storage. Test memory usage with large history buffers. Integration tests for undo/redo with history. Verify audit trail accuracy and export functionality.",
+        "priority": "low",
+        "dependencies": [
+          146
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 155,
+        "title": "Develop property metadata and tooltip system",
+        "description": "Create a comprehensive metadata system for properties with contextual help, tooltips, and documentation integration",
+        "details": "Build PropertyMetadata.ts in frontend/src/types/ defining metadata structure for all properties. Implement metadata attributes: display name and description, units and precision settings, help text and examples, validation rules description, related properties links, and industry standard references. Create TooltipProvider component using native HTML5 tooltips enhanced with: rich content with formatting, images for visual guidance, calculation formula display, keyboard shortcut to show extended help (F1), and links to external documentation. Build property documentation system with: inline help icons next to fields, expandable help sections, context-sensitive help based on element type, and searchable help database. Add property categorization with: icon assignment per category, color coding for visual organization, custom category creation, and category-based filtering. Implement localization support for property names and help text (prepare structure, English only initially).",
+        "testStrategy": "Unit tests for metadata retrieval and tooltip content generation. Test tooltip positioning and responsive behavior. Verify help system navigation and search functionality. Test localization structure with mock translations.",
+        "priority": "low",
+        "dependencies": [
+          147
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 156,
+        "title": "Implement Core Viewport State Management",
+        "description": "Create a centralized viewport state management system using Zustand that handles all viewport transformations, zoom levels, pan positions, and viewport boundaries with proper TypeScript interfaces",
+        "details": "Implement ViewportStore using Zustand 5.0.8 with the following structure:\n- ViewportState interface with position (x, y), zoom (min: 0.01, max: 50), bounds, and viewport dimensions\n- Actions for setViewport, pan, zoom, fitToScreen, fitToSelection, resetView\n- Integration with ReactFlow's viewport API for synchronization\n- Persist viewport state to localStorage for session recovery\n- Add viewport history management for undo/redo operations\n- Performance optimization using immer for immutable updates\n- Implement viewport constraints and boundary checking\n- Add viewport animation support with configurable easing functions",
+        "testStrategy": "Unit tests for all viewport transformations and calculations using Jest and React Testing Library. Test zoom bounds, pan limits, fitView calculations, and localStorage persistence. Performance benchmarks for viewport updates with 10,000+ elements",
+        "priority": "high",
+        "dependencies": [],
+        "status": "in-progress",
+        "subtasks": []
+      },
+      {
+        "id": 157,
+        "title": "Build Advanced Minimap Component with LOD",
+        "description": "Develop a high-performance minimap component with Level of Detail (LOD) rendering, viewport indicator, and interactive navigation supporting large P&ID diagrams",
+        "details": "Create custom Minimap component extending ReactFlow's MiniMap:\n- Implement QuadTree spatial indexing for efficient element culling\n- LOD system with 3 levels: simplified (1000+ elements), normal (100-1000), detailed (<100)\n- Canvas-based rendering for performance using OffscreenCanvas API\n- Interactive viewport rectangle with drag-to-navigate functionality\n- Auto-hide based on user preferences and viewport zoom level\n- Configurable position (corners or floating) with resize handles\n- Use React.memo and useMemo for optimization\n- Implement virtual scrolling for element list\n- Add performance monitoring with React DevTools Profiler\n- Support for custom node rendering in minimap",
+        "testStrategy": "Component tests for minimap rendering, interaction tests for drag navigation, performance tests with 10,000 elements measuring frame rate and memory usage, visual regression tests using Percy or Chromatic",
+        "priority": "high",
+        "dependencies": [
+          156
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 158,
+        "title": "Create Grid and Snap System with Multiple Grid Types",
+        "description": "Implement a comprehensive grid system supporting rectangular, isometric, and polar grids with configurable snap behavior and visual customization",
+        "details": "Build GridSystem component with:\n- Grid types: rectangular (default), isometric (30°/60°), polar (radial)\n- Major/minor grid lines with independent spacing configuration\n- Dynamic grid spacing based on zoom level (adaptive grid density)\n- Snap-to-grid with configurable strength (weak/medium/strong)\n- Grid visibility threshold based on zoom level\n- WebGL-based grid rendering for performance using Three.js or raw WebGL\n- Grid configuration panel with real-time preview\n- Support for custom grid patterns via SVG patterns\n- Integration with measurement tools for unit-aware grids\n- Export grid settings as presets",
+        "testStrategy": "Unit tests for snap calculations, visual tests for grid rendering at different zoom levels, performance tests for grid updates during pan/zoom, integration tests with drawing tools",
+        "priority": "medium",
+        "dependencies": [
+          156
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 159,
+        "title": "Implement Smart Zoom Controls and Presets",
+        "description": "Develop an advanced zoom control system with semantic zoom, smooth transitions, and intelligent focus features for optimal navigation experience",
+        "details": "Implement ZoomManager with:\n- Mouse wheel zoom with momentum scrolling using requestAnimationFrame\n- Pinch-to-zoom for touch devices using Hammer.js or native touch events\n- Zoom presets bar with quick access buttons (10%, 25%, 50%, 75%, 100%, 150%, 200%, 400%)\n- Semantic zoom with content-aware LOD transitions\n- Zoom to selection/element with padding configuration\n- Smooth zoom animations using Web Animations API or Framer Motion\n- Zoom rectangle tool for area selection zoom\n- Double-click zoom with configurable behavior\n- Keyboard shortcuts (Ctrl+Plus/Minus/0) using react-hotkeys-hook\n- Zoom level indicator with editable input field\n- Performance optimization using RAF and throttling",
+        "testStrategy": "Interaction tests for all zoom methods, animation smoothness tests, touch gesture tests on mobile devices, keyboard shortcut tests, performance profiling during zoom operations",
+        "priority": "high",
+        "dependencies": [
+          156
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 160,
+        "title": "Develop Pan Navigation and Edge Scrolling",
+        "description": "Create a comprehensive pan system with multiple input methods, inertial scrolling, and intelligent edge navigation for smooth canvas movement",
+        "details": "Build PanController with:\n- Space+drag pan mode with visual cursor change\n- Middle mouse button pan support\n- Touch pan with momentum using touch-action CSS\n- Arrow key navigation with acceleration\n- Edge scrolling when dragging near viewport boundaries\n- Inertial scrolling with friction coefficient\n- Smooth pan animations using CSS transitions or Spring physics\n- Pan constraints with optional boundary limits\n- Auto-pan during connection creation\n- Performance optimization using passive event listeners\n- Integration with minimap for synchronized panning\n- Customizable pan speed and acceleration curves",
+        "testStrategy": "User interaction tests for all pan methods, physics simulation tests for inertial scrolling, boundary constraint tests, performance tests during continuous panning, cross-browser compatibility tests",
+        "priority": "high",
+        "dependencies": [
+          156
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 161,
+        "title": "Implement Viewport Culling and Performance Optimization",
+        "description": "Create an advanced viewport culling system with spatial indexing and incremental rendering for handling 10,000+ elements efficiently",
+        "details": "Develop ViewportOptimizer with:\n- QuadTree/R-Tree spatial indexing using rbush library\n- Frustum culling with bounding box calculations\n- Dirty rectangle tracking for selective re-rendering\n- Virtual scrolling for off-screen elements\n- WebGL acceleration using PixiJS or custom WebGL renderer\n- Worker thread rendering for heavy computations\n- Texture atlasing for symbol rendering\n- Batch drawing operations with requestIdleCallback\n- Frame skipping during rapid navigation\n- Memory pooling for temporary objects\n- Progressive rendering with priority queues\n- Canvas tiling for infinite canvas support",
+        "testStrategy": "Performance benchmarks with 1000, 5000, 10000 elements measuring FPS, memory usage, and render time. Stress tests for rapid pan/zoom operations. Memory leak detection tests. Profile using Chrome DevTools Performance tab",
+        "priority": "high",
+        "dependencies": [
+          157
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 162,
+        "title": "Build Multi-Viewport and Split View System",
+        "description": "Implement support for multiple synchronized or independent viewports on the same diagram with flexible layout configurations",
+        "details": "Create MultiViewportManager with:\n- Split view layouts: horizontal, vertical, four-way, custom grid\n- Independent or synchronized navigation modes\n- Viewport linking for coordinated pan/zoom\n- Picture-in-Picture (PIP) viewport with resize/drag\n- Cross-viewport element selection and editing\n- Shared or independent layer visibility\n- Viewport focus indicators and transitions\n- Layout persistence and preset management\n- Responsive layout adjustments\n- Performance optimization with shared WebGL context\n- Event coordination between viewports\n- Use React Context for viewport state sharing",
+        "testStrategy": "Integration tests for viewport synchronization, layout persistence tests, interaction tests for cross-viewport operations, performance tests with multiple active viewports, responsive design tests",
+        "priority": "medium",
+        "dependencies": [
+          156,
+          161
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 163,
+        "title": "Create Measurement and Ruler System",
+        "description": "Develop a comprehensive measurement toolkit with rulers, distance tools, area calculations, and angle measurements with unit support",
+        "details": "Implement MeasurementSystem with:\n- Top and left rulers with zoom-aware scaling\n- Multiple unit support (mm, cm, m, in, ft) with conversion\n- Point-to-point distance measurement tool\n- Continuous distance measurement (polyline)\n- Area measurement for rectangles, polygons, circles\n- Angle measurement tools (2-point and 3-point)\n- Measurement overlay with persistent annotations\n- Snap-to-element for precise measurements\n- Export measurements to CSV/JSON\n- Real-time measurement display during drawing\n- Customizable measurement precision\n- Integration with grid system for unit consistency",
+        "testStrategy": "Unit tests for all measurement calculations and unit conversions, visual tests for ruler rendering, integration tests with drawing tools, accuracy tests comparing with known measurements",
+        "priority": "medium",
+        "dependencies": [
+          158
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 164,
+        "title": "Implement Smart Guidelines and Alignment System",
+        "description": "Build an intelligent guide system with smart guides, alignment detection, and magnetic snapping for precise element positioning",
+        "details": "Develop SmartGuideSystem with:\n- Dynamic alignment guides during drag operations\n- Smart spacing guides for equal distribution\n- Center/edge alignment detection\n- Magnetic snap with variable strength\n- Persistent ruler guides (draggable from rulers)\n- Temporary guides during multi-selection\n- Guide manager panel for adding/removing guides\n- Visual feedback with guide highlighting\n- Keyboard modifiers to toggle snapping\n- Distance indicators between elements\n- Rotation snap angles (15°, 30°, 45°, 90°)\n- Custom guide creation via context menu\n- Guide persistence in diagram data",
+        "testStrategy": "Interaction tests for guide creation and snapping, visual tests for guide rendering, precision tests for alignment calculations, performance tests during drag operations with guides active",
+        "priority": "medium",
+        "dependencies": [
+          158,
+          163
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 165,
+        "title": "Create Viewport Navigation History and Bookmarks",
+        "description": "Implement a viewport history system with navigation stack, bookmarks, and saved views for quick navigation between diagram areas",
+        "details": "Build NavigationHistory with:\n- Viewport history stack with back/forward navigation\n- Breadcrumb trail for hierarchical navigation\n- Named bookmarks with viewport state preservation\n- Quick view presets (Overview, Details, Working Area)\n- Thumbnail previews for saved views\n- Keyboard shortcuts for history navigation (Alt+Left/Right)\n- Auto-save last viewport on diagram close\n- View transition animations\n- Search integration for jumping to elements\n- Mini-timeline showing navigation history\n- Export/import view configurations\n- Integration with collaboration features for shared views",
+        "testStrategy": "Unit tests for history stack operations, integration tests for bookmark persistence, UI tests for navigation controls, performance tests for history with large number of entries",
+        "priority": "low",
+        "dependencies": [
+          156
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 166,
+        "title": "Enhance Layer Domain Model and Database Schema",
+        "description": "Extend the existing Layer entity in the backend Domain layer to support hierarchical structure, metadata, and element associations required for the comprehensive layers system",
+        "details": "Enhance the Layer entity in Ergoplanner.Domain/Entities to include: parent-child relationships for nested layers, color coding, opacity settings, printable/selectable flags, element associations (nodes/edges), and metadata. Create value objects for LayerProperties and LayerMetadata. Implement Entity Framework Core configuration with proper indexes for hierarchy queries using ltree extension or closure table pattern. Add migrations for the enhanced schema including junction tables for layer-element associations. Consider using PostgreSQL's JSONB for flexible metadata storage.",
+        "testStrategy": "Create unit tests for Layer entity invariants including hierarchy validation (no circular references), opacity range validation (0-1), and order uniqueness within parent scope. Write integration tests for EF Core repository operations including recursive queries for nested layers, bulk element assignment, and cascade delete behavior. Test performance with 100+ layers and thousands of element associations.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 167,
+        "title": "Implement Layer Management Application Services",
+        "description": "Create comprehensive application layer services for layer CRUD operations, hierarchy management, and element assignment using CQRS pattern with MediatR",
+        "details": "Implement LayerService in Ergoplanner.Application/Services with commands: CreateLayerCommand, UpdateLayerCommand, DeleteLayerCommand, MoveLayerCommand (reordering), MergeLayersCommand, SplitLayerCommand. Create queries: GetLayerByIdQuery, GetLayerHierarchyQuery, GetLayerElementsQuery. Implement domain events: LayerCreatedEvent, LayerVisibilityChangedEvent, ElementsMovedToLayerEvent for real-time updates via SignalR. Use FluentValidation for command validation. Implement unit of work pattern for transactional consistency when moving elements between layers.",
+        "testStrategy": "Unit test each command handler with mocked repositories, ensuring business rules are enforced (e.g., cannot delete main layer, cannot create circular hierarchy). Integration test the full command/query flow with in-memory database. Test concurrent layer operations for race conditions. Verify domain events are published correctly for SignalR notifications.",
+        "priority": "high",
+        "dependencies": [
+          166
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 168,
+        "title": "Create Layer Management REST API Endpoints",
+        "description": "Develop RESTful API controllers for layer operations with proper authorization, validation, and real-time update support via SignalR",
+        "details": "Create LayersController in Ergoplanner.API/Controllers with endpoints: GET /api/drawings/{drawingId}/layers (paginated list), GET /api/layers/{id}, POST /api/layers (create), PUT /api/layers/{id} (update), DELETE /api/layers/{id}, POST /api/layers/{id}/elements (bulk assign), PATCH /api/layers/{id}/visibility, PATCH /api/layers/{id}/order. Implement SignalR hub (LayerHub) for broadcasting layer changes to connected clients. Add Swagger documentation with examples. Use action filters for drawing access validation. Implement rate limiting for bulk operations.",
+        "testStrategy": "Write API integration tests using WebApplicationFactory covering all endpoints with various payloads. Test authorization scenarios (owner vs viewer permissions). Test SignalR notifications are sent on layer changes. Verify proper HTTP status codes and error responses. Load test bulk element assignment endpoint with 1000+ elements.",
+        "priority": "high",
+        "dependencies": [
+          167
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 169,
+        "title": "Enhance Frontend Layer State Management",
+        "description": "Extend the existing Zustand store to support comprehensive layer functionality including hierarchy, filters, and optimistic updates",
+        "details": "Enhance drawingStore.ts to include: hierarchical layer structure with parent-child relationships, layer filters (byType, byProperty, byName), visibility modes (solo, isolation, fade), layer templates storage, undo/redo for layer operations using command pattern. Implement selectors for efficient layer queries (getVisibleLayers, getLayerElements, getLayerHierarchy). Add middleware for persisting layer preferences to localStorage. Implement optimistic updates for instant UI response with rollback on API failure. Use immer for immutable state updates.",
+        "testStrategy": "Unit test store actions with various layer configurations. Test selector performance with deep hierarchies. Verify optimistic updates and rollbacks work correctly. Test localStorage persistence and hydration. Mock API calls to test error handling scenarios.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 170,
+        "title": "Build Advanced Layer Panel UI Component",
+        "description": "Create a feature-rich layer panel component with tree view, drag-and-drop, multi-selection, and visual controls",
+        "details": "Enhance LayersPanel.tsx component using react-arborist or rc-tree for tree view with virtual scrolling for performance. Implement drag-and-drop reordering using @dnd-kit/sortable with auto-scroll. Add multi-selection with Shift/Ctrl click patterns. Create context menu using @radix-ui/context-menu for layer operations. Implement search/filter bar with debounced input. Add opacity slider using @radix-ui/slider. Create layer color picker using react-colorful. Add keyboard shortcuts (Alt+Click for solo, Ctrl+L for new layer). Use framer-motion for smooth animations. Implement collapsible nested layers with chevron icons.",
+        "testStrategy": "Write React Testing Library tests for user interactions: creating layers, toggling visibility, drag-and-drop reordering, keyboard shortcuts. Test accessibility with jest-axe. Test virtual scrolling performance with 100+ layers. Verify context menu operations trigger correct store actions.",
+        "priority": "medium",
+        "dependencies": [
+          169
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 171,
+        "title": "Implement Layer Templates System",
+        "description": "Create a template system for predefined layer configurations supporting industry standards and custom templates",
+        "details": "Create LayerTemplate entity in Domain layer with template definitions for ISA, PIP, ISO standards. Implement template service in Application layer for CRUD operations on templates. Add frontend components: TemplateSelector dropdown, TemplateManager modal for custom templates. Store templates in PostgreSQL with JSONB for flexible schema. Implement template application logic that creates layers with proper hierarchy and default properties. Add import/export functionality for sharing templates (JSON format). Include built-in templates for water treatment, oil & gas, chemical plants. Support template versioning for updates.",
+        "testStrategy": "Unit test template application logic ensuring correct layer structure is created. Test template validation (no duplicate layer names, valid hierarchy). Integration test template CRUD operations. Test import/export with various template formats. Verify built-in templates work for different project types.",
+        "priority": "medium",
+        "dependencies": [
+          166,
+          169
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 172,
+        "title": "Develop Auto-Layer Assignment Rules Engine",
+        "description": "Build a rules engine for automatically assigning elements to appropriate layers based on configurable criteria",
+        "details": "Create RuleEngine service using the Rules Design Pattern or integrate NRules for .NET. Define rule types: ElementTypeRule (pumps → Equipment layer), PropertyRule (voltage > 240V → High Voltage layer), TagPatternRule (regex matching), ImportSourceRule. Store rules in database with priority ordering. Implement rule evaluation on element creation/import with caching for performance. Add UI for rule configuration using a visual rule builder with react-querybuilder. Support rule testing with preview of affected elements. Implement batch reassignment when rules change. Add conflict resolution when multiple rules match.",
+        "testStrategy": "Unit test individual rule types with various element configurations. Test rule priority and conflict resolution. Integration test rule persistence and retrieval. Test batch reassignment performance with 1000+ elements. Verify rule caching improves performance.",
+        "priority": "medium",
+        "dependencies": [
+          167,
+          169
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 173,
+        "title": "Implement Layer Visual Effects and Rendering",
+        "description": "Add visual effects system for layers including opacity, color overlays, and blending modes with optimized rendering",
+        "details": "Extend ReactFlow custom node/edge renderers to apply layer-specific styles. Implement opacity using CSS opacity or SVG fill-opacity/stroke-opacity. Add color overlay using CSS filters or SVG filters. Support blending modes using mix-blend-mode CSS. Create LayerEffectsProvider context for efficient prop drilling. Implement conditional rendering based on layer visibility using React.memo and useMemo for performance. Add fade effect for non-active layers using CSS transitions. Implement layer-based styling overrides (line styles, patterns). Use CSS containment for rendering optimization.",
+        "testStrategy": "Visual regression tests using Playwright for different effect combinations. Performance test rendering with multiple effects active. Test effect transitions are smooth. Verify effects work correctly with different node/edge types. Test browser compatibility for CSS filters and blend modes.",
+        "priority": "low",
+        "dependencies": [
+          170
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 174,
+        "title": "Build Layer Performance Optimization System",
+        "description": "Implement rendering optimizations for handling large numbers of layers and elements efficiently",
+        "details": "Implement viewport culling to only render visible layers/elements using react-intersection-observer. Add layer caching using React Query with stale-while-revalidate strategy. Implement virtualization for layer panel using react-window. Batch layer operations using requestAnimationFrame. Add WebWorker for heavy computations (element filtering, rule evaluation). Implement lazy loading for nested layers. Use CSS contain and will-change for layer isolation. Add performance monitoring using Performance API to identify bottlenecks. Implement progressive rendering for initial load.",
+        "testStrategy": "Performance benchmarks with 100+ layers and 10,000+ elements measuring FPS, memory usage, and interaction latency. Test viewport culling reduces rendered elements. Verify caching improves repeat operations. Load test with concurrent users modifying layers. Profile with Chrome DevTools to ensure no memory leaks.",
+        "priority": "medium",
+        "dependencies": [
+          170,
+          173
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 175,
+        "title": "Create Layer Import/Export and Standards Compliance",
+        "description": "Develop import/export functionality for layers supporting industry standards and interoperability with other P&ID tools",
+        "details": "Implement layer export to AutoCAD DXF/DWG format preserving layer structure using netDxf library. Add import from DXF/DWG files mapping AutoCAD layers to system layers. Support export to PDF with layer information using iTextSharp. Implement layer mapping configuration for different CAD standards (ISA, PIP, ISO). Add validation for imported layers against company standards. Create REST endpoints for import/export operations with progress tracking via SignalR. Support batch import/export with queuing using Hangfire. Add layer comparison tool for identifying differences between versions.",
+        "testStrategy": "Integration test import/export round-trip preserves layer structure. Test compatibility with AutoCAD 2020+ files. Verify PDF export maintains layer visibility settings. Test large file imports (50MB+) with progress tracking. Validate against sample files from different CAD systems.",
+        "priority": "low",
+        "dependencies": [
+          166,
+          171
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 176,
+        "title": "Implement CAD file format parsers and converters",
+        "description": "Create robust parsing infrastructure for DWG/DXF and other CAD formats with layer preservation and entity mapping",
+        "details": "Implement CAD file parsing using netDxf 2.5+ for DXF support and IronCAD or DwgReader for DWG files. Create abstraction layer ICadParser with implementations for each format. Parse layers, blocks, dimensions, attributes, and text styles. Map CAD entities to ReactFlow nodes preserving spatial relationships and metadata. Use System.Drawing.Common for coordinate transformations. Implement streaming parser for files >100MB using IAsyncEnumerable. Create CadEntity domain model with properties for geometry, layer, style, and attributes. Handle AutoCAD 2018-2024 versions with backward compatibility.",
+        "testStrategy": "Unit test each parser with sample CAD files from different versions. Integration test with real-world P&ID drawings. Performance test with 500MB+ files. Validate layer preservation, block references, and attribute data retention. Test coordinate system transformations and scale accuracy.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 177,
+        "title": "Build symbol mapping and recognition engine",
+        "description": "Develop intelligent symbol mapping between CAD libraries and internal ReactFlow components with ML-based recognition",
+        "details": "Create SymbolMappingService using ML.NET 3.0+ with ONNX models for symbol recognition. Implement fuzzy matching algorithm using Levenshtein distance and shape similarity metrics. Build symbol library database with mappings for ISA-5.1, ISO 14617, and UK water standards. Use OpenCV.NET for image-based symbol detection in raster imports. Create ISymbolMapper interface with exact, fuzzy, and ML-based matching strategies. Implement caching with MemoryCache for frequently mapped symbols. Store mappings in PostgreSQL with JSON columns for flexible schema. Build UI for manual symbol mapping with drag-drop association.",
+        "testStrategy": "Test recognition accuracy with 1000+ standard symbols. Validate fuzzy matching with 90% similarity threshold. Performance test mapping 10000 symbols in <5 seconds. Test manual override functionality. Verify mapping persistence and retrieval.",
+        "priority": "high",
+        "dependencies": [
+          176
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 178,
+        "title": "Create import/export wizard UI components",
+        "description": "Build comprehensive Next.js wizard interface for guided import/export workflows with preview and validation",
+        "details": "Implement multi-step wizard using react-hook-form 7.63+ with zod validation. Create file upload with react-dropzone supporting drag-drop and batch selection. Build preview component using @react-pdf/renderer for PDF and sharp for images. Implement real-time validation with progress indicators using Tanstack Query. Create mapping configuration UI with react-select for field/layer mapping. Use Zustand for wizard state management across steps. Implement conflict resolution UI with side-by-side comparison. Add preset management with localStorage persistence.",
+        "testStrategy": "E2E test complete import workflow with Playwright. Unit test each wizard step with React Testing Library. Test file validation with invalid formats. Verify state persistence across browser refresh. Test accessibility with screen readers.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 179,
+        "title": "Implement high-quality image export engine",
+        "description": "Develop production-grade image export with vector/raster support, batch processing, and professional output quality",
+        "details": "Use html-to-image 1.11+ for canvas-to-image conversion with custom rendering options. Implement SVG export using ReactFlow's built-in toSVG with custom styling. Add PDF generation with jsPDF 3.0+ including vector graphics and multi-page support. Implement batch export using Web Workers for parallel processing. Add watermarking with canvas overlay techniques. Support CMYK color space for print using color-convert library. Implement DPI settings up to 600 for print quality. Add compression options using browser-image-compression.",
+        "testStrategy": "Test export quality at various DPI settings. Validate color accuracy in CMYK conversion. Performance test batch export of 100 diagrams. Test file size optimization. Verify watermark positioning and transparency.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 180,
+        "title": "Build data format converters and serializers",
+        "description": "Create bi-directional converters for XML, JSON, CSV, and industry-standard formats with schema validation",
+        "details": "Implement IDataConverter interface with XML (using System.Xml), JSON (Newtonsoft.Json), and CSV (CsvHelper) implementations. Add ISO 15926 support using RDF libraries like dotNetRDF. Implement DEXPI format with XSD schema validation. Create PlantUML converter for text-based diagram generation. Use FluentValidation for schema validation. Implement streaming serialization for large datasets. Add compression with System.IO.Compression. Create mapping templates using Handlebars.NET for flexible output formatting.",
+        "testStrategy": "Unit test each converter with sample data. Validate schema compliance for industry formats. Test round-trip conversion maintaining data integrity. Performance test with 1GB+ datasets. Test streaming with memory profiling.",
+        "priority": "medium",
+        "dependencies": [
+          176
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 181,
+        "title": "Develop batch processing and automation system",
+        "description": "Implement scalable batch import/export with queue management, parallel processing, and automation capabilities",
+        "details": "Implement batch processor using Hangfire or Azure Service Bus for job queuing. Create parallel processing with Task.WhenAll and SemaphoreSlim for concurrency control. Add progress tracking with SignalR real-time updates. Implement retry logic with Polly for transient failures. Create scheduling system using Quartz.NET for automated exports. Add file watching with FileSystemWatcher for hot folder imports. Implement result caching with Redis. Create notification system for job completion using email/webhooks.",
+        "testStrategy": "Load test with 1000 concurrent jobs. Test retry mechanism with simulated failures. Verify progress tracking accuracy. Test scheduling with various cron expressions. Monitor memory usage during batch processing.",
+        "priority": "low",
+        "dependencies": [
+          176,
+          179,
+          180
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 182,
+        "title": "Implement version control and round-trip preservation",
+        "description": "Create versioning system to maintain data integrity through multiple import/export cycles with change tracking",
+        "details": "Implement version tracking using Event Sourcing pattern with EventStore or custom solution. Create metadata preservation layer storing original format details in PostgreSQL. Add diff generation using DiffPlex library for change visualization. Implement compatibility matrix for format degradation warnings. Create migration paths for format upgrades. Store version history with Git-like branching using libgit2sharp. Add rollback capability with snapshot restoration. Implement conflict resolution for concurrent edits.",
+        "testStrategy": "Test 10 round-trip cycles maintaining 100% data integrity. Verify metadata preservation across formats. Test rollback to any version. Validate conflict resolution algorithms. Test version comparison accuracy.",
+        "priority": "low",
+        "dependencies": [
+          180
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 183,
+        "title": "Create comprehensive export templates and presets",
+        "description": "Build customizable export template system with industry-standard presets and report generation capabilities",
+        "details": "Create template engine using Razor or Liquid.NET for dynamic report generation. Build preset library for CAD exchange, print publication, web display formats. Implement Excel export with ClosedXML including formatting, formulas, and charts. Add report builder for equipment lists, line lists, valve schedules using FastReport or RDLC. Create HTML documentation generator with search functionality. Implement SQL export for database integration. Add custom preset creation UI with template editor. Store presets in database with sharing capabilities.",
+        "testStrategy": "Test each preset against target application compatibility. Validate Excel formulas and formatting. Test report accuracy with sample P&IDs. Verify HTML documentation search functionality. Test SQL schema generation.",
+        "priority": "low",
+        "dependencies": [
+          179,
+          180
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 184,
+        "title": "Develop import/export API and SDK",
+        "description": "Create RESTful API and client SDKs for programmatic import/export operations with comprehensive documentation",
+        "details": "Build RESTful API using ASP.NET Core with OpenAPI/Swagger documentation. Implement authentication with JWT tokens and API key support. Add rate limiting using AspNetCoreRateLimit. Create .NET, TypeScript, and Python SDKs using OpenAPI Generator. Implement webhook callbacks for async operations. Add GraphQL endpoint using HotChocolate for flexible queries. Create comprehensive API documentation with examples. Implement versioning with URL path or header-based routing. Add request/response compression with Brotli.",
+        "testStrategy": "Integration test all API endpoints. Test SDK operations in each language. Verify rate limiting and authentication. Load test with 1000 req/sec. Test webhook delivery reliability.",
+        "priority": "medium",
+        "dependencies": [
+          176,
+          179,
+          180,
+          181
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 185,
+        "title": "Implement performance optimization and caching",
+        "description": "Optimize import/export performance with intelligent caching, streaming, and resource management",
+        "details": "Implement Redis caching for frequently accessed conversions with 15-minute TTL. Use memory-mapped files for large CAD file processing. Add streaming with IAsyncEnumerable for reduced memory footprint. Implement connection pooling for database operations. Use ArrayPool<T> for buffer reuse. Add lazy loading for symbol libraries. Implement CDN integration for exported files. Use compression algorithms (Brotli, GZIP) for network transfers. Add resource throttling to prevent system overload. Monitor performance with Application Insights.",
+        "testStrategy": "Benchmark import/export operations before/after optimization. Memory profile large file operations. Test cache hit rates >80%. Verify streaming reduces memory by 70%. Load test under resource constraints.",
+        "priority": "high",
+        "dependencies": [
+          176,
+          179,
+          180,
+          181
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 186,
+        "title": "Enhance rc-dock integration with advanced docking features",
+        "description": "Extend the existing rc-dock implementation to support advanced docking operations including auto-hide panels, quarter splits, and magnetic edge snapping",
+        "details": "The codebase already has rc-dock 4.0.0-alpha.2 integrated in frontend/src/components/layout/DockLayout.tsx. Enhance this implementation by: 1) Implementing auto-hide functionality using rc-dock's autoHide property and creating custom edge triggers, 2) Add quarter split detection by intercepting drop events and checking cursor position in corners, 3) Implement magnetic edge snapping with a 20px threshold using onDragMove handlers, 4) Create visual drop zone indicators using React portals to overlay highlight zones during drag operations, 5) Add support for DnD5Backend for better drag performance. Key code changes in DockLayout.tsx to support dropMode='edge|float|tab' and implement custom drop handlers. Use ResizeObserver API for dynamic panel size calculations.",
+        "testStrategy": "Create E2E tests using Playwright to validate: drag-and-drop operations work across all drop zones, auto-hide panels reveal on hover and hide on blur, magnetic snapping activates within threshold, quarter splits create correct layout structure. Unit test drop zone calculation logic and snapping distance algorithms.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 187,
+        "title": "Implement floating window management system",
+        "description": "Create a comprehensive floating window management system that allows panels to float as independent windows with proper z-index management and window controls",
+        "details": "Build on rc-dock's float capability by: 1) Creating FloatingWindowManager service using React Context to track all floating panels with their positions, sizes, and z-indices, 2) Implement window controls (minimize, maximize, close) by extending rc-dock's tab renderers, 3) Add window snapping to screen edges and other floating windows using getBoundingClientRect() calculations, 4) Implement cascade/tile window arrangements using CSS Grid for positioning, 5) Store floating window states in localStorage with JSON serialization, 6) Handle multi-monitor scenarios using Screen API to detect available displays and constrain windows. Create custom FloatingPanel wrapper component that extends rc-dock's float box with additional controls and behaviors.",
+        "testStrategy": "Test floating window creation from different panel states, validate z-index stacking order changes on focus, verify window bounds constraints on resize, test persistence across page reloads, validate cascade and tile algorithms produce non-overlapping layouts.",
+        "priority": "high",
+        "dependencies": [
+          186
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 188,
+        "title": "Build responsive layout adaptation system",
+        "description": "Implement a responsive system that automatically adapts the dockable layout based on screen size and orientation changes with smooth transitions",
+        "details": "Create ResponsiveLayoutManager using ResizeObserver and matchMedia APIs: 1) Define breakpoints at 768px, 1366px, 1920px in a configuration object, 2) Implement layout transformation strategies: panels collapse to tabs below 1366px, sidebars auto-hide below 768px, toolbar consolidates on mobile, 3) Use CSS transitions and react-spring for smooth 200ms layout morphing animations, 4) Create touch-optimized controls for mobile using react-use-gesture for swipe gestures, 5) Implement orientation change handling using screen.orientation API, 6) Build adaptive panel sizing logic that maintains aspect ratios during transitions, 7) Create mobile-specific preset that stacks panels vertically. Store responsive state in Zustand store for centralized management.",
+        "testStrategy": "Test layout adaptation at each breakpoint using viewport emulation, verify touch gestures work on mobile viewports, validate animation performance stays above 60fps, test orientation changes preserve user work, ensure no content is inaccessible at any viewport size.",
+        "priority": "medium",
+        "dependencies": [
+          186
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 189,
+        "title": "Create advanced layout preset management system",
+        "description": "Develop a comprehensive preset system supporting custom user presets, team sharing, and intelligent workspace switching with versioning",
+        "details": "Enhance the existing preset system: 1) Create PresetManager class with methods for CRUD operations on presets stored in IndexedDB using Dexie.js for better performance, 2) Implement preset versioning with semantic versioning and migration scripts for layout structure changes, 3) Add preset metadata including author, tags, description, and usage analytics, 4) Create preset sharing via base64 encoded URLs or JSON export/import, 5) Build intelligent preset recommendations based on user role and current task using ML.NET similarity scoring, 6) Implement preset thumbnails generation using html2canvas, 7) Add preset categories: System, Personal, Team, Community with different permission models, 8) Create preset interpolation for smooth transitions between layouts using FLIP animation technique.",
+        "testStrategy": "Test preset CRUD operations with IndexedDB, validate version migration preserves panel arrangements, verify preset sharing generates valid importable data, test preset recommendations adapt to usage patterns, validate smooth transitions between vastly different presets.",
+        "priority": "medium",
+        "dependencies": [
+          186
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 190,
+        "title": "Implement multi-monitor and extended workspace support",
+        "description": "Build comprehensive multi-monitor support with panel distribution, DPI awareness, and cross-monitor dragging capabilities",
+        "details": "Implement using Electron APIs for desktop or Browser Window API for web: 1) Detect available monitors using screen.isExtended and screen.getDetails() API, 2) Create MonitorManager service to track display configurations and DPI settings using devicePixelRatio, 3) Implement cross-monitor dragging with portal rendering during transitions, 4) Build per-monitor layout memory storing window positions relative to monitor bounds, 5) Add DPI scaling adjustments for high-DPI displays using CSS transform scales, 6) Create monitor affinity settings allowing panels to stick to specific displays, 7) Implement fullscreen mode per monitor using Fullscreen API, 8) Handle monitor disconnection gracefully by consolidating panels to remaining displays.",
+        "testStrategy": "Test with simulated multi-monitor setups using Chrome DevTools, validate DPI scaling preserves UI proportions, test panel redistribution on monitor disconnect, verify cross-monitor dragging maintains panel state, test fullscreen mode isolation per display.",
+        "priority": "low",
+        "dependencies": [
+          187
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 191,
+        "title": "Build panel state persistence and synchronization layer",
+        "description": "Create robust state persistence system with local storage, cloud sync, and real-time collaboration support for layout configurations",
+        "details": "Build comprehensive persistence layer: 1) Implement LayoutPersistence service using IndexedDB for local storage with 50MB quota management, 2) Add compression using pako.js to reduce storage size by 60%, 3) Create debounced auto-save with 500ms delay using lodash.debounce, 4) Implement cloud sync via REST API to PostgreSQL backend storing layouts as JSONB, 5) Add real-time collaboration using SignalR for layout change broadcasts, 6) Create conflict resolution using three-way merge algorithm for concurrent edits, 7) Implement layout history with undo/redo using command pattern (last 50 actions), 8) Add layout diffing using diff-match-patch for efficient updates, 9) Build offline support with service workers and background sync API.",
+        "testStrategy": "Test persistence across browser sessions, validate compression maintains data integrity, test conflict resolution with simultaneous edits, verify real-time sync latency under 100ms, test offline mode with queued changes syncing on reconnect.",
+        "priority": "high",
+        "dependencies": [
+          189
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 192,
+        "title": "Develop intelligent panel behavior system",
+        "description": "Create smart panel behaviors including context-aware auto-arrangement, AI-powered layout suggestions, and workflow optimization",
+        "details": "Implement AI-driven panel intelligence: 1) Create PanelBehaviorEngine using TensorFlow.js for client-side ML inference, 2) Track user interaction patterns using analytics events (panel focus time, arrangement changes), 3) Build context detection identifying current user task from active panels and tools, 4) Implement auto-arrangement algorithms: fibonacci spiral for optimal panel sizing, force-directed graph for relationship-based positioning, 5) Create ML model for layout recommendations trained on user behavior data, 6) Add smart panel suggestions showing relevant panels based on workflow stage, 7) Implement focus-follows-mouse with 200ms delay for productivity, 8) Build panel relationship mapping to identify commonly used panel combinations, 9) Add predictive panel preloading based on usage patterns.",
+        "testStrategy": "Test ML model predictions against user preference benchmarks, validate auto-arrangement produces usable layouts, test context detection accuracy above 80%, verify performance impact of ML inference under 50ms, test suggestion relevance through A/B testing.",
+        "priority": "low",
+        "dependencies": [
+          188,
+          189
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 193,
+        "title": "Create accessibility and keyboard navigation system",
+        "description": "Implement comprehensive accessibility features including full keyboard navigation, screen reader support, and WCAG 2.1 AA compliance",
+        "details": "Build complete accessibility layer: 1) Implement keyboard navigation using roving tabindex pattern for panel focus management, 2) Add keyboard shortcuts: Ctrl+Alt+[1-9] for panel focus, Ctrl+Shift+D for docking menu, F6 for panel cycling, 3) Create screen reader announcements using ARIA live regions for layout changes, 4) Implement focus trapping in floating windows using focus-trap-react, 5) Add high contrast mode detection and custom theme using CSS custom properties, 6) Build keyboard-only docking using arrow keys for drop zone selection, 7) Create accessibility preferences panel with options for motion reduction, larger hit targets, 8) Implement skip links for quick navigation to main panels, 9) Add panel descriptions and landmarks using ARIA labels and roles, 10) Support voice control using Web Speech API for panel commands.",
+        "testStrategy": "Test with screen readers (NVDA, JAWS, VoiceOver), validate keyboard navigation covers all interactions, run axe-core accessibility audits for WCAG compliance, test with users having motor and visual disabilities, verify focus order matches visual hierarchy.",
+        "priority": "medium",
+        "dependencies": [
+          186
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 194,
+        "title": "Implement performance optimization and virtualization",
+        "description": "Optimize dockable layout performance with panel virtualization, lazy loading, and efficient rendering strategies for handling 50+ panels",
+        "details": "Implement performance optimizations: 1) Add panel virtualization using react-window for off-screen panel content, only rendering visible panels, 2) Implement lazy loading with React.lazy and Suspense for panel components, showing loading skeletons, 3) Use React.memo and useMemo for expensive panel render optimizations, 4) Add panel content caching with LRU cache (10 panel limit) using quick-lru, 5) Implement requestIdleCallback for non-critical updates during idle time, 6) Use CSS containment (contain: layout style paint) for rendering isolation, 7) Add WebWorker for heavy computations in layout calculations, 8) Implement virtual scrolling for panel lists using react-virtual, 9) Add progressive rendering prioritizing visible panels first, 10) Use ResizeObserver with throttling for efficient size change detection.",
+        "testStrategy": "Test with 100+ panels measuring frame rate stays above 60fps, profile with React DevTools for unnecessary re-renders, measure time-to-interactive under 2 seconds, test memory usage stays under 100MB for typical layouts, validate lazy loading reduces initial bundle by 40%.",
+        "priority": "medium",
+        "dependencies": [
+          186,
+          191
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 195,
+        "title": "Build comprehensive testing and documentation suite",
+        "description": "Create extensive test coverage and user documentation for the dockable layout system including visual regression tests and interactive tutorials",
+        "details": "Build complete testing and documentation: 1) Create visual regression tests using Percy.io or Chromatic for layout arrangements, 2) Build E2E test suite with Playwright covering all docking scenarios and edge cases, 3) Implement unit tests for layout algorithms achieving 90% coverage using Vitest, 4) Add performance benchmarks using Lighthouse CI for regression detection, 5) Create interactive tutorials using driver.js for onboarding new users to docking features, 6) Build Storybook stories for all panel components and layout presets, 7) Generate API documentation using TypeDoc with examples, 8) Create video tutorials showing common workflows and tips, 9) Build troubleshooting guide for common issues with solutions, 10) Add telemetry for tracking feature usage and error rates using PostHog.",
+        "testStrategy": "Validate test coverage meets 85% threshold, run visual regression on 10 key layouts, ensure E2E tests cover 50+ user scenarios, verify documentation examples are executable, test tutorial completion rate above 70%, monitor error rates stay below 0.1%.",
+        "priority": "low",
+        "dependencies": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194
+        ],
+        "status": "pending",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-26T16:31:04.406Z",
+      "updated": "2025-09-27T10:32:02.091Z",
       "description": "Tasks for master context"
     }
   }

@@ -3,352 +3,210 @@ using Ergoplanner.Domain.Common;
 namespace Ergoplanner.Domain.Entities;
 
 /// <summary>
-/// Represents a hierarchical category for organizing engineering symbols
+/// Represents a category for organizing symbols
 /// </summary>
 public class SymbolCategory : BaseEntity
 {
     /// <summary>
-    /// Category code/identifier (e.g., "PUMPS", "VALVES-CONTROL", "INSTRUMENTS-FLOW")
-    /// </summary>
-    public string Code { get; private set; }
-
-    /// <summary>
-    /// Display name of the category
+    /// Category name
     /// </summary>
     public string Name { get; private set; }
 
     /// <summary>
-    /// Detailed description of what symbols belong in this category
+    /// Category description
     /// </summary>
-    public string Description { get; private set; }
+    public string? Description { get; private set; }
 
     /// <summary>
-    /// Parent category for hierarchical organization (null for root categories)
+    /// Parent category ID for hierarchical organization
     /// </summary>
-    public Guid? ParentCategoryId { get; private set; }
+    public Guid? ParentId { get; private set; }
 
     /// <summary>
-    /// Navigation property to parent category
-    /// </summary>
-    public SymbolCategory? ParentCategory { get; private set; }
-
-    /// <summary>
-    /// Child categories
-    /// </summary>
-    public List<SymbolCategory> ChildCategories { get; private set; }
-
-    /// <summary>
-    /// Symbols in this category
-    /// </summary>
-    public List<Symbol> Symbols { get; private set; }
-
-    /// <summary>
-    /// Icon or visual identifier for the category
-    /// </summary>
-    public string? IconPath { get; private set; }
-
-    /// <summary>
-    /// Color code for visual organization (hex color)
-    /// </summary>
-    public string? ColorCode { get; private set; }
-
-    /// <summary>
-    /// Display order for sorting categories
+    /// Display order within the same parent level
     /// </summary>
     public int DisplayOrder { get; private set; }
 
     /// <summary>
-    /// Whether this category is currently active/visible
+    /// Icon for the category (could be SVG or icon class)
+    /// </summary>
+    public string? Icon { get; private set; }
+
+    /// <summary>
+    /// Color for visual identification (hex code)
+    /// </summary>
+    public string? Color { get; private set; }
+
+    /// <summary>
+    /// Standard this category belongs to
+    /// </summary>
+    public string? Standard { get; private set; }
+
+    /// <summary>
+    /// Whether this category is active
     /// </summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Industry standard this category follows (ISA, PIP, ISO, etc.)
+    /// Metadata for additional properties
     /// </summary>
-    public string? StandardType { get; private set; }
+    public Dictionary<string, object> Metadata { get; private set; }
 
     /// <summary>
-    /// Hierarchical path for efficient querying (e.g., "Equipment/Pumps/Centrifugal")
+    /// Navigation property for parent category
     /// </summary>
-    public string Path { get; private set; }
+    public virtual SymbolCategory? Parent { get; private set; }
 
     /// <summary>
-    /// Depth level in the hierarchy (0 for root, 1 for first level, etc.)
+    /// Navigation property for child categories
     /// </summary>
-    public int Level { get; private set; }
-
-    // Private constructor for EF Core
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
-    private SymbolCategory()
-#pragma warning restore CS8618
-    {
-        Code = string.Empty;
-        Name = string.Empty;
-        Description = string.Empty;
-        Path = string.Empty;
-        ChildCategories = new List<SymbolCategory>();
-        Symbols = new List<Symbol>();
-        Level = 0;
-    }
+    public virtual ICollection<SymbolCategory> Children { get; private set; }
 
     /// <summary>
-    /// Creates a new SymbolCategory instance
+    /// Navigation property for symbols in this category
     /// </summary>
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
-    public SymbolCategory(
-        string code,
-        string name,
-        string description,
-        Guid? parentCategoryId = null,
-        string? iconPath = null,
-        string? colorCode = null,
-        string? standardType = null) : base()
-    {
-        ValidateParameters(code, name);
-
-        Code = code;
-        Name = name;
-        Description = description;
-        ParentCategoryId = parentCategoryId;
-        IconPath = iconPath;
-        ColorCode = colorCode;
-        StandardType = standardType;
-        IsActive = true;
-        DisplayOrder = 0;
-        ChildCategories = new List<SymbolCategory>();
-        Symbols = new List<Symbol>();
-
-        // Path and Level will be set when parent is established
-        UpdateHierarchyInfo();
-    }
-#pragma warning restore CS8618
+    public virtual ICollection<Symbol> Symbols { get; private set; }
 
     /// <summary>
-    /// Update category properties
+    /// Creates a new symbol category
     /// </summary>
-    public void UpdateCategory(
-        string name,
-        string description,
-        string? iconPath,
-        string? colorCode,
-        string? standardType,
-        string modifiedBy)
+    public SymbolCategory(string name, string? description = null, Guid? parentId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Category name cannot be null or empty", nameof(name));
+            throw new ArgumentException("Category name cannot be empty", nameof(name));
 
         Name = name;
         Description = description;
-        IconPath = iconPath;
-        ColorCode = colorCode;
-        StandardType = standardType;
+        ParentId = parentId;
+        DisplayOrder = 0;
+        IsActive = true;
+        Metadata = new Dictionary<string, object>();
+        Children = new HashSet<SymbolCategory>();
+        Symbols = new HashSet<Symbol>();
+    }
 
-        UpdateModificationInfo(modifiedBy);
+    /// <summary>
+    /// Update category name
+    /// </summary>
+    public void UpdateName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Category name cannot be empty", nameof(name));
+
+        Name = name;
+    }
+
+    /// <summary>
+    /// Update category description
+    /// </summary>
+    public void UpdateDescription(string? description)
+    {
+        Description = description;
     }
 
     /// <summary>
     /// Set parent category
     /// </summary>
-    public void SetParent(SymbolCategory? parent, string modifiedBy)
+    public void SetParent(Guid? parentId)
     {
-        // Prevent circular references
-        if (parent != null && IsAncestorOf(parent))
-            throw new InvalidOperationException("Cannot set parent category that would create a circular reference");
+        if (parentId == Id)
+            throw new InvalidOperationException("Category cannot be its own parent");
 
-        ParentCategory = parent;
-        ParentCategoryId = parent?.Id;
-
-        UpdateHierarchyInfo();
-        UpdateModificationInfo(modifiedBy);
-
-        // Update all child categories' hierarchy info
-        UpdateChildrenHierarchy();
-    }
-
-    /// <summary>
-    /// Add child category
-    /// </summary>
-    public void AddChildCategory(SymbolCategory childCategory, string modifiedBy)
-    {
-        if (childCategory == null)
-            throw new ArgumentNullException(nameof(childCategory));
-
-        if (childCategory.Id == Id)
-            throw new InvalidOperationException("Cannot add category as child of itself");
-
-        if (childCategory.IsAncestorOf(this))
-            throw new InvalidOperationException("Cannot add ancestor category as child");
-
-        childCategory.SetParent(this, modifiedBy);
-        if (!ChildCategories.Contains(childCategory))
-        {
-            ChildCategories.Add(childCategory);
-        }
-
-        UpdateModificationInfo(modifiedBy);
-    }
-
-    /// <summary>
-    /// Remove child category
-    /// </summary>
-    public void RemoveChildCategory(SymbolCategory childCategory, string modifiedBy)
-    {
-        if (childCategory != null && ChildCategories.Contains(childCategory))
-        {
-            childCategory.SetParent(null, modifiedBy);
-            ChildCategories.Remove(childCategory);
-            UpdateModificationInfo(modifiedBy);
-        }
+        ParentId = parentId;
     }
 
     /// <summary>
     /// Set display order
     /// </summary>
-    public void SetDisplayOrder(int displayOrder, string modifiedBy)
+    public void SetDisplayOrder(int order)
     {
-        DisplayOrder = displayOrder;
-        UpdateModificationInfo(modifiedBy);
+        if (order < 0)
+            throw new ArgumentException("Display order cannot be negative", nameof(order));
+
+        DisplayOrder = order;
     }
 
     /// <summary>
-    /// Set active status
+    /// Set category icon
     /// </summary>
-    public void SetActiveStatus(bool isActive, string modifiedBy)
+    public void SetIcon(string? icon)
     {
-        IsActive = isActive;
-        UpdateModificationInfo(modifiedBy);
+        Icon = icon;
     }
 
     /// <summary>
-    /// Get all ancestor categories (parent, grandparent, etc.)
+    /// Set category color
     /// </summary>
-    public List<SymbolCategory> GetAncestors()
+    public void SetColor(string? color)
     {
-        var ancestors = new List<SymbolCategory>();
-        var current = ParentCategory;
+        // Validate hex color format if provided
+        if (color != null && !System.Text.RegularExpressions.Regex.IsMatch(color, "^#(?:[0-9a-fA-F]{3}){1,2}$"))
+            throw new ArgumentException("Color must be a valid hex color code", nameof(color));
 
-        while (current != null)
-        {
-            ancestors.Add(current);
-            current = current.ParentCategory;
-        }
-
-        return ancestors;
+        Color = color;
     }
 
     /// <summary>
-    /// Get all descendant categories (children, grandchildren, etc.)
+    /// Set the standard for this category
     /// </summary>
-    public List<SymbolCategory> GetDescendants()
+    public void SetStandard(string? standard)
     {
-        var descendants = new List<SymbolCategory>();
-
-        foreach (var child in ChildCategories)
-        {
-            descendants.Add(child);
-            descendants.AddRange(child.GetDescendants());
-        }
-
-        return descendants;
+        Standard = standard;
     }
 
     /// <summary>
-    /// Get total count of symbols in this category and all subcategories
+    /// Activate the category
     /// </summary>
-    public int GetTotalSymbolCount()
+    public void Activate()
     {
-        int count = Symbols.Count;
-
-        foreach (var child in ChildCategories)
-        {
-            count += child.GetTotalSymbolCount();
-        }
-
-        return count;
+        IsActive = true;
     }
 
     /// <summary>
-    /// Check if this category is root (has no parent)
+    /// Deactivate the category
     /// </summary>
-    public bool IsRoot() => ParentCategoryId == null;
-
-    /// <summary>
-    /// Check if this category is leaf (has no children)
-    /// </summary>
-    public bool IsLeaf() => !ChildCategories.Any();
-
-    /// <summary>
-    /// Check if this category is an ancestor of the given category
-    /// </summary>
-    public bool IsAncestorOf(SymbolCategory category)
+    public void Deactivate()
     {
-        if (category == null)
-            return false;
-
-        var current = category.ParentCategory;
-        while (current != null)
-        {
-            if (current.Id == Id)
-                return true;
-            current = current.ParentCategory;
-        }
-
-        return false;
+        IsActive = false;
     }
 
     /// <summary>
-    /// Check if this category is a descendant of the given category
+    /// Add or update metadata
     /// </summary>
-    public bool IsDescendantOf(SymbolCategory category)
+    public void SetMetadata(string key, object value)
     {
-        if (category == null)
-            return false;
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentException("Metadata key cannot be empty", nameof(key));
 
-        return category.IsAncestorOf(this);
+        Metadata[key] = value;
     }
 
     /// <summary>
-    /// Get the root category of this category's hierarchy
+    /// Remove metadata
     /// </summary>
-    public SymbolCategory GetRoot()
+    public void RemoveMetadata(string key)
     {
-        var current = this;
-        while (current.ParentCategory != null)
-        {
-            current = current.ParentCategory;
-        }
-        return current;
+        Metadata.Remove(key);
     }
 
-    private void UpdateHierarchyInfo()
-    {
-        if (ParentCategory == null)
-        {
-            Level = 0;
-            Path = Name;
-        }
-        else
-        {
-            Level = ParentCategory.Level + 1;
-            Path = $"{ParentCategory.Path}/{Name}";
-        }
-    }
+    /// <summary>
+    /// Check if this is a root category (no parent)
+    /// </summary>
+    public bool IsRoot => ParentId == null;
 
-    private void UpdateChildrenHierarchy()
-    {
-        foreach (var child in ChildCategories)
-        {
-            child.UpdateHierarchyInfo();
-            child.UpdateChildrenHierarchy();
-        }
-    }
+    /// <summary>
+    /// Check if this category has children
+    /// </summary>
+    public bool HasChildren => Children?.Any() ?? false;
 
-    private static void ValidateParameters(string code, string name)
+    /// <summary>
+    /// Get the full path of this category (for hierarchical display)
+    /// </summary>
+    public string GetFullPath()
     {
-        if (string.IsNullOrWhiteSpace(code))
-            throw new ArgumentException("Category code cannot be null or empty", nameof(code));
+        if (Parent == null)
+            return Name;
 
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Category name cannot be null or empty", nameof(name));
+        return $"{Parent.GetFullPath()} / {Name}";
     }
 }

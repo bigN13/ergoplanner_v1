@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Ergoplanner.Domain.Entities;
 
 namespace Ergoplanner.Application.Common.Interfaces;
 
@@ -9,6 +10,21 @@ namespace Ergoplanner.Application.Common.Interfaces;
 /// </summary>
 public interface IApplicationDbContext
 {
+    /// <summary>
+    /// Symbols in the system
+    /// </summary>
+    DbSet<Symbol> Symbols { get; }
+
+    /// <summary>
+    /// Symbol metadata entries
+    /// </summary>
+    DbSet<Domain.Entities.SymbolMetadata> SymbolMetadata { get; }
+
+    /// <summary>
+    /// Property templates for equipment
+    /// </summary>
+    DbSet<PropertyTemplate> PropertyTemplates { get; }
+
     /// <summary>
     /// Save changes to the database
     /// </summary>

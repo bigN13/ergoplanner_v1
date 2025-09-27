@@ -36,6 +36,14 @@ import {
   HeatExchangerNode,
   CompressorNode,
 } from "./nodes";
+import {
+  RectangleNode,
+  RoundedRectangleNode,
+  EllipseNode,
+  RhombusNode,
+  TextNode,
+  FreehandNode,
+} from "./nodes/shapes";
 import QuickActionsPanel from "./QuickActionsPanel";
 import SmartRoutingPanel from "./SmartRoutingPanel";
 
@@ -53,6 +61,13 @@ const nodeTypes: NodeTypes = {
   checkValve: CheckValveNode,
   heatExchanger: HeatExchangerNode,
   compressor: CompressorNode,
+  // Shape nodes
+  rectangle: RectangleNode,
+  "rounded-rectangle": RoundedRectangleNode,
+  ellipse: EllipseNode,
+  rhombus: RhombusNode,
+  text: TextNode,
+  freehand: FreehandNode,
 };
 
 function DrawingCanvasContent(): React.ReactElement {
@@ -162,7 +177,7 @@ function DrawingCanvasContent(): React.ReactElement {
 
   const onDragOver = useCallback((event: React.DragEvent): void => {
     event.preventDefault();
-    // eslint-disable-next-line no-param-reassign
+     
     event.dataTransfer.dropEffect = "move";
   }, []);
 

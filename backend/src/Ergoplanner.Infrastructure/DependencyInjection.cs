@@ -7,6 +7,7 @@ using Ergoplanner.Infrastructure.Data;
 using Ergoplanner.Infrastructure.Data.Extensions;
 using Ergoplanner.Infrastructure.Data.Repositories;
 using Ergoplanner.Infrastructure.Services;
+using StackExchange.Redis;
 
 namespace Ergoplanner.Infrastructure;
 
@@ -68,6 +69,9 @@ public static class DependencyInjection
             }
         });
 
+        // Register IApplicationDbContext
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+
         return services;
     }
 
@@ -79,13 +83,35 @@ public static class DependencyInjection
     /// <returns>Configured service collection</returns>
     private static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration configuration)
     {
-        var redisConnectionString = configuration.GetConnectionString("Redis");
+        var redisConnectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
 
-        // Fallback to in-memory caching for now
-        services.AddMemoryCache();
-        services.AddDistributedMemoryCache();
+        try
+        {
+            // Register Redis connection multiplexer as singleton
+            var multiplexer = ConnectionMultiplexer.Connect(redisConnectionString);
+            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
-        // Add a no-op Redis service implementation
+            // Register Redis cache service
+            services.AddSingleton<ICacheService, RedisCacheService>();
+
+            // Also register distributed cache implementation
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.ConnectionMultiplexerFactory = () => Task.FromResult<IConnectionMultiplexer>(multiplexer);
+            });
+        }
+        catch (Exception ex)
+        {
+            // Fallback to in-memory caching if Redis is not available
+            Console.WriteLine($"Redis connection failed, using in-memory cache: {ex.Message}");
+            services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
+
+            // Use NoOp implementation for ICacheService
+            services.AddSingleton<ICacheService, NoOpCacheService>();
+        }
+
+        // Keep the legacy IRedisCacheService for compatibility
         services.AddScoped<IRedisCacheService, NoOpRedisCacheService>();
 
         return services;

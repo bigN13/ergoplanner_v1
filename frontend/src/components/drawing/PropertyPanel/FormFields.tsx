@@ -3,14 +3,15 @@
 import { Info, AlertCircle } from "lucide-react";
 import React, { useState, useCallback } from "react";
 
-import type { FormField } from "./PropertyTemplates";
+import type { FormFieldExtended, FormFieldTypeExtended } from "./PropertyTemplates";
 import { getSuggestedUnits, parseValueWithUnit, formatValueWithUnit } from "./UnitConversion";
+import { RadioGroupField, FormulaEditorField, TableEditorField } from "./AdvancedFields";
 
 /**
  * Base form field props
  */
 interface BaseFieldProps {
-  field: FormField;
+  field: FormFieldExtended;
   value: unknown;
   onChange: (name: string, value: unknown) => void;
   error?: string;
@@ -670,7 +671,7 @@ export function DynamicFormField({
 }: BaseFieldProps & { unitSystem?: "metric" | "imperial" }): React.ReactElement {
   const props = { field, value, onChange, error, disabled };
 
-  switch (field.type) {
+  switch (field.type as FormFieldTypeExtended) {
     case "text":
       // Use unit input for fields with units, regular text input otherwise
       return field.unit || getSuggestedUnits(field.name, unitSystem).length > 0 ? (
@@ -692,6 +693,12 @@ export function DynamicFormField({
       return <ColorField {...props} />;
     case "date":
       return <DateField {...props} />;
+    case "radio":
+      return <RadioGroupField {...props} />;
+    case "formula":
+      return <FormulaEditorField {...props} />;
+    case "table":
+      return <TableEditorField {...props} />;
     default:
       return <TextInputField {...props} />;
   }

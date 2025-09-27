@@ -102,9 +102,9 @@ export class DeleteEdgeCommand extends BaseCommand {
 
     // Verify that source and target nodes still exist
     const currentNodes = this.context.getNodes();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const sourceExists = currentNodes.some((n) => n.id === this.edge!.source);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const targetExists = currentNodes.some((n) => n.id === this.edge!.target);
 
     if (!sourceExists || !targetExists) {

@@ -973,3 +973,34 @@ export function getSectionsWithFields(fields: FormField[]): PropertySection[] {
   const usedSections = new Set(fields.map((f) => f.section));
   return DEFAULT_SECTIONS.filter((section) => usedSections.has(section.id));
 }
+
+// Additional types for advanced field components
+
+/**
+ * Column definition for table field type
+ */
+export interface TableColumn {
+  key: string;
+  label: string;
+  type?: "text" | "number" | "date";
+  required?: boolean;
+  placeholder?: string;
+  defaultValue?: unknown;
+}
+
+// Update FormFieldType to include new field types
+export type FormFieldTypeExtended = FormFieldType | "radio" | "formula" | "table";
+
+// Extend FormField interface
+export interface FormFieldExtended extends FormField {
+  // For table field type
+  columns?: TableColumn[];
+  // For formula field type
+  variables?: string[];
+  // For field dependencies
+  dependsOn?: string[];
+  calculate?: (values: Record<string, unknown>) => unknown;
+  // Validation
+  pattern?: RegExp;
+  validate?: (value: unknown, values: Record<string, unknown>) => string | undefined;
+}

@@ -2,7 +2,7 @@ using Ergoplanner.API.Services;
 using Ergoplanner.Application;
 using Ergoplanner.Application.Common.Interfaces;
 using Ergoplanner.Infrastructure;
-using Ergoplanner.Infrastructure.Persistence;
+using Ergoplanner.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

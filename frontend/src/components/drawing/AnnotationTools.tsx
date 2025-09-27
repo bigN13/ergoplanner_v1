@@ -118,7 +118,7 @@ export default function AnnotationTools({
           break;
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [activeTool, screenToFlowPosition]
   );
 

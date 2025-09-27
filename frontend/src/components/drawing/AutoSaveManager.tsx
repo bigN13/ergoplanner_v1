@@ -217,7 +217,7 @@ export default function AutoSaveManager({
     const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
       if (hasUnsavedChanges) {
         event.preventDefault();
-        // eslint-disable-next-line no-param-reassign
+         
         event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
       }
     };

@@ -85,6 +85,11 @@ public class Symbol : BaseEntity
     public double MaxDetailZoom { get; private set; }
 
     /// <summary>
+    /// Navigation property to symbol metadata entity
+    /// </summary>
+    public virtual SymbolMetadata? SymbolMetadata { get; set; }
+
+    /// <summary>
     /// Navigation property to symbol category
     /// </summary>
     public Guid CategoryId { get; private set; }

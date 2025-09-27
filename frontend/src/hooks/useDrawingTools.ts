@@ -52,15 +52,12 @@ export function useDrawingTools(
 
       const newNode: Node = {
         id: nodeId,
-        type: type === "ellipse" ? "circle" : type === "rhombus" ? "diamond" : type,
+        type,
         position,
         data: {
           label: `${type.charAt(0).toUpperCase() + type.slice(1)} ${nodeId.slice(-4)}`,
-        },
-        style: {
           width: defaultSize.width,
           height: defaultSize.height,
-          borderRadius: type === "rounded-rectangle" ? "8px" : undefined,
         },
       };
 

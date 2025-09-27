@@ -49,7 +49,7 @@ export const EnhancedDragPreview: React.FC<EnhancedDragPreviewProps> = React.mem
       document.addEventListener("selectstart", preventSelection);
 
       // Store cleanup function
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (window as any).__dragCleanup = (): void => {
         document.removeEventListener("selectstart", preventSelection);
       };
@@ -62,11 +62,11 @@ export const EnhancedDragPreview: React.FC<EnhancedDragPreviewProps> = React.mem
       document.body.style.userSelect = "";
 
       // Clean up event listeners
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       if ((window as any).__dragCleanup) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         (window as any).__dragCleanup();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         delete (window as any).__dragCleanup;
       }
 

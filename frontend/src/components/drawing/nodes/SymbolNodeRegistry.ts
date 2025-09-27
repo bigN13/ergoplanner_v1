@@ -22,7 +22,7 @@ export interface SymbolNodeConfig {
   name: string;
   category: string;
   description: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   component: React.ComponentType<NodeProps<any>>; // Using any for backward compatibility with legacy components
   defaultData: Partial<BaseSymbolData>;
   tags: string[];

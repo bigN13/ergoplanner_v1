@@ -17,6 +17,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import type { Node, Edge } from "reactflow";
 
+import { propertyManager } from "@/services/PropertyManager";
 import { useDrawingStore } from "@/store/drawingStore";
 import { PROPERTY_SCHEMAS, type NodeType } from "@/types/propertySchemas";
 
@@ -97,6 +98,8 @@ export default function PropertyPanel({
     new Set(["basic", "dimensional", "process", "info"])
   );
   const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
+  const [calculatedProperties, setCalculatedProperties] = useState<Record<string, any>>({});
+  const [showCalculated, setShowCalculated] = useState(true);
 
   // Determine if we're in multi-selection mode
   const isMultiSelect = selectedNodes.length > 1;
@@ -111,10 +114,23 @@ export default function PropertyPanel({
   // Get validation schema for current node type
   const validationSchema = PROPERTY_SCHEMAS[nodeType] || PROPERTY_SCHEMAS.instrument;
 
+  // Get default properties with auto-generated tag number if needed
+  const getDefaultValues = useCallback(() => {
+    if (!primaryNode) return {};
+    const currentData = primaryNode.data || {};
+
+    // If no tag number exists, generate one
+    if (!currentData.tagNumber && nodeType) {
+      const defaults = propertyManager.getDefaultProperties(nodeType);
+      return { ...defaults, ...currentData };
+    }
+    return currentData;
+  }, [primaryNode, nodeType]);
+
   // Initialize form with react-hook-form
   const methods = useForm({
     resolver: zodResolver(validationSchema),
-    defaultValues: primaryNode?.data || {},
+    defaultValues: getDefaultValues(),
     mode: "onChange",
   });
 
@@ -126,14 +142,23 @@ export default function PropertyPanel({
     formState: { errors: formErrors, isDirty },
   } = methods;
 
-  // Reset form when selection changes
+  // Reset form when selection changes and calculate properties
   useEffect(() => {
     if (primaryNode) {
-      reset(primaryNode.data || {});
+      const defaultValues = getDefaultValues();
+      reset(defaultValues);
+
+      // Calculate properties for this node
+      const calculated = propertyManager.calculateProperties({
+        ...primaryNode,
+        data: defaultValues
+      });
+      setCalculatedProperties(calculated);
     } else if (selectedEdge) {
       reset(selectedEdge.data || {});
+      setCalculatedProperties({});
     }
-  }, [primaryNode, selectedEdge, reset]);
+  }, [primaryNode, selectedEdge, reset, getDefaultValues]);
 
   // Watch form values for real-time updates
   const formValues = watch();
@@ -150,27 +175,49 @@ export default function PropertyPanel({
     });
   }, []);
 
-  // Handle property changes with command pattern integration
+  // Handle property changes with command pattern integration and calculated properties
   const handlePropertyChange = useCallback(
     (fieldName: string, value: unknown): void => {
       setValue(fieldName, value, { shouldValidate: true, shouldDirty: true });
 
       // Apply changes immediately for real-time updates
       if (isMultiSelect) {
-        // Update all selected nodes
-        selectedNodes.forEach((node) => {
-          const updatedData = { ...node.data, [fieldName]: value };
-          updateNode(node.id, { data: updatedData });
+        // Batch update all selected nodes with validation
+        const updates = { [fieldName]: value };
+        const results = propertyManager.batchUpdateProperties(selectedNodes, updates);
+
+        results.forEach((result) => {
+          if (result.success) {
+            const node = selectedNodes.find(n => n.id === result.nodeId);
+            if (node) {
+              updateNode(node.id, { data: node.data });
+            }
+          }
         });
       } else if (primaryNode) {
         const updatedData = { ...primaryNode.data, [fieldName]: value };
-        updateNode(primaryNode.id, { data: updatedData });
+
+        // Validate the change
+        const validation = propertyManager.validateProperties(nodeType, updatedData);
+        if (validation.valid) {
+          // Calculate new properties based on the change
+          const updatedNode = { ...primaryNode, data: updatedData };
+          const calculated = propertyManager.calculateProperties(updatedNode);
+
+          // Merge calculated properties
+          const finalData = { ...updatedData, ...calculated };
+          updateNode(primaryNode.id, { data: finalData });
+          setCalculatedProperties(calculated);
+        } else {
+          // Show validation errors (could be improved with toast notifications)
+          console.error('Validation errors:', validation.errors);
+        }
       } else if (selectedEdge) {
         const updatedData = { ...selectedEdge.data, [fieldName]: value };
         updateEdge(selectedEdge.id, { data: updatedData });
       }
     },
-    [setValue, isMultiSelect, selectedNodes, primaryNode, selectedEdge, updateNode, updateEdge]
+    [setValue, isMultiSelect, selectedNodes, primaryNode, selectedEdge, updateNode, updateEdge, nodeType]
   );
 
   // Handle position changes with command pattern
@@ -193,7 +240,7 @@ export default function PropertyPanel({
     [isMultiSelect, selectedNodes, primaryNode, updateNode]
   );
 
-  // Handle deletion with confirmation
+  // Handle deletion with confirmation and tag number release
   const handleDelete = useCallback((): void => {
     const confirmMessage = isMultiSelect
       ? `Are you sure you want to delete ${selectedNodes.length} selected elements?`
@@ -203,8 +250,18 @@ export default function PropertyPanel({
     // eslint-disable-next-line no-alert
     if (confirm(confirmMessage)) {
       if (isMultiSelect) {
-        selectedNodes.forEach((node) => deleteNode(node.id));
+        selectedNodes.forEach((node) => {
+          // Release tag number when deleting
+          if (node.data?.tagNumber) {
+            propertyManager.releaseTagNumber(node.data.tagNumber);
+          }
+          deleteNode(node.id);
+        });
       } else if (primaryNode) {
+        // Release tag number when deleting
+        if (primaryNode.data?.tagNumber) {
+          propertyManager.releaseTagNumber(primaryNode.data.tagNumber);
+        }
         deleteNode(primaryNode.id);
       } else if (selectedEdge) {
         deleteEdge(selectedEdge.id);
@@ -363,6 +420,48 @@ export default function PropertyPanel({
               </button>
             </div>
           </div>
+
+          {/* Calculated Properties Section */}
+          {primaryNode && Object.keys(calculatedProperties).length > 0 && (
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={() => setShowCalculated(!showCalculated)}
+                className="flex w-full items-center justify-between rounded bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+              >
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  <span>Calculated Properties</span>
+                </div>
+                {showCalculated ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </button>
+              {showCalculated && (
+                <div className="mt-2 space-y-2 rounded bg-blue-50 p-3">
+                  {Object.entries(calculatedProperties).map(([key, value]) => {
+                    const metadata = propertyManager.getPropertyMetadata(nodeType, key);
+                    const calcProp = propertyManager.getCalculatedProperties(nodeType)
+                      .find(p => p.id === key);
+
+                    return (
+                      <div key={key} className="flex justify-between text-xs">
+                        <span className="font-medium text-blue-700">
+                          {calcProp?.name || metadata?.displayName || key}:
+                        </span>
+                        <span className="text-blue-600">
+                          {typeof value === 'number' ? value.toFixed(2) : value}
+                          {calcProp?.unit ? ` ${calcProp.unit}` : ''}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Dynamic Property Sections */}
           {primaryNode &&

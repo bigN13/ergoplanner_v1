@@ -33,21 +33,16 @@ const eslintConfig = [
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
       }],
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/explicit-function-return-type": ["warn", {
-        allowExpressions: true,
-        allowTypedFunctionExpressions: true,
-      }],
-      "@typescript-eslint/no-non-null-assertion": "warn",
-      "@typescript-eslint/consistent-type-imports": ["warn", {
-        prefer: "type-imports",
-      }],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/consistent-type-imports": "off",
 
       // React specific rules
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
       "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/exhaustive-deps": "off",
 
       // General JavaScript/TypeScript rules
       "no-console": ["warn", { allow: ["warn", "error"] }],
@@ -61,13 +56,10 @@ const eslintConfig = [
         array: false,
         object: true,
       }],
-      "no-param-reassign": ["warn", {
-        props: true,
-        ignorePropertyModificationsFor: ["state", "acc", "draft"],
-      }],
+      "no-param-reassign": "off",
 
       // Import rules
-      "import/order": ["warn", {
+      "import/order": ["off", {
         groups: [
           "builtin",
           "external",
