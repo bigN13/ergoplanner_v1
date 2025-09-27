@@ -2912,7 +2912,62 @@
         "priority": "high",
         "dependencies": [],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create CAD entity domain models and value objects",
+            "description": "Define domain entities for CAD elements with proper abstractions for different CAD formats",
+            "dependencies": [],
+            "details": "Create CadEntity base class in backend/src/Ergoplanner.Domain/Entities with properties for geometry (points, lines, arcs), layer information, block references, attributes, and metadata. Implement value objects for CadGeometry, CadCoordinate, CadTransform, and CadBoundingBox. Add support for different entity types (LINE, ARC, CIRCLE, POLYLINE, TEXT, DIMENSION, BLOCK). Include spatial data using NetTopologySuite for coordinate transformations. Create CadLayer entity to represent CAD layers with properties matching LayerMetadata structure already in the codebase.",
+            "status": "pending",
+            "testStrategy": "Unit tests for all domain entities and value objects, testing coordinate transformations, geometry calculations, and boundary validations. Test entity creation with various CAD element types."
+          },
+          {
+            "id": 2,
+            "title": "Implement CAD parser abstraction layer and interfaces",
+            "description": "Create parser abstraction interfaces and base implementations for handling different CAD formats",
+            "dependencies": [
+              "176.1"
+            ],
+            "details": "Create ICadParser interface in backend/src/Ergoplanner.Application/Common/Interfaces with methods ParseAsync(Stream file), GetLayers(), GetEntities(layerId), and ValidateFormat(). Implement CadParserBase abstract class with common parsing logic, coordinate system handling, and streaming support for large files using IAsyncEnumerable. Add ICadFormatDetector for auto-detecting file formats. Create CadParsingOptions class for configuring layer filters, entity type filters, coordinate precision, and memory limits. Implement parser factory pattern for creating appropriate parser based on file format.",
+            "status": "pending",
+            "testStrategy": "Unit tests for parser factory, format detection, and base parsing logic. Mock tests for ICadParser interface implementations. Test streaming functionality with simulated large files."
+          },
+          {
+            "id": 3,
+            "title": "Implement DXF parser using netDxf library",
+            "description": "Create DXF file parser implementation using netDxf 2.5+ for reading AutoCAD DXF files",
+            "dependencies": [
+              "176.2"
+            ],
+            "details": "Install netDxf NuGet package (version 2.5+) in Ergoplanner.Infrastructure. Create DxfParser class implementing ICadParser in backend/src/Ergoplanner.Infrastructure/Services/Cad. Parse DXF layers, blocks, entities (lines, arcs, circles, polylines, text, dimensions), and attributes. Map DXF coordinate system to application coordinates using System.Drawing.Common. Handle different DXF versions (AutoCAD 2018-2024). Implement block reference resolution and attribute extraction. Add support for extended data (XDATA) and custom properties. Handle large DXF files using streaming with IAsyncEnumerable.",
+            "status": "pending",
+            "testStrategy": "Integration tests with sample DXF files from different AutoCAD versions. Test layer preservation, block parsing, attribute extraction. Performance tests with 100MB+ DXF files. Validate coordinate accuracy."
+          },
+          {
+            "id": 4,
+            "title": "Implement DWG parser integration",
+            "description": "Create DWG file parser using available .NET libraries or conversion services",
+            "dependencies": [
+              "176.2"
+            ],
+            "details": "Research and integrate DWG parsing solution (IronCAD, DwgReader, or Teigha File Converter service). Create DwgParser class implementing ICadParser in backend/src/Ergoplanner.Infrastructure/Services/Cad. If using conversion service, implement DWG to DXF conversion pipeline and leverage DxfParser. Handle AutoCAD 2018-2024 DWG formats with version detection. Parse layers, blocks, model/paper space separation, and extended entity data. Implement fallback mechanism if primary parser fails. Add configuration for parser selection (native vs conversion). Handle licensing requirements for commercial libraries.",
+            "status": "pending",
+            "testStrategy": "Integration tests with sample DWG files from various AutoCAD versions. Test conversion pipeline if applicable. Verify data fidelity compared to original DWG. Performance benchmarks for parsing speed."
+          },
+          {
+            "id": 5,
+            "title": "Implement CAD to ReactFlow mapping service",
+            "description": "Create service to convert parsed CAD entities to ReactFlow nodes and edges for frontend display",
+            "dependencies": [
+              "176.3",
+              "176.4"
+            ],
+            "details": "Create CadToReactFlowMapper service in backend/src/Ergoplanner.Application/Services implementing ICadToReactFlowMapper. Map CAD entities to ReactFlow nodes preserving spatial relationships, scale, and positioning. Convert CAD layers to ReactFlow layers matching existing Layer entity structure. Transform CAD coordinates to canvas coordinates with proper scaling. Map CAD blocks to custom ReactFlow node types. Convert CAD lines/polylines to ReactFlow edges with appropriate styling. Preserve CAD attributes as node/edge data properties. Handle text entities with proper font sizing and positioning. Create mapping configuration for entity type to symbol type conversion.",
+            "status": "pending",
+            "testStrategy": "Unit tests for coordinate transformation accuracy. Integration tests comparing original CAD layout with ReactFlow output. Visual regression tests for rendering accuracy. Test attribute preservation and metadata mapping."
+          }
+        ]
       },
       {
         "id": 177,
