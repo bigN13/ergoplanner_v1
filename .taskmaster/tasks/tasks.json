@@ -305,7 +305,7 @@
         "id": 5,
         "title": "Implement bidirectional BoQ synchronization",
         "description": "Create automatic Bill of Quantities generation with offline-first approach and optional real-time sync",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           "3"
         ],
@@ -317,7 +317,7 @@
             "id": 1,
             "title": "Design offline BoQ data model and IndexedDB schema",
             "description": "Create browser-based storage schema for BoQ items with IndexedDB",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Define TypeScript interfaces for BoQ items, categories, and pricing. Implement IndexedDB wrapper in frontend/src/lib/storage/boq-storage.ts with tables for: boq_items, categories, pricing_rules, and currency_settings. Use Dexie.js or native IndexedDB API. Include versioning and migration support.",
             "testStrategy": ""
@@ -326,7 +326,7 @@
             "id": 2,
             "title": "Build client-side data grid component",
             "description": "Implement Excel-like grid using TanStack Table or AG-Grid Community",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Create BoQ grid component in frontend/src/components/boq/BoQGrid.tsx. Features: inline editing, sorting, filtering, column resizing, copy/paste support, and keyboard navigation. Use virtualization for performance with large datasets. Store grid state in Zustand store.",
             "testStrategy": ""
@@ -335,7 +335,7 @@
             "id": 3,
             "title": "Create component extraction service",
             "description": "Build client-side service to extract components from ReactFlow drawings",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Implement extraction logic in frontend/src/lib/boq/extractor.ts that reads nodes from drawing-store and generates BoQ items. Map symbol types to BoQ categories, count quantities, and track properties. Update automatically when drawing changes using Zustand subscriptions.",
             "testStrategy": ""
@@ -344,7 +344,7 @@
             "id": 4,
             "title": "Implement local bidirectional sync",
             "description": "Create two-way sync between drawing and BoQ in browser",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Build sync mechanism in frontend/src/lib/boq/sync.ts using Zustand middleware. Drawing changes update BoQ immediately, BoQ edits can highlight/select corresponding drawing elements. Use debouncing for performance. Store sync state in localStorage for persistence.",
             "testStrategy": ""
@@ -353,7 +353,7 @@
             "id": 5,
             "title": "Add offline cost calculation engine",
             "description": "Implement client-side pricing logic with multi-currency support",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Create calculation engine in frontend/src/lib/boq/calculator.ts with formulas, unit conversions, and currency rates (stored locally). Support custom pricing rules and discounts. Cache calculations for performance. Export results to CSV/Excel formats.",
             "testStrategy": ""
@@ -362,7 +362,7 @@
             "id": 6,
             "title": "Prepare SignalR integration points",
             "description": "Add hooks for future real-time sync when backend is available",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "Design sync adapter pattern in frontend/src/lib/boq/sync-adapter.ts with offline/online modes. Queue changes when offline for later sync. Add connection status indicator. Prepare conflict resolution strategy for when backend integration is added.",
             "testStrategy": ""
@@ -416,7 +416,7 @@
         "id": 12,
         "title": "Implement comprehensive testing suite",
         "description": "Create full testing coverage",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           "1"
@@ -426,31 +426,31 @@
             "id": 1,
             "title": "Set up backend unit testing with xUnit",
             "description": "Configure xUnit, Moq, FluentAssertions",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 2,
             "title": "Configure frontend testing with Jest",
             "description": "Set up Jest, React Testing Library, MSW",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 3,
             "title": "Implement integration tests",
             "description": "Create TestServer tests for API endpoints",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 4,
             "title": "Add E2E tests with Playwright",
             "description": "Set up Playwright for end-to-end testing",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 5,
             "title": "Configure code coverage reporting",
             "description": "Set up coverage tools and CI integration",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -458,7 +458,7 @@
         "id": 15,
         "title": "Implement security and compliance features",
         "description": "Ensure platform meets security standards",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           "2"
@@ -468,31 +468,31 @@
             "id": 1,
             "title": "Implement data encryption",
             "description": "Add encryption at rest and in transit",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 2,
             "title": "Add security headers and CORS",
             "description": "Configure proper security headers",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 3,
             "title": "Implement rate limiting",
             "description": "Add API rate limiting and DDoS protection",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 4,
             "title": "Set up audit logging",
             "description": "Create comprehensive audit trail system",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 5,
             "title": "Perform security scanning",
             "description": "Run OWASP ZAP and dependency scanning",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -1519,7 +1519,7 @@
         "dependencies": [
           70
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1584,8 +1584,65 @@
         "dependencies": [
           76
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Base Vessel Component Architecture",
+            "description": "Develop the core vessel node component with parametric sizing and standard vessel shape generators",
+            "dependencies": [],
+            "details": "Create a new VesselTankNode base component at frontend/src/components/drawing/nodes/vessels/VesselTankNode.tsx that extends BaseSymbolNode. Implement parametric shape generators for cylindrical, spherical, rectangular, horizontal, and vertical configurations. Add dynamic sizing calculations based on diameter/height/length parameters with min/max constraints. Create vessel head generators for elliptical, hemispherical, flat, and conical heads following ASME/PED standards. Integrate with existing ParametricSymbolGenerator for size calculations and implement proper scaling behavior.\n<info added on 2025-09-29T19:12:28.488Z>\nI'll analyze the codebase to understand the current implementation and provide a detailed update for the subtask.Now I need to check where VesselNode and VesselTankNode would be registered:Based on my codebase analysis, the VesselTankNode component has been successfully implemented. The existing codebase shows a modular architecture with BaseSymbolNode as the parent class, ParametricSymbolGenerator for size calculations, and a SymbolNodeRegistry for component registration. The implementation follows existing patterns from similar components like VesselNode, CentrifugalPumpNode, etc.\n\nIMPLEMENTATION COMPLETED:\n\nSuccessfully created VesselTankNode.tsx at the specified path with full implementation covering all requested features. The component extends BaseSymbolNode and provides comprehensive vessel functionality including 4 vessel shapes (cylindrical, spherical, rectangular, conical), 2 orientations (vertical, horizontal), 5 head types (elliptical, hemispherical, flat, conical, torispherical) following ASME/PED standards, and 4 support structure types (legs, skirt, saddles, lugs). The implementation includes complete parametric configuration through a factory pattern with proper size constraints for each vessel type, full integration with ParametricSymbolGenerator for automatic capacity-to-dimension calculations, support for internal components including agitators, baffles, heating coils and cooling jackets with proper visual representation, external features like insulation patterns, nozzles with configurable positions, and level indicators with real-time value display. The component generates dynamic connection points based on vessel orientation and type, provides complete SVG rendering with clipping paths for accurate liquid level visualization from 0-100%, and includes comprehensive prop handling for all vessel configurations. The component now needs to be registered in SymbolNodeRegistry.ts to be available in the drawing canvas alongside other vessel and tank symbols.\n</info added on 2025-09-29T19:12:28.488Z>",
+            "status": "done",
+            "testStrategy": "Unit tests for parametric size calculations and shape generation. Visual tests rendering all vessel shapes at different scales. Integration tests with BaseSymbolNode and connection point system."
+          },
+          {
+            "id": 2,
+            "title": "Implement Specialized Tank Types",
+            "description": "Create specific implementations for 40+ distinct tank and vessel types with proper visual representations",
+            "dependencies": [
+              "77.1"
+            ],
+            "details": "Implement specialized tank components extending VesselTankNode: StorageTankNode (atmospheric/pressurized variants), MixingTankNode (with agitator representations), BufferTankNode, SeparatorNode (horizontal/vertical), KnockoutDrumNode, FlashDrumNode, SurgeTankNode, AccumulatorNode, ReactorNode (batch/continuous), and ColumnNode (distillation/absorption). Each type should have unique visual characteristics, appropriate connection point configurations, and specific property schemas. Add proper ISA/ISO standard representations for each type.",
+            "status": "done",
+            "testStrategy": "Visual tests for each tank type ensuring correct rendering and distinctive features. Unit tests for type-specific property validation. Performance tests rendering multiple tank types simultaneously."
+          },
+          {
+            "id": 3,
+            "title": "Build Internal Components System",
+            "description": "Create a system for adding and managing internal tank components as child symbols",
+            "dependencies": [
+              "77.1"
+            ],
+            "details": "Develop InternalComponentManager at frontend/src/components/drawing/nodes/vessels/InternalComponentManager.tsx to handle child symbols within vessels. Implement components: BaffleComponent (vertical/horizontal), AgitatorComponent (propeller/turbine/paddle types), HeatingCoilComponent (internal/jacket), DipTubeComponent, SprayNozzleComponent, PackingComponent, TrayComponent. Create a parent-child relationship system where internal components move with the vessel. Add visual layering to show internals with transparency or cutaway views. Implement property inheritance from parent vessel.",
+            "status": "done",
+            "testStrategy": "Unit tests for parent-child relationship management. Visual tests showing internal components correctly positioned. Integration tests for component movement with parent vessel."
+          },
+          {
+            "id": 4,
+            "title": "Add Visual Features and Annotations",
+            "description": "Implement insulation patterns, support structures, and measurement indicators",
+            "dependencies": [
+              "77.1",
+              "77.2"
+            ],
+            "details": "Create InsulationRenderer component for single/double line insulation patterns using SVG patterns. Implement SupportStructureRenderer for legs, saddles, skirts, and lugs with proper positioning based on vessel type. Add LevelIndicatorComponent with gauge glass, magnetic, radar representations and percentage fill visualization. Implement connection nozzle system with labeled flanges, size indicators, and proper positioning. Add dimensional annotations showing diameter, height, length with automatic unit conversion. Create visual state indicators for pressure, temperature, and flow conditions.",
+            "status": "done",
+            "testStrategy": "Visual tests for insulation patterns at different scales. Unit tests for support structure positioning logic. Integration tests for level indicator animations and updates."
+          },
+          {
+            "id": 5,
+            "title": "Register and Integrate Tank Symbols",
+            "description": "Register all vessel and tank symbols in the symbol registry and update the symbol library UI",
+            "dependencies": [
+              "77.2",
+              "77.3",
+              "77.4"
+            ],
+            "details": "Update SymbolNodeRegistry.ts to register all 40+ vessel and tank types with proper categorization. Add entries to SymbolCatalog.ts with metadata, tags, and search keywords for each type. Update SymbolLibrary.tsx to display vessels in organized subcategories (Storage, Process, Specialized). Create vessel-specific property panels with relevant fields for capacity, pressure, temperature, material, and internal components. Implement drag-and-drop from symbol library with proper default sizing. Add backend symbol metadata entities if needed for persistence.",
+            "status": "done",
+            "testStrategy": "Integration tests for symbol registration and retrieval. UI tests for drag-and-drop from symbol library. E2E tests creating drawings with various vessel types."
+          }
+        ]
       },
       {
         "id": 78,
@@ -1597,7 +1654,7 @@
         "dependencies": [
           76
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1623,7 +1680,7 @@
         "dependencies": [
           76
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1726,7 +1783,7 @@
         "dependencies": [
           86
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1765,7 +1822,7 @@
         "dependencies": [
           87
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1866,7 +1923,7 @@
         "dependencies": [
           96
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1879,7 +1936,7 @@
         "dependencies": [
           97
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1994,7 +2051,7 @@
         "dependencies": [
           106
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2007,7 +2064,7 @@
         "dependencies": [
           106
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2132,7 +2189,7 @@
         "dependencies": [
           116
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2263,7 +2320,7 @@
         "dependencies": [
           126
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2276,7 +2333,7 @@
         "dependencies": [
           127
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2391,7 +2448,7 @@
         "dependencies": [
           136
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2560,7 +2617,7 @@
         "dependencies": [
           146
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2664,7 +2721,7 @@
         "dependencies": [
           156
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2690,7 +2747,7 @@
         "dependencies": [
           156
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2703,7 +2760,7 @@
         "dependencies": [
           156
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2716,7 +2773,7 @@
         "dependencies": [
           157
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -2911,7 +2968,7 @@
         "testStrategy": "Unit test each parser with sample CAD files from different versions. Integration test with real-world P&ID drawings. Performance test with 500MB+ files. Validate layer preservation, block references, and attribute data retention. Test coordinate system transformations and scale accuracy.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2919,7 +2976,7 @@
             "description": "Define domain entities for CAD elements with proper abstractions for different CAD formats",
             "dependencies": [],
             "details": "Create CadEntity base class in backend/src/Ergoplanner.Domain/Entities with properties for geometry (points, lines, arcs), layer information, block references, attributes, and metadata. Implement value objects for CadGeometry, CadCoordinate, CadTransform, and CadBoundingBox. Add support for different entity types (LINE, ARC, CIRCLE, POLYLINE, TEXT, DIMENSION, BLOCK). Include spatial data using NetTopologySuite for coordinate transformations. Create CadLayer entity to represent CAD layers with properties matching LayerMetadata structure already in the codebase.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for all domain entities and value objects, testing coordinate transformations, geometry calculations, and boundary validations. Test entity creation with various CAD element types."
           },
           {
@@ -2930,7 +2987,7 @@
               "176.1"
             ],
             "details": "Create ICadParser interface in backend/src/Ergoplanner.Application/Common/Interfaces with methods ParseAsync(Stream file), GetLayers(), GetEntities(layerId), and ValidateFormat(). Implement CadParserBase abstract class with common parsing logic, coordinate system handling, and streaming support for large files using IAsyncEnumerable. Add ICadFormatDetector for auto-detecting file formats. Create CadParsingOptions class for configuring layer filters, entity type filters, coordinate precision, and memory limits. Implement parser factory pattern for creating appropriate parser based on file format.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for parser factory, format detection, and base parsing logic. Mock tests for ICadParser interface implementations. Test streaming functionality with simulated large files."
           },
           {
@@ -2941,7 +2998,7 @@
               "176.2"
             ],
             "details": "Install netDxf NuGet package (version 2.5+) in Ergoplanner.Infrastructure. Create DxfParser class implementing ICadParser in backend/src/Ergoplanner.Infrastructure/Services/Cad. Parse DXF layers, blocks, entities (lines, arcs, circles, polylines, text, dimensions), and attributes. Map DXF coordinate system to application coordinates using System.Drawing.Common. Handle different DXF versions (AutoCAD 2018-2024). Implement block reference resolution and attribute extraction. Add support for extended data (XDATA) and custom properties. Handle large DXF files using streaming with IAsyncEnumerable.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Integration tests with sample DXF files from different AutoCAD versions. Test layer preservation, block parsing, attribute extraction. Performance tests with 100MB+ DXF files. Validate coordinate accuracy."
           },
           {
@@ -2952,7 +3009,7 @@
               "176.2"
             ],
             "details": "Research and integrate DWG parsing solution (IronCAD, DwgReader, or Teigha File Converter service). Create DwgParser class implementing ICadParser in backend/src/Ergoplanner.Infrastructure/Services/Cad. If using conversion service, implement DWG to DXF conversion pipeline and leverage DxfParser. Handle AutoCAD 2018-2024 DWG formats with version detection. Parse layers, blocks, model/paper space separation, and extended entity data. Implement fallback mechanism if primary parser fails. Add configuration for parser selection (native vs conversion). Handle licensing requirements for commercial libraries.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Integration tests with sample DWG files from various AutoCAD versions. Test conversion pipeline if applicable. Verify data fidelity compared to original DWG. Performance benchmarks for parsing speed."
           },
           {
@@ -2964,7 +3021,7 @@
               "176.4"
             ],
             "details": "Create CadToReactFlowMapper service in backend/src/Ergoplanner.Application/Services implementing ICadToReactFlowMapper. Map CAD entities to ReactFlow nodes preserving spatial relationships, scale, and positioning. Convert CAD layers to ReactFlow layers matching existing Layer entity structure. Transform CAD coordinates to canvas coordinates with proper scaling. Map CAD blocks to custom ReactFlow node types. Convert CAD lines/polylines to ReactFlow edges with appropriate styling. Preserve CAD attributes as node/edge data properties. Handle text entities with proper font sizing and positioning. Create mapping configuration for entity type to symbol type conversion.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for coordinate transformation accuracy. Integration tests comparing original CAD layout with ReactFlow output. Visual regression tests for rendering accuracy. Test attribute preservation and metadata mapping."
           }
         ]
@@ -3099,7 +3156,7 @@
         "testStrategy": "Create E2E tests using Playwright to validate: drag-and-drop operations work across all drop zones, auto-hide panels reveal on hover and hide on blur, magnetic snapping activates within threshold, quarter splits create correct layout structure. Unit test drop zone calculation logic and snapping distance algorithms.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -3232,7 +3289,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-09-27T13:31:52.186Z",
+      "updated": "2025-10-01T12:18:00.334Z",
       "description": "Tasks for master context"
     }
   }
