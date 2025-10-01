@@ -1,546 +1,193 @@
-/**
- * Smart Connection Validation Engine
- *
- * Provides real-time validation for P&ID symbol connections with:
- * - Size compatibility checks
- * - Service type matching
- * - Pressure rating validation
- * - Material compatibility
- * - Flow direction validation
- *
- * Uses Strategy pattern for extensible validation rules.
- */
-
-import type { Node, Edge, Connection } from 'reactflow';
-
-// ============================================================================
-// Type Definitions
-// ============================================================================
-
-export type ValidationSeverity = 'valid' | 'warning' | 'error';
-
-export interface ValidationResult {
-  isValid: boolean;
-  severity: ValidationSeverity;
-  messages: string[];
-  warnings: string[];
-  errors: string[];
-}
-
-export interface ConnectionData {
-  sourceNode: Node;
-  targetNode: Node;
-  sourceHandle?: string | null;
-  targetHandle?: string | null;
-}
-
-export interface PipeSize {
-  nominal: number;        // Nominal pipe size (inches or mm)
-  unit: 'inch' | 'mm';
-  schedule?: string;      // Pipe schedule (e.g., '40', '80', 'STD')
-}
-
-export interface ServiceType {
-  fluid: string;          // e.g., 'water', 'steam', 'air', 'gas', 'oil'
-  phase: 'liquid' | 'gas' | 'two-phase';
-  temperature?: number;   // °C
-  pressure?: number;      // kPa or psi
-  corrosive?: boolean;
-}
-
-export interface MaterialSpec {
-  material: string;       // e.g., 'carbon-steel', 'stainless-steel', 'pvc'
-  rating?: string;        // e.g., 'ANSI 150', 'ANSI 300'
-}
-
-export interface ConnectionProperties {
-  pipeSize?: PipeSize;
-  serviceType?: ServiceType;
-  material?: MaterialSpec;
-  flowDirection?: 'inlet' | 'outlet' | 'bidirectional';
-  maxPressure?: number;
-  maxTemperature?: number;
-}
-
-// ============================================================================
-// Validation Rules Interface
-// ============================================================================
-
-export interface IValidationRule {
-  name: string;
-  description: string;
-  validate(data: ConnectionData, props: {
-    source: ConnectionProperties;
-    target: ConnectionProperties;
-  }): ValidationResult;
-}
-
-// ============================================================================
-// Validation Rules Implementation
-// ============================================================================
+import {
+  ConnectionPoint,
+  ConnectionCompatibility,
+  ConnectionValidationResult,
+  ConnectionPointType,
+} from '@/types/connection';
 
 /**
- * Size Compatibility Rule
- * Validates that pipe sizes are matching or compatible
+ * Connection validation service
+ * Validates connections based on type compatibility and engineering rules
  */
-export class SizeCompatibilityRule implements IValidationRule {
-  name = 'Size Compatibility';
-  description = 'Validates pipe size compatibility';
-
-  validate(data: ConnectionData, props: {
-    source: ConnectionProperties;
-    target: ConnectionProperties;
-  }): ValidationResult {
-    const result: ValidationResult = {
-      isValid: true,
-      severity: 'valid',
-      messages: [],
-      warnings: [],
-      errors: [],
-    };
-
-    const sourceSize = props.source.pipeSize;
-    const targetSize = props.target.pipeSize;
-
-    if (!sourceSize || !targetSize) {
-      result.warnings.push('Pipe size information not available for validation');
-      result.severity = 'warning';
-      return result;
-    }
-
-    // Convert to common unit for comparison
-    const sourceNominal = sourceSize.unit === 'mm' ? sourceSize.nominal / 25.4 : sourceSize.nominal;
-    const targetNominal = targetSize.unit === 'mm' ? targetSize.nominal / 25.4 : targetSize.nominal;
-
-    // Exact match
-    if (Math.abs(sourceNominal - targetNominal) < 0.1) {
-      result.messages.push(`✓ Pipe sizes match: ${sourceSize.nominal} ${sourceSize.unit}`);
-      return result;
-    }
-
-    // Size reduction/increase tolerance
-    const ratio = Math.max(sourceNominal, targetNominal) / Math.min(sourceNominal, targetNominal);
-
-    if (ratio <= 1.5) {
-      // Minor size change - warning
-      result.severity = 'warning';
-      result.warnings.push(
-        `⚠ Size change from ${sourceSize.nominal}${sourceSize.unit} to ${targetSize.nominal}${targetSize.unit}. Consider reducer/expander.`
-      );
-    } else if (ratio <= 2.0) {
-      // Moderate size change - warning
-      result.severity = 'warning';
-      result.warnings.push(
-        `⚠ Significant size change (${ratio.toFixed(1)}x). Verify reducer/expander requirements.`
-      );
-    } else {
-      // Large size change - error
-      result.isValid = false;
-      result.severity = 'error';
-      result.errors.push(
-        `✗ Incompatible pipe sizes: ${sourceSize.nominal}${sourceSize.unit} to ${targetSize.nominal}${targetSize.unit} (${ratio.toFixed(1)}x ratio)`
-      );
-    }
-
-    return result;
-  }
-}
-
-/**
- * Service Type Matching Rule
- * Validates fluid/service compatibility
- */
-export class ServiceTypeMatchingRule implements IValidationRule {
-  name = 'Service Type Matching';
-  description = 'Validates fluid and service type compatibility';
-
-  private readonly incompatibleCombinations: Map<string, string[]> = new Map([
-    ['steam', ['water', 'oil', 'refrigerant']],
-    ['oxygen', ['oil', 'grease', 'flammable']],
-    ['chlorine', ['ammonia', 'hydrogen']],
-    ['acid', ['caustic', 'alkali']],
-  ]);
-
-  validate(data: ConnectionData, props: {
-    source: ConnectionProperties;
-    target: ConnectionProperties;
-  }): ValidationResult {
-    const result: ValidationResult = {
-      isValid: true,
-      severity: 'valid',
-      messages: [],
-      warnings: [],
-      errors: [],
-    };
-
-    const sourceService = props.source.serviceType;
-    const targetService = props.target.serviceType;
-
-    if (!sourceService || !targetService) {
-      result.warnings.push('Service type information not available');
-      result.severity = 'warning';
-      return result;
-    }
-
-    // Exact match
-    if (sourceService.fluid === targetService.fluid && sourceService.phase === targetService.phase) {
-      result.messages.push(`✓ Service types match: ${sourceService.fluid} (${sourceService.phase})`);
-    } else {
-      // Check for incompatible combinations
-      const incompatible = this.incompatibleCombinations.get(sourceService.fluid.toLowerCase());
-      if (incompatible?.includes(targetService.fluid.toLowerCase())) {
-        result.isValid = false;
-        result.severity = 'error';
-        result.errors.push(
-          `✗ Incompatible fluids: ${sourceService.fluid} cannot connect to ${targetService.fluid}`
-        );
-        return result;
-      }
-
-      // Phase mismatch
-      if (sourceService.phase !== targetService.phase) {
-        result.severity = 'warning';
-        result.warnings.push(
-          `⚠ Phase mismatch: ${sourceService.phase} to ${targetService.phase}`
-        );
-      }
-
-      // Different fluids but potentially compatible
-      result.severity = 'warning';
-      result.warnings.push(
-        `⚠ Different service types: ${sourceService.fluid} to ${targetService.fluid}. Verify compatibility.`
-      );
-    }
-
-    return result;
-  }
-}
-
-/**
- * Pressure Rating Validation Rule
- * Validates pressure compatibility
- */
-export class PressureRatingRule implements IValidationRule {
-  name = 'Pressure Rating';
-  description = 'Validates pressure rating compatibility';
-
-  validate(data: ConnectionData, props: {
-    source: ConnectionProperties;
-    target: ConnectionProperties;
-  }): ValidationResult {
-    const result: ValidationResult = {
-      isValid: true,
-      severity: 'valid',
-      messages: [],
-      warnings: [],
-      errors: [],
-    };
-
-    const sourcePressure = props.source.maxPressure || props.source.serviceType?.pressure;
-    const targetPressure = props.target.maxPressure || props.target.serviceType?.pressure;
-
-    if (!sourcePressure && !targetPressure) {
-      result.warnings.push('Pressure information not available');
-      result.severity = 'warning';
-      return result;
-    }
-
-    if (sourcePressure && targetPressure) {
-      const minRating = Math.min(sourcePressure, targetPressure);
-      const maxRating = Math.max(sourcePressure, targetPressure);
-
-      if (sourcePressure === targetPressure) {
-        result.messages.push(`✓ Pressure ratings match: ${sourcePressure} kPa`);
-      } else if (maxRating / minRating <= 1.5) {
-        result.severity = 'warning';
-        result.warnings.push(
-          `⚠ Different pressure ratings: ${sourcePressure} kPa to ${targetPressure} kPa`
-        );
-      } else {
-        result.isValid = false;
-        result.severity = 'error';
-        result.errors.push(
-          `✗ Incompatible pressure ratings: ${sourcePressure} kPa to ${targetPressure} kPa`
-        );
-      }
-    }
-
-    return result;
-  }
-}
-
-/**
- * Material Compatibility Rule
- * Validates material compatibility
- */
-export class MaterialCompatibilityRule implements IValidationRule {
-  name = 'Material Compatibility';
-  description = 'Validates material compatibility';
-
-  private readonly compatibleMaterials: Map<string, string[]> = new Map([
-    ['carbon-steel', ['carbon-steel', 'stainless-steel', 'cast-iron']],
-    ['stainless-steel', ['stainless-steel', 'carbon-steel']],
-    ['pvc', ['pvc', 'cpvc', 'polypropylene']],
-    ['copper', ['copper', 'brass', 'bronze']],
-  ]);
-
-  validate(data: ConnectionData, props: {
-    source: ConnectionProperties;
-    target: ConnectionProperties;
-  }): ValidationResult {
-    const result: ValidationResult = {
-      isValid: true,
-      severity: 'valid',
-      messages: [],
-      warnings: [],
-      errors: [],
-    };
-
-    const sourceMaterial = props.source.material;
-    const targetMaterial = props.target.material;
-
-    if (!sourceMaterial || !targetMaterial) {
-      result.warnings.push('Material information not available');
-      result.severity = 'warning';
-      return result;
-    }
-
-    if (sourceMaterial.material === targetMaterial.material) {
-      result.messages.push(`✓ Materials match: ${sourceMaterial.material}`);
-      return result;
-    }
-
-    // Check compatibility
-    const compatible = this.compatibleMaterials.get(sourceMaterial.material.toLowerCase());
-    if (compatible?.includes(targetMaterial.material.toLowerCase())) {
-      result.severity = 'warning';
-      result.warnings.push(
-        `⚠ Different but compatible materials: ${sourceMaterial.material} to ${targetMaterial.material}`
-      );
-    } else {
-      result.severity = 'warning';
-      result.warnings.push(
-        `⚠ Verify material compatibility: ${sourceMaterial.material} to ${targetMaterial.material}`
-      );
-    }
-
-    return result;
-  }
-}
-
-/**
- * Flow Direction Validation Rule
- * Validates flow direction compatibility
- */
-export class FlowDirectionRule implements IValidationRule {
-  name = 'Flow Direction';
-  description = 'Validates flow direction compatibility';
-
-  validate(data: ConnectionData, props: {
-    source: ConnectionProperties;
-    target: ConnectionProperties;
-  }): ValidationResult {
-    const result: ValidationResult = {
-      isValid: true,
-      severity: 'valid',
-      messages: [],
-      warnings: [],
-      errors: [],
-    };
-
-    const sourceDirection = props.source.flowDirection;
-    const targetDirection = props.target.flowDirection;
-
-    if (!sourceDirection || !targetDirection) {
-      result.warnings.push('Flow direction information not available');
-      result.severity = 'warning';
-      return result;
-    }
-
-    // Validate outlet to inlet connection
-    if (sourceDirection === 'outlet' && targetDirection === 'inlet') {
-      result.messages.push('✓ Flow direction valid: outlet → inlet');
-    } else if (sourceDirection === 'bidirectional' || targetDirection === 'bidirectional') {
-      result.messages.push('✓ Bidirectional connection allowed');
-    } else if (sourceDirection === 'inlet' && targetDirection === 'outlet') {
-      result.isValid = false;
-      result.severity = 'error';
-      result.errors.push('✗ Invalid flow direction: inlet → outlet (reverse flow)');
-    } else {
-      result.severity = 'warning';
-      result.warnings.push(`⚠ Verify flow direction: ${sourceDirection} → ${targetDirection}`);
-    }
-
-    return result;
-  }
-}
-
-// ============================================================================
-// Connection Validator
-// ============================================================================
-
 export class ConnectionValidator {
-  private rules: IValidationRule[] = [];
+  private compatibilityRules: ConnectionCompatibility[];
 
-  constructor() {
-    // Register default validation rules
-    this.registerRule(new SizeCompatibilityRule());
-    this.registerRule(new ServiceTypeMatchingRule());
-    this.registerRule(new PressureRatingRule());
-    this.registerRule(new MaterialCompatibilityRule());
-    this.registerRule(new FlowDirectionRule());
+  constructor(compatibilityRules: ConnectionCompatibility[]) {
+    this.compatibilityRules = compatibilityRules;
   }
 
   /**
-   * Register a new validation rule
+   * Validate connection between two points
    */
-  registerRule(rule: IValidationRule): void {
-    this.rules.push(rule);
-  }
+  public validateConnection(
+    sourcePoint: ConnectionPoint,
+    targetPoint: ConnectionPoint
+  ): ConnectionValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
-  /**
-   * Remove a validation rule by name
-   */
-  unregisterRule(ruleName: string): void {
-    this.rules = this.rules.filter((rule) => rule.name !== ruleName);
-  }
-
-  /**
-   * Get all registered rules
-   */
-  getRules(): IValidationRule[] {
-    return [...this.rules];
-  }
-
-  /**
-   * Extract connection properties from node data
-   */
-  private extractConnectionProperties(node: Node, handleId?: string | null): ConnectionProperties {
-    const data = node.data as any;
-
-    // Extract properties from node data
-    return {
-      pipeSize: data.pipeSize || data.nominalSize ? {
-        nominal: data.pipeSize?.nominal || data.nominalSize || 0,
-        unit: data.pipeSize?.unit || 'inch',
-        schedule: data.pipeSize?.schedule || data.schedule,
-      } : undefined,
-      serviceType: data.serviceType || data.fluid ? {
-        fluid: data.serviceType?.fluid || data.fluid || 'unknown',
-        phase: data.serviceType?.phase || data.phase || 'liquid',
-        temperature: data.serviceType?.temperature || data.temperature,
-        pressure: data.serviceType?.pressure || data.pressure,
-        corrosive: data.serviceType?.corrosive || data.corrosive,
-      } : undefined,
-      material: data.material ? {
-        material: data.material.material || data.material,
-        rating: data.material.rating || data.pressureRating,
-      } : undefined,
-      flowDirection: data.flowDirection || (handleId?.includes('source') ? 'outlet' : handleId?.includes('target') ? 'inlet' : undefined),
-      maxPressure: data.maxPressure || data.pressureRating,
-      maxTemperature: data.maxTemperature || data.temperatureRating,
-    };
-  }
-
-  /**
-   * Validate a connection between two nodes
-   */
-  validateConnection(connection: Connection, nodes: Node[]): ValidationResult {
-    // Find source and target nodes
-    const sourceNode = nodes.find((n) => n.id === connection.source);
-    const targetNode = nodes.find((n) => n.id === connection.target);
-
-    if (!sourceNode || !targetNode) {
-      return {
-        isValid: false,
-        severity: 'error',
-        messages: [],
-        warnings: [],
-        errors: ['Connection validation failed: Node not found'],
-      };
+    // Check if points are from the same node
+    if (sourcePoint.nodeId === targetPoint.nodeId) {
+      errors.push('Cannot connect a component to itself');
     }
 
-    const connectionData: ConnectionData = {
-      sourceNode,
-      targetNode,
-      sourceHandle: connection.sourceHandle,
-      targetHandle: connection.targetHandle,
-    };
+    // Check if target is occupied
+    if (targetPoint.isOccupied) {
+      errors.push(`Connection point ${targetPoint.id} is already occupied`);
+    }
 
-    // Extract connection properties
-    const sourceProps = this.extractConnectionProperties(sourceNode, connection.sourceHandle);
-    const targetProps = this.extractConnectionProperties(targetNode, connection.targetHandle);
-
-    // Run all validation rules
-    const results: ValidationResult[] = this.rules.map((rule) =>
-      rule.validate(connectionData, { source: sourceProps, target: targetProps })
+    // Check type compatibility
+    const isCompatible = this.checkTypeCompatibility(
+      sourcePoint.type,
+      targetPoint.type
     );
 
-    // Combine results
-    const combinedResult: ValidationResult = {
-      isValid: results.every((r) => r.isValid),
-      severity: this.determineSeverity(results),
-      messages: results.flatMap((r) => r.messages),
-      warnings: results.flatMap((r) => r.warnings),
-      errors: results.flatMap((r) => r.errors),
+    if (!isCompatible) {
+      errors.push(
+        `Incompatible connection types: ${sourcePoint.type} cannot connect to ${targetPoint.type}`
+      );
+    }
+
+    // Check flow direction (warning only)
+    if (sourcePoint.type === 'output' && targetPoint.type === 'output') {
+      warnings.push(
+        'Connecting two output points may cause flow direction issues'
+      );
+    }
+
+    if (sourcePoint.type === 'input' && targetPoint.type === 'input') {
+      warnings.push(
+        'Connecting two input points may cause flow direction issues'
+      );
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
     };
-
-    return combinedResult;
   }
 
   /**
-   * Determine overall severity from multiple results
+   * Check if two connection types are compatible
    */
-  private determineSeverity(results: ValidationResult[]): ValidationSeverity {
-    if (results.some((r) => r.severity === 'error')) {
-      return 'error';
+  private checkTypeCompatibility(
+    sourceType: ConnectionPointType,
+    targetType: ConnectionPointType
+  ): boolean {
+    // Find compatibility rule for source type
+    const rule = this.compatibilityRules.find(
+      (r) => r.sourceType === sourceType
+    );
+
+    if (!rule) {
+      // No rule defined, allow connection (permissive default)
+      return true;
     }
-    if (results.some((r) => r.severity === 'warning')) {
-      return 'warning';
+
+    // Check if target type is in compatible types
+    const isDirectMatch = rule.targetTypes.includes(targetType);
+
+    // Check bidirectional compatibility if enabled
+    if (!isDirectMatch && rule.bidirectional) {
+      const reverseRule = this.compatibilityRules.find(
+        (r) => r.sourceType === targetType
+      );
+      return reverseRule?.targetTypes.includes(sourceType) ?? false;
     }
-    return 'valid';
+
+    return isDirectMatch;
   }
 
   /**
-   * Format validation result as tooltip message
+   * Get default compatibility rules for P&ID components
    */
-  formatValidationMessage(result: ValidationResult): string {
-    const lines: string[] = [];
-
-    if (result.errors.length > 0) {
-      lines.push('ERRORS:', ...result.errors);
-    }
-
-    if (result.warnings.length > 0) {
-      if (lines.length > 0) lines.push('');
-      lines.push('WARNINGS:', ...result.warnings);
-    }
-
-    if (result.messages.length > 0 && result.severity === 'valid') {
-      if (lines.length > 0) lines.push('');
-      lines.push(...result.messages);
-    }
-
-    return lines.join('\n');
+  public static getDefaultCompatibilityRules(): ConnectionCompatibility[] {
+    return [
+      {
+        sourceType: 'output',
+        targetTypes: ['input', 'bidirectional', 'valve_inlet', 'tank_inlet'],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'input',
+        targetTypes: ['output', 'bidirectional', 'pump_outlet', 'valve_outlet'],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'pump_outlet',
+        targetTypes: ['input', 'valve_inlet', 'tank_inlet', 'bidirectional'],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'pump_inlet',
+        targetTypes: ['output', 'valve_outlet', 'tank_outlet', 'bidirectional'],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'valve_outlet',
+        targetTypes: [
+          'input',
+          'pump_inlet',
+          'valve_inlet',
+          'tank_inlet',
+          'bidirectional',
+        ],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'valve_inlet',
+        targetTypes: [
+          'output',
+          'pump_outlet',
+          'valve_outlet',
+          'tank_outlet',
+          'bidirectional',
+        ],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'tank_outlet',
+        targetTypes: [
+          'input',
+          'pump_inlet',
+          'valve_inlet',
+          'bidirectional',
+        ],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'tank_inlet',
+        targetTypes: [
+          'output',
+          'pump_outlet',
+          'valve_outlet',
+          'bidirectional',
+        ],
+        bidirectional: false,
+      },
+      {
+        sourceType: 'bidirectional',
+        targetTypes: [
+          'input',
+          'output',
+          'pump_inlet',
+          'pump_outlet',
+          'valve_inlet',
+          'valve_outlet',
+          'tank_inlet',
+          'tank_outlet',
+          'bidirectional',
+        ],
+        bidirectional: true,
+      },
+    ];
   }
 
   /**
-   * Get color coding for validation severity
+   * Update compatibility rules
    */
-  getSeverityColor(severity: ValidationSeverity): string {
-    switch (severity) {
-      case 'valid':
-        return '#4CAF50'; // Green
-      case 'warning':
-        return '#FF9800'; // Orange
-      case 'error':
-        return '#F44336'; // Red
-    }
+  public updateRules(rules: ConnectionCompatibility[]): void {
+    this.compatibilityRules = rules;
   }
 }
-
-// ============================================================================
-// Singleton Instance
-// ============================================================================
-
-export const connectionValidator = new ConnectionValidator();
