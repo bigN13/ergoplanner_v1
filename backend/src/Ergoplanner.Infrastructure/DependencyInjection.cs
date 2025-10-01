@@ -151,6 +151,13 @@ public static class DependencyInjection
         // Unit of Work pattern
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // Symbol mapping services
+        services.AddScoped<IFuzzyMatcher, FuzzyMatchingService>();
+        services.AddScoped<ISymbolMappingService, SymbolMappingService>();
+
+        // Add memory cache for symbol mapping
+        services.AddMemoryCache();
+
         return services;
     }
 }

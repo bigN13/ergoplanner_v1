@@ -41,6 +41,21 @@ public interface IApplicationDbContext
     DbSet<LayerElement> LayerElements { get; }
 
     /// <summary>
+    /// Symbol mappings between external CAD symbols and internal components
+    /// </summary>
+    DbSet<SymbolMapping> SymbolMappings { get; }
+
+    /// <summary>
+    /// Symbol libraries (ISA-5.1, ISO 14617, UK water companies)
+    /// </summary>
+    DbSet<SymbolLibrary> SymbolLibraries { get; }
+
+    /// <summary>
+    /// Standard symbol definitions from symbol libraries
+    /// </summary>
+    DbSet<StandardSymbolDefinition> StandardSymbolDefinitions { get; }
+
+    /// <summary>
     /// Save changes to the database
     /// </summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

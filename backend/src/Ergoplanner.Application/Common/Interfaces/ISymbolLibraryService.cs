@@ -119,7 +119,7 @@ public interface ISymbolLibraryService
     /// <summary>
     /// Map symbols between standards
     /// </summary>
-    Task<IEnumerable<SymbolMapping>> GetStandardMappingsAsync(
+    Task<IEnumerable<StandardEquivalenceMapping>> GetStandardMappingsAsync(
         string fromStandard,
         string toStandard,
         CancellationToken cancellationToken = default);
@@ -188,9 +188,9 @@ public interface ISymbolLibraryService
 }
 
 /// <summary>
-/// Symbol mapping between standards
+/// Symbol mapping between standards for equivalence conversions
 /// </summary>
-public class SymbolMapping
+public class StandardEquivalenceMapping
 {
     public string SourceStandard { get; set; } = string.Empty;
     public string SourceCode { get; set; } = string.Empty;

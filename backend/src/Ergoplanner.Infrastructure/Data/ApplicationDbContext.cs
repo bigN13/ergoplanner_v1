@@ -25,6 +25,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Drawing> Drawings => Set<Drawing>();
     public DbSet<Layer> Layers => Set<Layer>();
     public DbSet<LayerElement> LayerElements => Set<LayerElement>();
+    public DbSet<SymbolMapping> SymbolMappings => Set<SymbolMapping>();
+    public DbSet<SymbolLibrary> SymbolLibraries => Set<SymbolLibrary>();
+    public DbSet<StandardSymbolDefinition> StandardSymbolDefinitions => Set<StandardSymbolDefinition>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
