@@ -34,6 +34,9 @@ try
     builder.Services.AddControllers();
     builder.Services.AddHttpContextAccessor();
 
+    // Add SignalR
+    builder.Services.AddSignalR();
+
     // Add CORS
     builder.Services.AddCors(options =>
     {
@@ -201,6 +204,9 @@ try
     app.UseAuthorization();
     app.MapControllers();
     app.MapHealthChecks("/health");
+
+    // Map SignalR hubs
+    app.MapHub<Ergoplanner.API.Hubs.LayerHub>("/hubs/layers");
 
     // Apply migrations in development
     if (app.Environment.IsDevelopment())
