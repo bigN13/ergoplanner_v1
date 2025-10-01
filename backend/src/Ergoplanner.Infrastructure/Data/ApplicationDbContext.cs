@@ -28,6 +28,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<SymbolMapping> SymbolMappings => Set<SymbolMapping>();
     public DbSet<SymbolLibrary> SymbolLibraries => Set<SymbolLibrary>();
     public DbSet<StandardSymbolDefinition> StandardSymbolDefinitions => Set<StandardSymbolDefinition>();
+    public DbSet<ValidationRule> ValidationRules => Set<ValidationRule>();
+    public DbSet<ValidationViolation> ValidationViolations => Set<ValidationViolation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

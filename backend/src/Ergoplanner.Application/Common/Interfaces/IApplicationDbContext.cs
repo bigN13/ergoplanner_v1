@@ -56,6 +56,16 @@ public interface IApplicationDbContext
     DbSet<StandardSymbolDefinition> StandardSymbolDefinitions { get; }
 
     /// <summary>
+    /// Validation rules for engineering checks
+    /// </summary>
+    DbSet<ValidationRule> ValidationRules { get; }
+
+    /// <summary>
+    /// Validation violations found in drawings
+    /// </summary>
+    DbSet<ValidationViolation> ValidationViolations { get; }
+
+    /// <summary>
     /// Save changes to the database
     /// </summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

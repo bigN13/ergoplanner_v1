@@ -155,6 +155,14 @@ public static class DependencyInjection
         services.AddScoped<IFuzzyMatcher, FuzzyMatchingService>();
         services.AddScoped<ISymbolMappingService, SymbolMappingService>();
 
+        // Validation engine services
+        services.AddScoped<IValidationEngine, ValidationEngine>();
+
+        // Register all validation rule executors
+        services.AddScoped<IValidationRuleExecutor, Services.RuleExecutors.PressureRatingRuleExecutor>();
+        services.AddScoped<IValidationRuleExecutor, Services.RuleExecutors.MaterialCompatibilityRuleExecutor>();
+        services.AddScoped<IValidationRuleExecutor, Services.RuleExecutors.PipeSizingRuleExecutor>();
+
         // Add memory cache for symbol mapping
         services.AddMemoryCache();
 
