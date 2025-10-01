@@ -47,6 +47,23 @@ export {
   type IHeatExchangerSymbolData,
 } from './heat-exchangers/HeatExchangerSymbolBase';
 
+// Valve symbols
+export {
+  ValveSymbolBase,
+  ValveSymbolFactory,
+  ValveType,
+  ActuatorType,
+  VALVE_BASE_CONFIG,
+  type IValveMetadata,
+  type IValveSymbolData,
+  VALVE_CATEGORIES,
+  MVP_VALVE_TYPES,
+  VALVE_SYMBOL_COUNTS,
+  STANDARD_VALVE_SIZES,
+  PRESSURE_RATINGS,
+  getValveSymbol,
+} from './valves';
+
 /**
  * Equipment symbol categories for UI organization
  */
