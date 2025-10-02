@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { List as VirtualList } from "react-window";
 
 import { useDragPreview } from "@/hooks/useDragPreview";
 
@@ -740,94 +741,115 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
             </button>
 
             {expandedCategories.has(category.name) && (
-              <div
-                className={`mt-1 px-2 ${
-                  viewMode === "grid" ? "grid grid-cols-2 gap-1.5" : "space-y-1"
-                }`}
-              >
-                {category.symbols.map((symbol) => {
-                  const symbolData = symbol;
+              <div className="mt-1">
+                <VirtualList
+                  style={{ height: Math.min(category.symbols.length * (viewMode === "grid" ? 60 : 80), 400) }}
+                  rowCount={viewMode === "grid" ? Math.ceil(category.symbols.length / 2) : category.symbols.length}
+                  rowHeight={viewMode === "grid" ? 60 : 80}
+                  rowComponent={({ index, style }) => {
+                    if (viewMode === "grid") {
+                      // Grid mode: 2 items per row
+                      const startIdx = index * 2;
+                      const symbols = category.symbols.slice(startIdx, startIdx + 2);
 
-                  return (
-                    <div
-                      key={symbolData.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, symbolData)}
-                      className={`group relative cursor-move rounded border border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 ${
-                        viewMode === "grid"
-                          ? "flex flex-col items-center p-2"
-                          : "flex items-center gap-2 p-2"
-                      } `}
-                      title={symbolData.description || symbolData.label}
-                    >
-                      {/* Favorite Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(symbolData.id);
-                        }}
-                        className={`absolute top-1 right-1 rounded p-0.5 opacity-0 group-hover:opacity-100 ${
-                          favorites.has(symbolData.id)
-                            ? "text-yellow-500 opacity-100"
-                            : "text-gray-400 hover:text-yellow-500"
-                        } `}
-                      >
-                        <Heart
-                          className={`h-3 w-3 ${
-                            favorites.has(symbolData.id) ? "fill-current" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {/* Symbol Icon */}
-                      <div
-                        className={`text-gray-700 ${
-                          viewMode === "grid" ? "mb-1" : "flex-shrink-0"
-                        }`}
-                      >
-                        {renderSymbolIcon(symbolData.type)}
-                      </div>
-
-                      {/* Symbol Info */}
-                      <div className={viewMode === "grid" ? "text-center" : "min-w-0 flex-1"}>
-                        <span
-                          className={`text-xs text-gray-600 ${
-                            viewMode === "list" ? "font-medium" : ""
-                          }`}
-                        >
-                          {symbolData.label}
-                        </span>
-                        {viewMode === "list" && symbolData.description && (
-                          <p className="truncate text-xs text-gray-400">{symbolData.description}</p>
-                        )}
-                        {viewMode === "list" && symbolData.tags && (
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {symbolData.tags.slice(0, 2).map((tag) => (
-                              <span
-                                key={tag}
-                                className="rounded bg-gray-100 px-1 text-xs text-gray-600"
+                      return (
+                        <div style={style} className="flex gap-1.5 px-2">
+                          {symbols.map((symbol) => {
+                            const symbolData = symbol;
+                            return (
+                              <div
+                                key={symbolData.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, symbolData)}
+                                className="group relative flex flex-1 cursor-move flex-col items-center rounded border border-gray-200 bg-white p-2 hover:border-blue-400 hover:bg-blue-50"
+                                title={symbolData.description || symbolData.label}
                               >
-                                {tag}
-                              </span>
-                            ))}
-                            {symbolData.tags.length > 2 && (
-                              <span className="text-xs text-gray-400">
-                                +{symbolData.tags.length - 2}
-                              </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleFavorite(symbolData.id);
+                                  }}
+                                  className={`absolute right-1 top-1 rounded p-0.5 opacity-0 group-hover:opacity-100 ${
+                                    favorites.has(symbolData.id)
+                                      ? "text-yellow-500 opacity-100"
+                                      : "text-gray-400 hover:text-yellow-500"
+                                  }`}
+                                >
+                                  <Heart
+                                    className={`h-3 w-3 ${favorites.has(symbolData.id) ? "fill-current" : ""}`}
+                                  />
+                                </button>
+                                <div className="mb-1 text-gray-700">
+                                  {renderSymbolIcon(symbolData.type)}
+                                </div>
+                                <div className="text-center">
+                                  <span className="text-xs text-gray-600">{symbolData.label}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    } else {
+                      // List mode: 1 item per row
+                      const symbolData = category.symbols[index];
+
+                      return (
+                        <div style={style} className="px-2">
+                          <div
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, symbolData)}
+                            className="group relative flex cursor-move items-center gap-2 rounded border border-gray-200 bg-white p-2 hover:border-blue-400 hover:bg-blue-50"
+                            title={symbolData.description || symbolData.label}
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(symbolData.id);
+                              }}
+                              className={`absolute right-1 top-1 rounded p-0.5 opacity-0 group-hover:opacity-100 ${
+                                favorites.has(symbolData.id)
+                                  ? "text-yellow-500 opacity-100"
+                                  : "text-gray-400 hover:text-yellow-500"
+                              }`}
+                            >
+                              <Heart
+                                className={`h-3 w-3 ${favorites.has(symbolData.id) ? "fill-current" : ""}`}
+                              />
+                            </button>
+                            <div className="flex-shrink-0 text-gray-700">
+                              {renderSymbolIcon(symbolData.type)}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-medium text-gray-600">{symbolData.label}</span>
+                              {symbolData.description && (
+                                <p className="truncate text-xs text-gray-400">{symbolData.description}</p>
+                              )}
+                              {symbolData.tags && (
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  {symbolData.tags.slice(0, 2).map((tag) => (
+                                    <span key={tag} className="rounded bg-gray-100 px-1 text-xs text-gray-600">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                  {symbolData.tags.length > 2 && (
+                                    <span className="text-xs text-gray-400">+{symbolData.tags.length - 2}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            {symbolData.standard && (
+                              <div className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                {symbolData.standard}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Standard Badge */}
-                      {symbolData.standard && viewMode === "list" && (
-                        <div className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                          {symbolData.standard}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    }
+                  }}
+                  rowProps={{}}
+                />
               </div>
             )}
           </div>
