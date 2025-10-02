@@ -1,7 +1,7 @@
 "use client";
 
 // import { toPng } from "html-to-image"; // Currently unused
-import React, { useCallback, useRef, useState, useEffect } from "react";
+import React, { useCallback, useRef, useState, useEffect, lazy, Suspense } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import type { Node, Edge, Connection, NodeTypes, ReactFlowInstance } from "reactflow";
 import ReactFlow, {
@@ -24,50 +24,61 @@ import ContextMenu from "./ContextMenu";
 import EnhancedDragPreview from "./EnhancedDragPreview";
 import ExportImportPanel from "./ExportImportPanel";
 import MeasurementTools from "./MeasurementTools";
-import {
-  PumpNode,
-  ValveNode,
-  TankNode,
-  PipeNode,
-  FlowMeterNode,
-  PressureGaugeNode,
-  ControlValveNode,
-  CheckValveNode,
-  HeatExchangerNode,
-  CompressorNode,
-} from "./nodes";
-import {
-  RectangleNode,
-  RoundedRectangleNode,
-  EllipseNode,
-  RhombusNode,
-  TextNode,
-  FreehandNode,
-} from "./nodes/shapes";
 import QuickActionsPanel from "./QuickActionsPanel";
 import SmartRoutingPanel from "./SmartRoutingPanel";
 
-// Import custom node components
+// Lazy-loaded node components for performance optimization
+const PumpNode = lazy(() => import("./nodes").then(m => ({ default: m.PumpNode })));
+const ValveNode = lazy(() => import("./nodes").then(m => ({ default: m.ValveNode })));
+const TankNode = lazy(() => import("./nodes").then(m => ({ default: m.TankNode })));
+const PipeNode = lazy(() => import("./nodes").then(m => ({ default: m.PipeNode })));
+const FlowMeterNode = lazy(() => import("./nodes").then(m => ({ default: m.FlowMeterNode })));
+const PressureGaugeNode = lazy(() => import("./nodes").then(m => ({ default: m.PressureGaugeNode })));
+const ControlValveNode = lazy(() => import("./nodes").then(m => ({ default: m.ControlValveNode })));
+const CheckValveNode = lazy(() => import("./nodes").then(m => ({ default: m.CheckValveNode })));
+const HeatExchangerNode = lazy(() => import("./nodes").then(m => ({ default: m.HeatExchangerNode })));
+const CompressorNode = lazy(() => import("./nodes").then(m => ({ default: m.CompressorNode })));
 
-// Define custom node types
+// Lazy-loaded shape nodes
+const RectangleNode = lazy(() => import("./nodes/shapes").then(m => ({ default: m.RectangleNode })));
+const RoundedRectangleNode = lazy(() => import("./nodes/shapes").then(m => ({ default: m.RoundedRectangleNode })));
+const EllipseNode = lazy(() => import("./nodes/shapes").then(m => ({ default: m.EllipseNode })));
+const RhombusNode = lazy(() => import("./nodes/shapes").then(m => ({ default: m.RhombusNode })));
+const TextNode = lazy(() => import("./nodes/shapes").then(m => ({ default: m.TextNode })));
+const FreehandNode = lazy(() => import("./nodes/shapes").then(m => ({ default: m.FreehandNode })));
+
+// Loading fallback component for lazy-loaded nodes
+const NodeLoadingFallback = () => (
+  <div style={{
+    padding: '10px',
+    background: '#f0f0f0',
+    borderRadius: '4px',
+    fontSize: '12px',
+    color: '#666'
+  }}>
+    Loading...
+  </div>
+);
+
+// Define custom node types with Suspense wrappers
 const nodeTypes: NodeTypes = {
-  pump: PumpNode,
-  valve: ValveNode,
-  tank: TankNode,
-  pipe: PipeNode,
-  flowMeter: FlowMeterNode,
-  pressureGauge: PressureGaugeNode,
-  controlValve: ControlValveNode,
-  checkValve: CheckValveNode,
-  heatExchanger: HeatExchangerNode,
-  compressor: CompressorNode,
+  pump: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><PumpNode {...props} /></Suspense>,
+  valve: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><ValveNode {...props} /></Suspense>,
+  tank: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><TankNode {...props} /></Suspense>,
+  pipe: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><PipeNode {...props} /></Suspense>,
+  flowMeter: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><FlowMeterNode {...props} /></Suspense>,
+  pressureGauge: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><PressureGaugeNode {...props} /></Suspense>,
+  controlValve: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><ControlValveNode {...props} /></Suspense>,
+  checkValve: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><CheckValveNode {...props} /></Suspense>,
+  heatExchanger: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><HeatExchangerNode {...props} /></Suspense>,
+  compressor: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><CompressorNode {...props} /></Suspense>,
   // Shape nodes
-  rectangle: RectangleNode,
-  "rounded-rectangle": RoundedRectangleNode,
-  ellipse: EllipseNode,
-  rhombus: RhombusNode,
-  text: TextNode,
-  freehand: FreehandNode,
+  rectangle: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><RectangleNode {...props} /></Suspense>,
+  "rounded-rectangle": (props: any) => <Suspense fallback={<NodeLoadingFallback />}><RoundedRectangleNode {...props} /></Suspense>,
+  ellipse: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><EllipseNode {...props} /></Suspense>,
+  rhombus: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><RhombusNode {...props} /></Suspense>,
+  text: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><TextNode {...props} /></Suspense>,
+  freehand: (props: any) => <Suspense fallback={<NodeLoadingFallback />}><FreehandNode {...props} /></Suspense>,
 };
 
 function DrawingCanvasContent(): React.ReactElement {

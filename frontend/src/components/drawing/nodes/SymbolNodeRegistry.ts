@@ -1,151 +1,156 @@
+import { lazy } from 'react';
 import type React from 'react';
 import type { NodeTypes, NodeProps } from 'reactflow';
 
 import type { BaseSymbolData } from './BaseSymbolNode';
-import CheckValveNode from './CheckValveNode';
-import CompressorNode from './CompressorNode';
-import FlowMeterNode from './FlowMeterNode';
-import HeatExchangerNode from './HeatExchangerNode';
-import PipeNode from './PipeNode';
-import PressureGaugeNode from './PressureGaugeNode';
-import PumpNode from './PumpNode';
-import { CentrifugalPumpNode, PositiveDisplacementPumpNode, ReciprocatingPumpNode } from './pumps';
-import TankNode from './TankNode';
-import ValveNode from './ValveNode';
-import {
-  BallValveNode,
-  ControlValveNode,
-  GateValveNode,
-  GlobeValveNode,
-  ButterflyValveNode,
-  CheckValveNode,
-  SafetyValveNode,
-  PressureReliefValveNode,
-  VacuumReliefValveNode,
-  NeedleValveNode,
-  DiaphragmValveNode,
-  PinchValveNode,
-  PlugValveNode,
-} from './valves';
-import {
-  VesselTankNode as _VesselTankNode,
-  StorageTankNode,
-  MixingTankNode,
-  SeparatorNode,
-  KnockoutDrumNode,
-  FlashDrumNode,
-  SurgeTankNode,
-  AccumulatorNode,
-  BufferTankNode,
-  ReactorNode,
-  ColumnNode,
-} from './vessels';
-import {
-  BEMHeatExchanger,
-  AESHeatExchanger,
-  BKUHeatExchanger,
-  AEUHeatExchanger,
-  AEPHeatExchanger,
-  AFUHeatExchanger,
-  GaskettedPlateHeatExchanger,
-  BrazedPlateHeatExchanger,
-  ForcedDraftAirCooler,
-  InducedDraftAirCooler,
-  SurfaceCondenser,
-  AirCooledCondenser,
-  KettleReboiler,
-  ThermosiphonReboiler,
-  ForcedCirculationReboiler,
-  SpiralHeatExchanger,
-  DoublePipeHeatExchanger,
-  ScrapedSurfaceHeatExchanger,
-  PrintedCircuitHeatExchanger,
-  Economizer,
-  Vaporizer,
-  Cooler,
-  Heater,
-} from './heatexchangers';
-import {
-  OrificePlateNode,
-  VenturiMeterNode,
-  MagneticFlowmeterNode,
-  VortexFlowmeterNode,
-  ThermocoupleNode,
-  RTDNode,
-  ThermowellNode,
-  BimetallicThermometerNode,
-  BourdonGaugeNode,
-  PressureTransmitterNode,
-  DifferentialPressureNode,
-  DiaphragmSealNode,
-  FloatLevelNode,
-  DisplacerLevelNode,
-  RadarLevelNode,
-  UltrasonicLevelNode,
-  CapacitanceLevelNode,
-  pHMeterNode,
-  ConductivityAnalyzerNode,
-  OxygenAnalyzerNode,
-  TurbidityMeterNode,
-} from './instruments';
-import {
-  TransmitterNode,
-  FlowTransmitterNode,
-  PressureTransmitterNode,
-  TemperatureTransmitterNode,
-  LevelTransmitterNode,
-  AnalyticalTransmitterNode,
-  MultivariableTransmitterNode,
-  PIDControllerNode,
-  CascadeControllerNode,
-  RatioControllerNode,
-  SelectorControllerNode,
-  SplitRangeControllerNode,
-  LocalIndicatorNode,
-  PanelIndicatorNode,
-  DigitalIndicatorNode,
-  AnalogGaugeIndicatorNode,
-  RecorderIndicatorNode,
-  TotalizerIndicatorNode,
-  IPConverterNode,
-  PIConverterNode,
-  EPConverterNode,
-  SignalConditionerNode,
-  SignalIsolatorNode,
-  SignalRepeaterNode,
-  PneumaticPositionerNode,
-  ElectroPneumaticPositionerNode,
-  DigitalPositionerNode,
-  PositionerWithBoosterNode,
-} from './controls';
-import {
-  PrimaryClarifierNode,
-  SecondaryClarifierNode,
-  RectangularClarifierNode,
-  LamellaClarifierNode,
-  RapidGravityFilterNode,
-  GACFilterNode,
-  SandFilterNode,
-  MembraneFilterNode,
-  ChlorineContactTankNode,
-  UVDisinfectionChamberNode,
-  OzoneContactVesselNode,
-  WetWellNode,
-  SubmersiblePumpStationNode,
-  DryWellPumpStationNode,
-} from './uk-water/thames';
-import {
-  ActivatedSludgeTankNode,
-  TricklingFilterNode,
-  SBRReactorNode,
-  AnaerobicDigesterNode,
-  StormTankNode,
-  SludgeThickenerNode,
-  CentrifugeNode,
-  BeltFilterPressNode,
-  BiofilterNode,
-  ChemicalScrubberNode,
-} from './uk-water/severn-trent';
+
+// Lazy-loaded components for code splitting and performance optimization
+const CheckValveNode = lazy(() => import('./CheckValveNode'));
+const CompressorNode = lazy(() => import('./CompressorNode'));
+const FlowMeterNode = lazy(() => import('./FlowMeterNode'));
+const HeatExchangerNode = lazy(() => import('./HeatExchangerNode'));
+const PipeNode = lazy(() => import('./PipeNode'));
+const PressureGaugeNode = lazy(() => import('./PressureGaugeNode'));
+const PumpNode = lazy(() => import('./PumpNode'));
+const TankNode = lazy(() => import('./TankNode'));
+const ValveNode = lazy(() => import('./ValveNode'));
+
+// Pumps
+const CentrifugalPumpNode = lazy(() => import('./pumps').then(m => ({ default: m.CentrifugalPumpNode })));
+const PositiveDisplacementPumpNode = lazy(() => import('./pumps').then(m => ({ default: m.PositiveDisplacementPumpNode })));
+const ReciprocatingPumpNode = lazy(() => import('./pumps').then(m => ({ default: m.ReciprocatingPumpNode })));
+
+// Valves
+const BallValveNode = lazy(() => import('./valves').then(m => ({ default: m.BallValveNode })));
+const ControlValveNode = lazy(() => import('./valves').then(m => ({ default: m.ControlValveNode })));
+const GateValveNode = lazy(() => import('./valves').then(m => ({ default: m.GateValveNode })));
+const GlobeValveNode = lazy(() => import('./valves').then(m => ({ default: m.GlobeValveNode })));
+const ButterflyValveNode = lazy(() => import('./valves').then(m => ({ default: m.ButterflyValveNode })));
+const SafetyValveNode = lazy(() => import('./valves').then(m => ({ default: m.SafetyValveNode })));
+const PressureReliefValveNode = lazy(() => import('./valves').then(m => ({ default: m.PressureReliefValveNode })));
+const VacuumReliefValveNode = lazy(() => import('./valves').then(m => ({ default: m.VacuumReliefValveNode })));
+const NeedleValveNode = lazy(() => import('./valves').then(m => ({ default: m.NeedleValveNode })));
+const DiaphragmValveNode = lazy(() => import('./valves').then(m => ({ default: m.DiaphragmValveNode })));
+const PinchValveNode = lazy(() => import('./valves').then(m => ({ default: m.PinchValveNode })));
+const PlugValveNode = lazy(() => import('./valves').then(m => ({ default: m.PlugValveNode })));
+
+// Vessels
+const _VesselTankNode = lazy(() => import('./vessels').then(m => ({ default: m.VesselTankNode })));
+const StorageTankNode = lazy(() => import('./vessels').then(m => ({ default: m.StorageTankNode })));
+const MixingTankNode = lazy(() => import('./vessels').then(m => ({ default: m.MixingTankNode })));
+const SeparatorNode = lazy(() => import('./vessels').then(m => ({ default: m.SeparatorNode })));
+const KnockoutDrumNode = lazy(() => import('./vessels').then(m => ({ default: m.KnockoutDrumNode })));
+const FlashDrumNode = lazy(() => import('./vessels').then(m => ({ default: m.FlashDrumNode })));
+const SurgeTankNode = lazy(() => import('./vessels').then(m => ({ default: m.SurgeTankNode })));
+const AccumulatorNode = lazy(() => import('./vessels').then(m => ({ default: m.AccumulatorNode })));
+const BufferTankNode = lazy(() => import('./vessels').then(m => ({ default: m.BufferTankNode })));
+const ReactorNode = lazy(() => import('./vessels').then(m => ({ default: m.ReactorNode })));
+const ColumnNode = lazy(() => import('./vessels').then(m => ({ default: m.ColumnNode })));
+
+// Heat Exchangers
+const BEMHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.BEMHeatExchanger })));
+const AESHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.AESHeatExchanger })));
+const BKUHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.BKUHeatExchanger })));
+const AEUHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.AEUHeatExchanger })));
+const AEPHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.AEPHeatExchanger })));
+const AFUHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.AFUHeatExchanger })));
+const GaskettedPlateHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.GaskettedPlateHeatExchanger })));
+const BrazedPlateHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.BrazedPlateHeatExchanger })));
+const ForcedDraftAirCooler = lazy(() => import('./heatexchangers').then(m => ({ default: m.ForcedDraftAirCooler })));
+const InducedDraftAirCooler = lazy(() => import('./heatexchangers').then(m => ({ default: m.InducedDraftAirCooler })));
+const SurfaceCondenser = lazy(() => import('./heatexchangers').then(m => ({ default: m.SurfaceCondenser })));
+const AirCooledCondenser = lazy(() => import('./heatexchangers').then(m => ({ default: m.AirCooledCondenser })));
+const KettleReboiler = lazy(() => import('./heatexchangers').then(m => ({ default: m.KettleReboiler })));
+const ThermosiphonReboiler = lazy(() => import('./heatexchangers').then(m => ({ default: m.ThermosiphonReboiler })));
+const ForcedCirculationReboiler = lazy(() => import('./heatexchangers').then(m => ({ default: m.ForcedCirculationReboiler })));
+const SpiralHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.SpiralHeatExchanger })));
+const DoublePipeHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.DoublePipeHeatExchanger })));
+const ScrapedSurfaceHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.ScrapedSurfaceHeatExchanger })));
+const PrintedCircuitHeatExchanger = lazy(() => import('./heatexchangers').then(m => ({ default: m.PrintedCircuitHeatExchanger })));
+const Economizer = lazy(() => import('./heatexchangers').then(m => ({ default: m.Economizer })));
+const Vaporizer = lazy(() => import('./heatexchangers').then(m => ({ default: m.Vaporizer })));
+const Cooler = lazy(() => import('./heatexchangers').then(m => ({ default: m.Cooler })));
+const Heater = lazy(() => import('./heatexchangers').then(m => ({ default: m.Heater })));
+
+// Instruments
+const OrificePlateNode = lazy(() => import('./instruments').then(m => ({ default: m.OrificePlateNode })));
+const VenturiMeterNode = lazy(() => import('./instruments').then(m => ({ default: m.VenturiMeterNode })));
+const MagneticFlowmeterNode = lazy(() => import('./instruments').then(m => ({ default: m.MagneticFlowmeterNode })));
+const VortexFlowmeterNode = lazy(() => import('./instruments').then(m => ({ default: m.VortexFlowmeterNode })));
+const ThermocoupleNode = lazy(() => import('./instruments').then(m => ({ default: m.ThermocoupleNode })));
+const RTDNode = lazy(() => import('./instruments').then(m => ({ default: m.RTDNode })));
+const ThermowellNode = lazy(() => import('./instruments').then(m => ({ default: m.ThermowellNode })));
+const BimetallicThermometerNode = lazy(() => import('./instruments').then(m => ({ default: m.BimetallicThermometerNode })));
+const BourdonGaugeNode = lazy(() => import('./instruments').then(m => ({ default: m.BourdonGaugeNode })));
+const PressureTransmitterNode = lazy(() => import('./instruments').then(m => ({ default: m.PressureTransmitterNode })));
+const DifferentialPressureNode = lazy(() => import('./instruments').then(m => ({ default: m.DifferentialPressureNode })));
+const DiaphragmSealNode = lazy(() => import('./instruments').then(m => ({ default: m.DiaphragmSealNode })));
+const FloatLevelNode = lazy(() => import('./instruments').then(m => ({ default: m.FloatLevelNode })));
+const DisplacerLevelNode = lazy(() => import('./instruments').then(m => ({ default: m.DisplacerLevelNode })));
+const RadarLevelNode = lazy(() => import('./instruments').then(m => ({ default: m.RadarLevelNode })));
+const UltrasonicLevelNode = lazy(() => import('./instruments').then(m => ({ default: m.UltrasonicLevelNode })));
+const CapacitanceLevelNode = lazy(() => import('./instruments').then(m => ({ default: m.CapacitanceLevelNode })));
+const pHMeterNode = lazy(() => import('./instruments').then(m => ({ default: m.pHMeterNode })));
+const ConductivityAnalyzerNode = lazy(() => import('./instruments').then(m => ({ default: m.ConductivityAnalyzerNode })));
+const OxygenAnalyzerNode = lazy(() => import('./instruments').then(m => ({ default: m.OxygenAnalyzerNode })));
+const TurbidityMeterNode = lazy(() => import('./instruments').then(m => ({ default: m.TurbidityMeterNode })));
+
+// Controls
+const TransmitterNode = lazy(() => import('./controls').then(m => ({ default: m.TransmitterNode })));
+const FlowTransmitterNode = lazy(() => import('./controls').then(m => ({ default: m.FlowTransmitterNode })));
+const TemperatureTransmitterNode = lazy(() => import('./controls').then(m => ({ default: m.TemperatureTransmitterNode })));
+const LevelTransmitterNode = lazy(() => import('./controls').then(m => ({ default: m.LevelTransmitterNode })));
+const AnalyticalTransmitterNode = lazy(() => import('./controls').then(m => ({ default: m.AnalyticalTransmitterNode })));
+const MultivariableTransmitterNode = lazy(() => import('./controls').then(m => ({ default: m.MultivariableTransmitterNode })));
+const PIDControllerNode = lazy(() => import('./controls').then(m => ({ default: m.PIDControllerNode })));
+const CascadeControllerNode = lazy(() => import('./controls').then(m => ({ default: m.CascadeControllerNode })));
+const RatioControllerNode = lazy(() => import('./controls').then(m => ({ default: m.RatioControllerNode })));
+const SelectorControllerNode = lazy(() => import('./controls').then(m => ({ default: m.SelectorControllerNode })));
+const SplitRangeControllerNode = lazy(() => import('./controls').then(m => ({ default: m.SplitRangeControllerNode })));
+const LocalIndicatorNode = lazy(() => import('./controls').then(m => ({ default: m.LocalIndicatorNode })));
+const PanelIndicatorNode = lazy(() => import('./controls').then(m => ({ default: m.PanelIndicatorNode })));
+const DigitalIndicatorNode = lazy(() => import('./controls').then(m => ({ default: m.DigitalIndicatorNode })));
+const AnalogGaugeIndicatorNode = lazy(() => import('./controls').then(m => ({ default: m.AnalogGaugeIndicatorNode })));
+const RecorderIndicatorNode = lazy(() => import('./controls').then(m => ({ default: m.RecorderIndicatorNode })));
+const TotalizerIndicatorNode = lazy(() => import('./controls').then(m => ({ default: m.TotalizerIndicatorNode })));
+const IPConverterNode = lazy(() => import('./controls').then(m => ({ default: m.IPConverterNode })));
+const PIConverterNode = lazy(() => import('./controls').then(m => ({ default: m.PIConverterNode })));
+const EPConverterNode = lazy(() => import('./controls').then(m => ({ default: m.EPConverterNode })));
+const SignalConditionerNode = lazy(() => import('./controls').then(m => ({ default: m.SignalConditionerNode })));
+const SignalIsolatorNode = lazy(() => import('./controls').then(m => ({ default: m.SignalIsolatorNode })));
+const SignalRepeaterNode = lazy(() => import('./controls').then(m => ({ default: m.SignalRepeaterNode })));
+const PneumaticPositionerNode = lazy(() => import('./controls').then(m => ({ default: m.PneumaticPositionerNode })));
+const ElectroPneumaticPositionerNode = lazy(() => import('./controls').then(m => ({ default: m.ElectroPneumaticPositionerNode })));
+const DigitalPositionerNode = lazy(() => import('./controls').then(m => ({ default: m.DigitalPositionerNode })));
+const PositionerWithBoosterNode = lazy(() => import('./controls').then(m => ({ default: m.PositionerWithBoosterNode })));
+
+// UK Water - Thames
+const PrimaryClarifierNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.PrimaryClarifierNode })));
+const SecondaryClarifierNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.SecondaryClarifierNode })));
+const RectangularClarifierNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.RectangularClarifierNode })));
+const LamellaClarifierNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.LamellaClarifierNode })));
+const RapidGravityFilterNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.RapidGravityFilterNode })));
+const GACFilterNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.GACFilterNode })));
+const SandFilterNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.SandFilterNode })));
+const MembraneFilterNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.MembraneFilterNode })));
+const ChlorineContactTankNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.ChlorineContactTankNode })));
+const UVDisinfectionChamberNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.UVDisinfectionChamberNode })));
+const OzoneContactVesselNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.OzoneContactVesselNode })));
+const WetWellNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.WetWellNode })));
+const SubmersiblePumpStationNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.SubmersiblePumpStationNode })));
+const DryWellPumpStationNode = lazy(() => import('./uk-water/thames').then(m => ({ default: m.DryWellPumpStationNode })));
+
+// UK Water - Severn Trent
+const ActivatedSludgeTankNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.ActivatedSludgeTankNode })));
+const TricklingFilterNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.TricklingFilterNode })));
+const SBRReactorNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.SBRReactorNode })));
+const AnaerobicDigesterNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.AnaerobicDigesterNode })));
+const StormTankNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.StormTankNode })));
+const SludgeThickenerNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.SludgeThickenerNode })));
+const CentrifugeNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.CentrifugeNode })));
+const BeltFilterPressNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.BeltFilterPressNode })));
+const BiofilterNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.BiofilterNode })));
+const ChemicalScrubberNode = lazy(() => import('./uk-water/severn-trent').then(m => ({ default: m.ChemicalScrubberNode })));
 
 // Legacy components
 
