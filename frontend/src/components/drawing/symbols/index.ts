@@ -39,3 +39,23 @@ export {
   type IConnectionRule,
   type IMaterialOption,
 } from './ParametricSymbolGenerator';
+
+// Instrumentation symbol exports
+export {
+  InstrumentationSymbolBase,
+  InstrumentationSymbolFactory,
+  InstrumentFunction,
+  BubbleShape,
+  SignalLineType,
+  PrimaryElementType,
+  INSTRUMENTATION_BASE_CONFIG,
+  type IInstrumentationMetadata,
+  type IInstrumentationSymbolData,
+  INSTRUMENT_CATEGORIES,
+  MVP_INSTRUMENT_TYPES,
+  INSTRUMENT_SYMBOL_COUNTS,
+  STANDARD_RANGES,
+  getInstrumentSymbol,
+  generateTagNumber,
+  parseTagNumber,
+} from './instrumentation';
