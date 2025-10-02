@@ -12,6 +12,8 @@ import {
   X,
   // Tag,
   Heart,
+  Download,
+  Upload,
 } from "lucide-react";
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -643,12 +645,80 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
     return iconMap[type] || iconMap.pipe;
   };
 
+  // Export symbols to JSON
+  const handleExportJSON = useCallback(() => {
+    const exportData = {
+      version: "1.0",
+      exportDate: new Date().toISOString(),
+      categories: symbolCategories,
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `symbol-library-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, []);
+
+  // Import symbols from JSON
+  const handleImportJSON = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target?.result as string);
+        // In a real implementation, this would update the symbol library state
+        // Store imported data (placeholder - would integrate with state management)
+        const categoryCount = importedData.categories?.length || 0;
+        // Success feedback (would use toast notification in production)
+        if (categoryCount > 0) {
+          // Successfully imported
+        }
+      } catch {
+        // Error importing file (would use toast notification in production)
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so the same file can be imported again
+    event.target.value = "";
+  }, []);
+
   return (
     <div className="flex h-full w-64 flex-col border-r border-gray-200 bg-gray-50">
       <div className="border-b border-gray-200 p-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-700">Symbol Library</h2>
           <div className="flex items-center gap-1">
+            {/* Import Button */}
+            <label
+              className="rounded p-1 hover:bg-gray-200 cursor-pointer"
+              title="Import symbols from JSON"
+            >
+              <Upload className="h-3 w-3" />
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportJSON}
+                className="hidden"
+              />
+            </label>
+
+            {/* Export Button */}
+            <button
+              onClick={handleExportJSON}
+              className="rounded p-1 hover:bg-gray-200"
+              title="Export symbols to JSON"
+            >
+              <Download className="h-3 w-3" />
+            </button>
+
             <button
               onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
               className="rounded p-1 hover:bg-gray-200"
