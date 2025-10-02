@@ -16,6 +16,7 @@ import {
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { List as VirtualList } from "react-window";
+import Fuse from "fuse.js";
 
 import { useDragPreview } from "@/hooks/useDragPreview";
 
@@ -366,19 +367,36 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
   }, []);
 
   // Filter symbols based on search, tags, and standard
+  // Configure Fuse.js for fuzzy search
+  const fuse = useMemo(() => {
+    // Flatten all symbols from all categories
+    const allSymbols = symbolCategories.flatMap((category) => category.symbols);
+
+    return new Fuse(allSymbols, {
+      keys: [
+        { name: "label", weight: 0.4 },
+        { name: "description", weight: 0.3 },
+        { name: "searchKeywords", weight: 0.2 },
+        { name: "tags", weight: 0.1 },
+      ],
+      threshold: 0.4, // 0 = exact match, 1 = match anything
+      includeScore: true,
+      minMatchCharLength: 2,
+      ignoreLocation: true, // Search entire string, not just beginning
+    });
+  }, []);
+
   const filteredCategories = useMemo(() => {
     return symbolCategories
       .map((category) => ({
         ...category,
         symbols: category.symbols.filter((symbol) => {
-          // Text search
-          const matchesSearch =
-            searchTerm === "" ||
-            symbol.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            symbol.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            symbol.searchKeywords?.some((keyword: string) =>
-              keyword.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+          // Fuzzy text search using Fuse.js
+          let matchesSearch = true;
+          if (searchTerm !== "") {
+            const searchResults = fuse.search(searchTerm);
+            matchesSearch = searchResults.some((result) => result.item.id === symbol.id);
+          }
 
           // Tag filter
           const matchesTags =
@@ -393,7 +411,7 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
         }),
       }))
       .filter((category) => category.symbols.length > 0);
-  }, [searchTerm, selectedTags, selectedStandard]);
+  }, [searchTerm, selectedTags, selectedStandard, fuse]);
 
   // Add recently used category if there are recent symbols
   const categoriesWithRecent = useMemo(() => {
