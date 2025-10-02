@@ -3048,7 +3048,61 @@
         "priority": "medium",
         "dependencies": [],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create wizard state management with Zustand",
+            "description": "Implement a dedicated Zustand store for managing wizard state across all steps including file upload, validation, preview, and mapping configuration",
+            "dependencies": [],
+            "details": "Create frontend/src/store/importExportWizardStore.ts with state for current step, uploaded files, validation results, mapping configuration, conflict resolution decisions, and preset management. Include actions for step navigation, file handling, validation status updates, and preset CRUD operations. Implement localStorage persistence for saving wizard progress and presets.",
+            "status": "in-progress",
+            "testStrategy": "Unit test store actions and state transitions, verify localStorage persistence works correctly, test state cleanup on wizard completion"
+          },
+          {
+            "id": 2,
+            "title": "Build multi-step wizard container component",
+            "description": "Create the main wizard container using react-hook-form with zod validation that orchestrates all wizard steps and manages form state",
+            "dependencies": [
+              "178.1"
+            ],
+            "details": "Implement frontend/src/components/wizard/ImportExportWizard.tsx as the main container. Use react-hook-form FormProvider for cross-step form management. Create step navigation with progress indicator, breadcrumbs, and validation gates between steps. Implement step components: FileUploadStep, ValidationStep, PreviewStep, MappingStep, ConflictResolutionStep, and ReviewStep. Add keyboard navigation support and proper ARIA attributes.",
+            "status": "pending",
+            "testStrategy": "Test wizard navigation flow with React Testing Library, verify form validation prevents invalid step progression, test keyboard navigation and accessibility"
+          },
+          {
+            "id": 3,
+            "title": "Implement file upload with drag-drop support",
+            "description": "Create file upload component using react-dropzone with support for multiple file formats, batch uploads, and visual feedback",
+            "dependencies": [
+              "178.2"
+            ],
+            "details": "Build frontend/src/components/wizard/FileUploadStep.tsx with react-dropzone integration. Support JSON, DXF, SVG, PNG, PDF file types with proper MIME type validation. Implement drag-drop zone with visual states (idle, active, accept, reject). Add file list management with remove, preview thumbnails, and size display. Create batch upload progress tracking with individual file status indicators.",
+            "status": "pending",
+            "testStrategy": "Test drag-drop functionality with different file types, verify file validation rejects invalid formats, test batch upload with progress tracking"
+          },
+          {
+            "id": 4,
+            "title": "Create preview components for imported content",
+            "description": "Build preview system using @react-pdf/renderer for PDFs and sharp for images with zoom, pan, and annotation capabilities",
+            "dependencies": [
+              "178.3"
+            ],
+            "details": "Implement frontend/src/components/wizard/PreviewComponents.tsx with specialized previews for each format. Use @react-pdf/renderer for PDF rendering with page navigation. Create image preview with zoom/pan using react-zoom-pan-pinch. Build JSON data preview with syntax highlighting and tree view. Add DXF layer preview with toggleable visibility. Implement real-time validation overlay showing detected issues.",
+            "status": "pending",
+            "testStrategy": "Visual regression tests for preview rendering, test zoom/pan functionality, verify validation issues are properly highlighted"
+          },
+          {
+            "id": 5,
+            "title": "Develop mapping configuration and conflict resolution UI",
+            "description": "Create mapping interface using react-select for field/layer mapping and side-by-side comparison for conflict resolution",
+            "dependencies": [
+              "178.4"
+            ],
+            "details": "Build frontend/src/components/wizard/MappingConfiguration.tsx with react-select for dropdown mapping. Create auto-mapping suggestions based on field names and types. Implement frontend/src/components/wizard/ConflictResolution.tsx with side-by-side diff view. Add merge strategy options (keep existing, overwrite, merge). Use Tanstack Query for real-time validation API calls with progress indicators. Create preset management UI for saving/loading mapping configurations.",
+            "status": "pending",
+            "testStrategy": "Test auto-mapping accuracy, verify conflict resolution strategies work correctly, E2E test complete import workflow with Playwright"
+          }
+        ]
       },
       {
         "id": 179,
@@ -3289,7 +3343,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-10-02T08:39:33.684Z",
+      "updated": "2025-10-02T09:53:23.107Z",
       "description": "Tasks for master context"
     }
   }
