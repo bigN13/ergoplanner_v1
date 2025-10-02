@@ -17,6 +17,8 @@ import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { List as VirtualList } from "react-window";
 import Fuse from "fuse.js";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 
 import { useDragPreview } from "@/hooks/useDragPreview";
 
@@ -780,7 +782,15 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
                                 draggable
                                 onDragStart={(e) => handleDragStart(e, symbolData)}
                                 className="group relative flex flex-1 cursor-move flex-col items-center rounded border border-gray-200 bg-white p-2 hover:border-blue-400 hover:bg-blue-50"
-                                title={symbolData.description || symbolData.label}
+                                data-tooltip-id="symbol-tooltip"
+                                data-tooltip-html={`
+                                  <div class="text-left">
+                                    <div class="font-semibold mb-1">${symbolData.label}</div>
+                                    ${symbolData.description ? `<div class="text-xs text-gray-300 mb-2">${symbolData.description}</div>` : ''}
+                                    ${symbolData.tags ? `<div class="flex flex-wrap gap-1 mb-1">${symbolData.tags.map(tag => `<span class="bg-gray-700 px-1 py-0.5 rounded text-xs">${tag}</span>`).join('')}</div>` : ''}
+                                    ${symbolData.standard ? `<div class="text-xs text-blue-300 mt-1">Standard: ${symbolData.standard}</div>` : ''}
+                                  </div>
+                                `}
                               >
                                 <button
                                   onClick={(e) => {
@@ -818,7 +828,15 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
                             draggable
                             onDragStart={(e) => handleDragStart(e, symbolData)}
                             className="group relative flex cursor-move items-center gap-2 rounded border border-gray-200 bg-white p-2 hover:border-blue-400 hover:bg-blue-50"
-                            title={symbolData.description || symbolData.label}
+                            data-tooltip-id="symbol-tooltip"
+                            data-tooltip-html={`
+                              <div class="text-left">
+                                <div class="font-semibold mb-1">${symbolData.label}</div>
+                                ${symbolData.description ? `<div class="text-xs text-gray-300 mb-2">${symbolData.description}</div>` : ''}
+                                ${symbolData.tags ? `<div class="flex flex-wrap gap-1 mb-1">${symbolData.tags.map(tag => `<span class="bg-gray-700 px-1 py-0.5 rounded text-xs">${tag}</span>`).join('')}</div>` : ''}
+                                ${symbolData.standard ? `<div class="text-xs text-blue-300 mt-1">Standard: ${symbolData.standard}</div>` : ''}
+                              </div>
+                            `}
                           >
                             <button
                               onClick={(e) => {
@@ -887,6 +905,20 @@ export default function SymbolLibrary({ onDragStart }: SymbolLibraryProps): Reac
           Drag symbols to the canvas to add them to your P&ID diagram
         </p>
       </div>
+
+      {/* Rich tooltip for symbol previews */}
+      <Tooltip
+        id="symbol-tooltip"
+        place="right"
+        style={{
+          backgroundColor: "#1f2937",
+          color: "#fff",
+          borderRadius: "0.5rem",
+          padding: "0.75rem",
+          maxWidth: "300px",
+          zIndex: 9999,
+        }}
+      />
     </div>
   );
 }
