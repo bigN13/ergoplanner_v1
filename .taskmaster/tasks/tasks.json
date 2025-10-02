@@ -3088,7 +3088,7 @@
               "178.3"
             ],
             "details": "Implement frontend/src/components/wizard/PreviewComponents.tsx with specialized previews for each format. Use @react-pdf/renderer for PDF rendering with page navigation. Create image preview with zoom/pan using react-zoom-pan-pinch. Build JSON data preview with syntax highlighting and tree view. Add DXF layer preview with toggleable visibility. Implement real-time validation overlay showing detected issues.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Visual regression tests for preview rendering, test zoom/pan functionality, verify validation issues are properly highlighted"
           },
           {
@@ -3099,7 +3099,7 @@
               "178.4"
             ],
             "details": "Build frontend/src/components/wizard/MappingConfiguration.tsx with react-select for dropdown mapping. Create auto-mapping suggestions based on field names and types. Implement frontend/src/components/wizard/ConflictResolution.tsx with side-by-side diff view. Add merge strategy options (keep existing, overwrite, merge). Use Tanstack Query for real-time validation API calls with progress indicators. Create preset management UI for saving/loading mapping configurations.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test auto-mapping accuracy, verify conflict resolution strategies work correctly, E2E test complete import workflow with Playwright"
           }
         ]
@@ -3343,7 +3343,7 @@
     ],
     "metadata": {
       "created": "2025-09-22T19:51:15.373Z",
-      "updated": "2025-10-02T10:17:03.470Z",
+      "updated": "2025-10-02T10:31:28.244Z",
       "description": "Tasks for master context"
     }
   }
